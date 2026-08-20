@@ -1,0 +1,24 @@
+{
+  "properties": [
+    {
+      "name": "spring.jpa.properties.hibernate.format_sql",
+      "type": "java.lang.Boolean",
+      "description": "Whether Hibernate should format SQL logged to the console."
+    },
+    {
+      "name": "spring.jpa.properties.hibernate.default_schema",
+      "type": "java.lang.String",
+      "description": "Default database schema used by Hibernate when generating SQL."
+    },
+    {
+      "name": "app.storage.upload-dir",
+      "type": "java.lang.String",
+      "description": "Directory used to store uploaded files."
+    },
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret key used to sign and validate JWT tokens."
+    }
+  ]
+}
