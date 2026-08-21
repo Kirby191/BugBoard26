@@ -11,7 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - bugboard_network
     restart: unless-stopped
@@ -24,7 +24,7 @@ services:
   # 2. AUTH SERVICE
   auth-service:
     build:
-      context: ../back-end/implementation/auth-service 
+      context: ./back-end/auth-service 
       dockerfile: Dockerfile
     container_name: bugboard_auth_service
     ports:
