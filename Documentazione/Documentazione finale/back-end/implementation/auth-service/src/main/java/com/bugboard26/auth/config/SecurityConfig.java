@@ -1,6 +1,5 @@
 package com.bugboard26.auth.config;
 
-import com.bugboard26.auth.exception.InvalidCredentialsException;
 import com.bugboard26.auth.jwt.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,24 +15,14 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Configurazione principale di Spring Security.
- * Fornisce i Bean infrastrutturali richiesti dall'UML (AuthenticationManager, PasswordEncoder)
- * e configura la catena di filtri per l'autenticazione stateless.
+ * Configurazione principale di Spring Security per l'Auth Service.
+ * Implementa la Funzionalità 1 definendo l'autenticazione stateless tramite JWT.
  */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
-    private final JwtAuthFilter jwtAuthFilter;
-
-    // Iniezione del filtro JWT come modellato dalla relazione "..> configures >" nell'UML
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
-        this.jwtAuthFilter = jwtAuthFilter;
-    }
-
     /**
-     * Rispecchia: +passwordEncoder() : PasswordEncoder
-     * Espone l'algoritmo BCrypt richiesto dai vincoli di progetto.
+     * Rispecchia la firma: +passwordEncoder() : PasswordEncoder
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -41,36 +30,27 @@ public class SecurityConfig {
     }
 
     /**
-     * Rispecchia: +authenticationManager(config : AuthenticationConfiguration) : AuthenticationManager
-     * Estrae e rende disponibile il manager di autenticazione di Spring Security.
+     * Rispecchia la firma: +authenticationManager(config : AuthenticationConfiguration) : AuthenticationManager
      */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws InvalidCredentialsException {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
     /**
-     * Rispecchia: +securityFilterChain(http : HttpSecurity) : SecurityFilterChain
-     * Configura la pipeline HTTP per garantire un'architettura rigorosamente stateless.
+     * Rispecchia la firma: +securityFilterChain(http : HttpSecurity) : SecurityFilterChain
+     * Iniezione diretta al metodo
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws InvalidCredentialsException {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter jwtAuthFilter) throws Exception {
         http
-                // Disabilitiamo il CSRF (Cross-Site Request Forgery) perché usiamo token JWT, non cookie di sessione
                 .csrf(AbstractHttpConfigurer::disable)
-
-                // Impostiamo la gestione delle sessioni come STATELESS (nessuna sessione salvata sul server)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Configuriamo le regole di autorizzazione degli endpoint
                 .authorizeHttpRequests(auth -> auth
-                        // Consentiamo l'accesso pubblico
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
-                        // Tutte le altre richieste richiedono un token valido
                         .anyRequest().authenticated()
                 )
-
-                // Inseriamo il nostro filtro JWT custom del filtro standard di Spring
+                // Il filtro viene iniettato a runtime solo quando il metodo viene richiamato
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

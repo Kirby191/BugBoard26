@@ -15,7 +15,7 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider implements TokenProvider {
 
-    // Attributi definiti nel Class Diagram (Auth.pdf)
+    // Attributi definiti nel Class Diagram
     @Value("${jwt.secret:9a2f8c4e1b7d5a3f8e6c4b2a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e}")
     private String secretKey;
 

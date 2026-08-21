@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
-                HttpStatus.UNAUTHORIZED.value(), // 401[cite: 4]
+                HttpStatus.UNAUTHORIZED.value(), // 401
                 "UNAUTHORIZED",
                 ex.getMessage()
         );
@@ -26,10 +26,25 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleEmailAlreadyExists(EmailAlreadyExistsException ex) {
         ErrorResponse error = new ErrorResponse(
                 LocalDateTime.now(),
-                HttpStatus.CONFLICT.value(), // 409[cite: 4]
+                HttpStatus.CONFLICT.value(), // 409
                 "CONFLICT",
                 ex.getMessage()
         );
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    /**
+     * Fallback per intercettare QUALSIASI altra eccezione non gestita,
+     * garantendo che l'endpoint REST restituisca sempre un DTO JSON pulito.
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        ErrorResponse error = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(), // 500
+                "INTERNAL_SERVER_ERROR",
+                "Si è verificato un errore inaspettato sul server."
+        );
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

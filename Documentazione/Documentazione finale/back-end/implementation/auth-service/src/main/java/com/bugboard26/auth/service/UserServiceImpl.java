@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     /**
-     * Autentica un utente e genera il token JWT. (Funzionalità 1)
+     * Autentica un utente e genera il token JWT.
      */
     @Override
     public JwtResponse authenticate(LoginRequest request) {
@@ -120,6 +120,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * Viene chiamato dal JwtAuthFilter per verificare l'utente.
      */
     @Override
+    @Nonnull
     public UserDetails loadUserByUsername(@Nonnull String email) throws UsernameNotFoundException {
         User user = findByEmail(email);
 
