@@ -7,6 +7,7 @@ import com.bugboard26.auth.model.Role;
  */
 public record JwtResponse(
         String token,
+        String type,
         Long id,
         String email,
         String username,

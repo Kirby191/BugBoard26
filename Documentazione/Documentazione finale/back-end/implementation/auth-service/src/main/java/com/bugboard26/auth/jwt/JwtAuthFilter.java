@@ -4,7 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.annotation.Nonnull;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,16 +21,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final TokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
 
-    public JwtAuthFilter(TokenProvider tokenProvider, UserDetailsService userDetailsService) {
+    // L'aggiunta di @Lazy spezza la dipendenza circolare con SecurityConfig e UserServiceImpl mantenendo invariato l'UML
+    public JwtAuthFilter(TokenProvider tokenProvider, @Lazy UserDetailsService userDetailsService) {
         this.tokenProvider = tokenProvider;
         this.userDetailsService = userDetailsService;
     }
 
     @Override
     protected void doFilterInternal(
-           @Nonnull HttpServletRequest request,
-           @Nonnull HttpServletResponse response,
-           @Nonnull FilterChain filterChain
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
     ) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
