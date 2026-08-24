@@ -8,7 +8,6 @@ import java.util.Optional;
 
 /**
  * Repository JPA per la gestione della persistenza dell'entità User.
- * Rif. Auth.pdf (UserRepository Subsystem).
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {

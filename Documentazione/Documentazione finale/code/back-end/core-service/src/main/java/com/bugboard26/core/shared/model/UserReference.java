@@ -1,5 +1,6 @@
 package com.bugboard26.core.shared.model;
 
+import com.bugboard26.core.issue_management.model.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

@@ -5,7 +5,7 @@ services:
     container_name: bugboard_postgres
     environment:
       POSTGRES_DB: bugboard_db
-      POSTGRES_USER: postgres      # Utente master admin temporaneo
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
     ports:
       - "5432:5432"
@@ -24,13 +24,35 @@ services:
   # 2. AUTH SERVICE
   auth-service:
     build:
-      context: ./back-end/auth-service 
+      context: ./back-end/auth-service
       dockerfile: Dockerfile
     container_name: bugboard_auth_service
     ports:
       - "8081:8081"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/bugboard_db?currentSchema=bugboard
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    networks:
+      - bugboard_network
+    restart: on-failure
+
+  # 3. CORE SERVICE
+  core-service:
+    build:
+      context: ./back-end/core-service
+      dockerfile: Dockerfile
+    container_name: bugboard_core_service
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/bugboard_db?currentSchema=bugboard
+      - SPRING_DATASOURCE_USERNAME=core_service_user
+      - SPRING_DATASOURCE_PASSWORD=core_sec_pwd
+    volumes:
+      # Evitiamo la perdita di allegati e file caricati dagli utenti, montando la cartella core_uploads del container in una cartella locale
+      - ./core_uploads:/app/core_uploads 
     depends_on:
       postgresql:
         condition: service_healthy

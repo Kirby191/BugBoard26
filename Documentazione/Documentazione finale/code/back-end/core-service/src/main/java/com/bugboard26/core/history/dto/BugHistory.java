@@ -6,8 +6,8 @@ import com.bugboard26.core.history.model.AuditAction;
 public record BugHistory(
     Long id,
     Long bugId,
-    String authorEmail,
+    LocalDateTime timestamp,
     AuditAction action,
-    String details,
-    LocalDateTime timestamp
+    String authorEmail,
+    String details
 ) {}
