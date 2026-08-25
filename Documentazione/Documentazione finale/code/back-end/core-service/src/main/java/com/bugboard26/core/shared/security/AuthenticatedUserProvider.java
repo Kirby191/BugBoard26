@@ -20,7 +20,7 @@ public class AuthenticatedUserProvider {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         // Verifica la presenza dell'autenticazione e che il Principal sia effettivamente l'ID (Long)
-        // come impostato nel nostro JwtAuthenticationFilter
+        // come impostato nel JwtAuthenticationFilter
         if (authentication != null && authentication.getPrincipal() instanceof Long userId) {
             return userId;
         }
@@ -38,7 +38,6 @@ public class AuthenticatedUserProvider {
         if (authentication != null) {
             authentication.getAuthorities();
             if (!authentication.getAuthorities().isEmpty()) {
-                // Estrae la prima authority. Nel nostro design l'utente ha un solo ruolo.
                 return authentication.getAuthorities().iterator().next().getAuthority();
             }
         }
@@ -47,8 +46,8 @@ public class AuthenticatedUserProvider {
     }
 
     /**
-     * Verifica in modo rapido se l'utente corrente possiede privilegi amministrativi.
-     * Metodo di utility per le logiche RBAC (Funzionalità 9).
+     * Verifica se l'utente corrente possiede privilegi amministrativi.
+     * Metodo di utility per le logiche RBAC.
      * @return true se l'utente è un amministratore, false altrimenti.
      */
     public boolean isCurrentAdmin() {
