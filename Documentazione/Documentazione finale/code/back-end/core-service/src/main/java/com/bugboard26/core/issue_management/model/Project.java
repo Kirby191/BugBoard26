@@ -37,7 +37,7 @@ public class Project {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // Mappa l'attributo 'lastModified' richiesto dai Class Diagram[cite: 4, 8]
+    // Mappa l'attributo 'lastModified'
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;

@@ -24,7 +24,7 @@ public class AuditRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Associa l'evento unicamente alle segnalazioni di tipo BUG (Funzionalità 12)[cite: 10]
+    // Associa l'evento unicamente alle segnalazioni di tipo BUG [cite: 10]
     @Column(name = "bug_id", nullable = false, updatable = false)
     private Long bugId;
 
