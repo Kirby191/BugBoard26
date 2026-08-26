@@ -5,14 +5,14 @@ import com.bugboard26.core.shared.dto.ErrorResponse;
 // Import History
 import com.bugboard26.core.history.exception.HistoryNotFoundException;
 
-/*// Import Issue Management
+// Import Issue Management
 import com.bugboard26.core.issue_management.exception.DuplicateProjectException;
 import com.bugboard26.core.issue_management.exception.InvalidIssueDomainException;
 import com.bugboard26.core.issue_management.exception.IssueNotFoundException;
 import com.bugboard26.core.issue_management.exception.ProjectNotFoundException;
 import com.bugboard26.core.issue_management.exception.UnauthorizedActionException;
 import com.bugboard26.core.issue_management.exception.UserNotFoundException;
-*/
+
 // Import Attachment
 import com.bugboard26.core.attachment.exception.FileNotFoundException;
 import com.bugboard26.core.attachment.exception.FileSizeExceededException;
@@ -43,7 +43,7 @@ public class GlobalExceptionHandler {
                 "Si è verificato un errore inaspettato sul server: " + ex.getMessage());
     }
 
-/*    // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // --- ISSUE MANAGEMENT ---
     // -------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleDuplicateProject(DuplicateProjectException ex) {
         return buildResponse(HttpStatus.CONFLICT, "CONFLICT", ex.getMessage());
     }
-*/
+
     // -------------------------------------------------------------------------
     // --- HISTORY ---
     // -------------------------------------------------------------------------
