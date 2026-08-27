@@ -5,8 +5,8 @@ import com.bugboard26.core.history.service.HistoryService;
 import com.bugboard26.core.issue_management.dto.AssignBug;
 import com.bugboard26.core.issue_management.dto.IssueResponse;
 //import com.bugboard26.core.issue_management.event.BugAssignedEvent;
-import com.bugboard26.core.issue_management.exception.IssueNotFoundException;
-import com.bugboard26.core.issue_management.exception.UserNotFoundException;
+import com.bugboard26.core.shared.exception.IssueNotFoundException;
+import com.bugboard26.core.shared.exception.UserNotFoundException;
 import com.bugboard26.core.issue_management.model.Issue;
 import com.bugboard26.core.issue_management.repository.IssueRepository;
 import com.bugboard26.core.shared.repository.ReadOnlyUserRepository;
@@ -16,8 +16,6 @@ import com.bugboard26.core.shared.security.AuthenticatedUserProvider;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 
 /**
  * Servizio isolato per l'assegnazione dei task (Funzionalità 4)[cite: 15].

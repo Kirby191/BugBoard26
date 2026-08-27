@@ -1,4 +1,4 @@
-package com.bugboard26.core.issue_management.exception;
+package com.bugboard26.core.shared.exception;
 
 public class ProjectNotFoundException extends RuntimeException {
     public ProjectNotFoundException(String message) {

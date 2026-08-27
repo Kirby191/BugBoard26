@@ -6,7 +6,7 @@ import com.bugboard26.core.history.service.HistoryService;
 import com.bugboard26.core.issue_management.dto.CreateIssue;
 import com.bugboard26.core.issue_management.dto.IssueResponse;
 import com.bugboard26.core.issue_management.dto.UpdateIssue;
-import com.bugboard26.core.issue_management.exception.IssueNotFoundException;
+import com.bugboard26.core.shared.exception.IssueNotFoundException;
 import com.bugboard26.core.issue_management.model.Enums.IssueStatus;
 import com.bugboard26.core.issue_management.model.Enums.IssueType;
 import com.bugboard26.core.issue_management.model.Issue;

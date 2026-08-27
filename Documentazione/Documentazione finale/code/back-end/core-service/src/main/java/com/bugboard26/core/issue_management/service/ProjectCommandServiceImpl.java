@@ -4,7 +4,7 @@ import com.bugboard26.core.issue_management.dto.CreateProject;
 import com.bugboard26.core.issue_management.dto.ProjectState;
 import com.bugboard26.core.issue_management.dto.UpdateProject;
 import com.bugboard26.core.issue_management.exception.DuplicateProjectException;
-import com.bugboard26.core.issue_management.exception.ProjectNotFoundException;
+import com.bugboard26.core.shared.exception.ProjectNotFoundException;
 import com.bugboard26.core.issue_management.model.Project;
 import com.bugboard26.core.issue_management.repository.ProjectRepository;
 import com.bugboard26.core.issue_management.validator.AccessControlValidator;

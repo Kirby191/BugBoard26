@@ -8,10 +8,7 @@ import com.bugboard26.core.history.exception.HistoryNotFoundException;
 // Import Issue Management
 import com.bugboard26.core.issue_management.exception.DuplicateProjectException;
 import com.bugboard26.core.issue_management.exception.InvalidIssueDomainException;
-import com.bugboard26.core.issue_management.exception.IssueNotFoundException;
-import com.bugboard26.core.issue_management.exception.ProjectNotFoundException;
 import com.bugboard26.core.issue_management.exception.UnauthorizedActionException;
-import com.bugboard26.core.issue_management.exception.UserNotFoundException;
 
 // Import Attachment
 import com.bugboard26.core.attachment.exception.FileNotFoundException;
@@ -21,7 +18,7 @@ import com.bugboard26.core.attachment.exception.StorageException;
 import com.bugboard26.core.attachment.exception.UnauthorizedFileAccessException;
 
 // Import Query & View
-// import com.bugboard26.core.query_view.exception.InvalidFilterException;
+import com.bugboard26.core.query_view.exception.InvalidFilterException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -107,8 +104,8 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "STORAGE_ERROR", ex.getMessage());
     }
 
-  /*  // -------------------------------------------------------------------------
-    // --- QUERY & VIEW --- (Funzionalità 3)
+    // -------------------------------------------------------------------------
+    // --- QUERY & VIEW --- 
     // -------------------------------------------------------------------------
 
     @ExceptionHandler(InvalidFilterException.class)
@@ -119,7 +116,7 @@ public class GlobalExceptionHandler {
     // -------------------------------------------------------------------------
     // UTILITY METHOD
     // -------------------------------------------------------------------------
-*/
+
     /**
      * Metodo di supporto per costruire il DTO evitando codice duplicato.
      */

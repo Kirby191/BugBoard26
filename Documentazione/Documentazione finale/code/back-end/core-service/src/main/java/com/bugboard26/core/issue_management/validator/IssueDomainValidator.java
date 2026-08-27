@@ -1,7 +1,7 @@
 package com.bugboard26.core.issue_management.validator;
 
 import com.bugboard26.core.issue_management.exception.InvalidIssueDomainException;
-import com.bugboard26.core.issue_management.exception.ProjectNotFoundException;
+import com.bugboard26.core.shared.exception.ProjectNotFoundException;
 import com.bugboard26.core.issue_management.model.Issue;
 import com.bugboard26.core.issue_management.model.Enums.IssueType;
 import com.bugboard26.core.issue_management.repository.ProjectRepository;
