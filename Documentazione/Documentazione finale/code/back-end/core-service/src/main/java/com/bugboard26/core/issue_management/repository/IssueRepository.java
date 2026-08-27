@@ -23,5 +23,5 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
     boolean existsByProjectIdAndTitle(Long projectId, String title);
 
     // I metodi standard come save(), findById(), existsById() e getReferenceById()
-    // sono ereditati nativamente da JpaRepository
+    // sono ereditati nativamente da JpaRepository[cite: 4].
 }

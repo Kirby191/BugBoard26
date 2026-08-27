@@ -42,8 +42,8 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
      */
     @Override
     @Transactional
-    public String storeFile(MultipartFile file) {
-        return uploadImage(file);
+    public String storeFile(Long issueId, MultipartFile file) {
+        return uploadImage(issueId, file);
     }
 
     /**
@@ -51,19 +51,20 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
      */
     @Override
     @Transactional
-    public String uploadImage(MultipartFile file) {
+    public String uploadImage(Long issueId, MultipartFile file) {
 
-        // 1. Validazione di sicurezza (MIME-Type e Dimensioni)
+        // 1. Validazione di sicurezza
         fileValidator.validate(file);
 
-        // 2. Generazione di un nome univoco (Prevenzione attacchi Path Traversal)
+        // 2. Generazione di un nome univoco
         String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
 
-        // 3. Delegazione dell'I/O allo StorageProvider (Docker Volume o AWS S3)
+        // 3. Delegazione dell'I/O allo StorageProvider
         String fileUrl = storageProvider.store(file, uniqueFileName);
 
-        // 4. Creazione dell'entità che traccia unicamente i metadati (Niente BLOB nel DB)
+        // 4. Creazione dell'entità TRACCIANDO L'ISSUE ID
         AttachmentMetadata metadata = AttachmentMetadata.builder()
+                .issueId(issueId)
                 .originalFileName(file.getOriginalFilename())
                 .mimeType(file.getContentType())
                 .fileSize(file.getSize())
@@ -73,7 +74,6 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
         // 5. Persistenza strutturata
         metadataRepository.save(metadata);
 
-        // Ritorna l'URL in modo che il modulo Issue possa referenziare l'allegato
         return fileUrl;
     }
 

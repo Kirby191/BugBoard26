@@ -12,8 +12,13 @@ public interface FileStorage {
     /**
      * Gestisce la persistenza del file in ingresso e la creazione dei metadati.
      *
-     * @param file L'oggetto MultipartFile ricevuto dal client REST.
+     * @param issueId
+     * @param file    L'oggetto MultipartFile ricevuto dal client REST.
      * @return L'URI o URL univoco (String) di puntamento alla risorsa salvata.
      */
-    String storeFile(MultipartFile file);
+    /*
+     * TODO: Ricordarsi di aggiornare la documentazione per specificare la modifica data dall'implementazione
+     *  reale nel database.
+     */
+    String storeFile(Long issueId, MultipartFile file);
 }
