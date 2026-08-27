@@ -1,7 +1,7 @@
 package com.bugboard26.core.issue_management.controller;
 
 import com.bugboard26.core.issue_management.dto.CreateProject;
-import com.bugboard26.core.issue_management.dto.ProjectState;
+import com.bugboard26.core.shared.dto.ProjectState;
 import com.bugboard26.core.issue_management.dto.UpdateProject;
 import com.bugboard26.core.issue_management.service.ProjectCommandService;
 import jakarta.validation.Valid;

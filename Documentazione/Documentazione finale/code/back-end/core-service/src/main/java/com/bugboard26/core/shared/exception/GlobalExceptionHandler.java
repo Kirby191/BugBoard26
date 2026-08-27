@@ -105,7 +105,7 @@ public class GlobalExceptionHandler {
     }
 
     // -------------------------------------------------------------------------
-    // --- QUERY & VIEW --- 
+    // --- QUERY & VIEW ---
     // -------------------------------------------------------------------------
 
     @ExceptionHandler(InvalidFilterException.class)

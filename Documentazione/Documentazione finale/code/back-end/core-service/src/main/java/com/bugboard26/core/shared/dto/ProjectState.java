@@ -1,4 +1,4 @@
-package com.bugboard26.core.issue_management.dto;
+package com.bugboard26.core.shared.dto;
 
 import java.time.LocalDateTime;
 
