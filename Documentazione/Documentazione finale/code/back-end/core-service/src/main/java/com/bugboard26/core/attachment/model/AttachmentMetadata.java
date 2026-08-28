@@ -24,10 +24,6 @@ public class AttachmentMetadata {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Associazione alla segnalazione di riferimento (Foreign Key)
-    @Column(name = "issue_id", nullable = false, updatable = false)
-    private Long issueId;
-
     @Column(name = "filename", nullable = false, updatable = false)
     private String originalFileName;
 

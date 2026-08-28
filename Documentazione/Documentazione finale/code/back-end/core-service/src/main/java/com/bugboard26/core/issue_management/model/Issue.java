@@ -49,6 +49,9 @@ public class Issue {
     @Column(name = "due_date")
     private LocalDate dueDate; // Nullable
 
+    @Column(name = "attachment_url", length = 500)
+    private String attachmentUrl; // Nullable
+
     // Chiavi esterne mappate come ID (Loose Coupling) per separazione logica
     @Column(name = "project_id", nullable = false)
     private Long projectId;

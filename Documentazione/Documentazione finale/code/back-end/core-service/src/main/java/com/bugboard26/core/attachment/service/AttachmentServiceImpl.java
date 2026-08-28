@@ -42,8 +42,8 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
      */
     @Override
     @Transactional
-    public String storeFile(Long issueId, MultipartFile file) {
-        return uploadImage(issueId, file);
+    public String storeFile(MultipartFile file) {
+        return uploadImage(file);
     }
 
     /**
@@ -51,20 +51,19 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
      */
     @Override
     @Transactional
-    public String uploadImage(Long issueId, MultipartFile file) {
+    public String uploadImage(MultipartFile file) {
 
         // 1. Validazione di sicurezza
         fileValidator.validate(file);
 
         // 2. Generazione di un nome univoco
-        String uniqueFileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
         // 3. Delegazione dell'I/O allo StorageProvider
         String fileUrl = storageProvider.store(file, uniqueFileName);
 
         // 4. Creazione dell'entità TRACCIANDO L'ISSUE ID
         AttachmentMetadata metadata = AttachmentMetadata.builder()
-                .issueId(issueId)
                 .originalFileName(file.getOriginalFilename())
                 .mimeType(file.getContentType())
                 .fileSize(file.getSize())

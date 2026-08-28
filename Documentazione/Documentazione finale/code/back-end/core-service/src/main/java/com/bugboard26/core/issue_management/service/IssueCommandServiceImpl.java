@@ -52,23 +52,25 @@ public class IssueCommandServiceImpl implements IssueCommandService {
 
         Long authorId = userProvider.getCurrentUserId();
 
-        // 2. Creazione Entità
+        // 2. Deleghiamo il salvataggio del file e otteniamo l'URL
+        String uploadedFileUrl = null;
+        if (file != null && !file.isEmpty()) {
+            uploadedFileUrl = fileStorage.storeFile(file);
+        }
+
+        // 3. Creazione Entità INCLUDENDO l'URL
         Issue issue = Issue.builder()
                 .title(request.title())
                 .description(request.description())
                 .type(request.type())
-                .status(IssueStatus.TODO) // Stato iniziale fisso
+                .status(IssueStatus.TODO)
                 .priority(request.priority())
                 .projectId(request.projectId())
                 .reporterId(authorId)
+                .attachmentUrl(uploadedFileUrl)
                 .build();
 
         Issue savedIssue = issueRepository.save(issue);
-
-        // 3. Salvataggio Allegato (Opzionale)
-        if (file != null && !file.isEmpty()) {
-            fileStorage.storeFile(savedIssue.getId(), file);
-        }
 
         // 4. Record Eventuale History
         if (savedIssue.getType() == IssueType.BUG) {
