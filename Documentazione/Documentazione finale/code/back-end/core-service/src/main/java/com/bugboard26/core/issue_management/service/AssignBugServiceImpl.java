@@ -5,6 +5,7 @@ import com.bugboard26.core.history.service.HistoryService;
 import com.bugboard26.core.issue_management.dto.AssignBug;
 import com.bugboard26.core.issue_management.dto.IssueResponse;
 //import com.bugboard26.core.issue_management.event.BugAssignedEvent;
+import com.bugboard26.core.issue_management.event.BugAssignedEvent;
 import com.bugboard26.core.shared.exception.IssueNotFoundException;
 import com.bugboard26.core.shared.exception.UserNotFoundException;
 import com.bugboard26.core.issue_management.model.Issue;
@@ -16,6 +17,8 @@ import com.bugboard26.core.shared.security.AuthenticatedUserProvider;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 /**
  * Servizio isolato per l'assegnazione dei task (Funzionalità 4)[cite: 15].
@@ -81,13 +84,13 @@ public class AssignBugServiceImpl implements AssignBugService {
                 "Bug assegnato all'utente con ID: " + request.assigneeId()
         );
 
-        /* 7. Pubblicazione ASINCRONA dell'evento per il modulo Query & View (Notifiche)
+        // 7. Pubblicazione ASINCRONA dell'evento per il modulo Query & View (Notifiche)
         eventPublisher.publishEvent(new BugAssignedEvent(
                 savedIssue.getId(),
                 request.assigneeId(),
                 LocalDateTime.now()
         ));
-        */
+
         // 8. Ritorno il DTO
         return new IssueResponse(
                 savedIssue.getId(),
