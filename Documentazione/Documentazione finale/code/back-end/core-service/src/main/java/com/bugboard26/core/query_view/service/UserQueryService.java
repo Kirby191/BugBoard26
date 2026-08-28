@@ -1,6 +1,6 @@
 package com.bugboard26.core.query_view.service;
 
-import com.bugboard26.core.query_view.dto.UserReference;
+import com.bugboard26.core.query_view.dto.UserReferenceDTO;
 
 import java.util.List;
 
@@ -15,6 +15,6 @@ public interface UserQueryService {
      *
      * @return Lista di DTO degli utenti in sola lettura.
      */
-    List<UserReference> getUsers();
+    List<UserReferenceDTO> getUsers();
 
 }
