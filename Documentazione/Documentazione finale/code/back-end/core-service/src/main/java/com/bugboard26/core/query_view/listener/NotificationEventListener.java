@@ -30,7 +30,7 @@ public class NotificationEventListener {
     @Async // Abilita l'esecuzione asincrona per non bloccare il thread della richiesta originale
     public void handleBugAssigned(BugAssignedEvent event) {
 
-        // 1. Estrazione dei dati direttamente dal Java Record dell'evento[cite: 2]
+        // 1. Estrazione dei dati direttamente dal Java Record dell'evento
         Long assigneeId = event.assigneeId();
         Long bugId = event.bugId();
 
@@ -38,6 +38,6 @@ public class NotificationEventListener {
         String message = "Ti è stato assegnato il Bug #" + bugId;
 
         // 3. Delegazione al NotificationService locale per la persistenza della notifica[cite: 2, 4]
-        notificationService.createNotification(assigneeId, message);
+        notificationService.createNotification(assigneeId, bugId, message);
     }
 }

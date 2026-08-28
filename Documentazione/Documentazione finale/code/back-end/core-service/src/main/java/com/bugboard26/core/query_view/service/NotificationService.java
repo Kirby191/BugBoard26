@@ -13,9 +13,13 @@ public interface NotificationService {
      * Crea una nuova notifica. Invocato localmente dal NotificationEventListener.
      *
      * @param assigneeId L'ID dell'utente a cui è stato assegnato il bug.
+     * @param bugId      L'ID del bug assegnato.
      * @param message    Il messaggio della notifica.
      */
-    void createNotification(Long assigneeId, String message);
+    // TODO: per mantenere la consistenza con il DB (Notification entity),
+    //  c'è bisogno di passare anche il bugId. Far notare la differenza con l'UML,
+    //  dove non era stato previsto questo parametro.
+    void createNotification(Long assigneeId, Long bugId, String message);
 
     // TODO: Non accetta l'userId come parametro per ragioni di sicurezza (prevenzione IDOR).
     //  ricordarsi di specificare ciò nella documentazione_finale poichè differisce dall'UML,
@@ -36,3 +40,4 @@ public interface NotificationService {
      */
     void markAsRead(Long notificationId);
 }
+
