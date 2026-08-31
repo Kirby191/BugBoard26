@@ -39,7 +39,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0 # Obbligatorio per SonarQube per analizzare la history dei commit
 
@@ -51,13 +51,13 @@ jobs:
           cache: 'maven' # Velocizza le build successive
 
       - name: Cache SonarQube packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-# Analisi del Core Service
+      # Analisi del Core Service
       - name: Build and Analyze core-service
         working-directory: 'Documentazione/Documentazione finale/code/back-end/core-service'
         env:
@@ -66,7 +66,8 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           chmod +x ./mvnw
-          ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=bugboard26_core_service
+          ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=bugboard26_core_service \
+          -Dsonar.organization=kirby191
 
       # Analisi dell'Auth Service
       - name: Build and Analyze auth-service
@@ -77,4 +78,5 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           chmod +x ./mvnw
-          ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=bugboard26_auth_service
+          ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=bugboard26_auth_service \
+          -Dsonar.organization=kirby191
