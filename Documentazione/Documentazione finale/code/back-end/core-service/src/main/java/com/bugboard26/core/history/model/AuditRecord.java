@@ -40,7 +40,12 @@ public class AuditRecord {
 
     // Relazione mappata sulla FK 'performed_by_user_id' e associata al ruolo 'author'[cite: 3, 10]
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "performed_by_user_id", nullable = false, updatable = false)
+    @JoinColumn(
+            name = "performed_by_user_id",
+            nullable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT)
+    )
     private UserReference author;
 
 }

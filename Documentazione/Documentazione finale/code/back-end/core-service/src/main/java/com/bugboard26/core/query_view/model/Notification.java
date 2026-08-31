@@ -25,7 +25,12 @@ public class Notification {
 
     // Relazione modellata come associazione verso UserReference
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipient_user_id", nullable = false, updatable = false)
+    @JoinColumn(
+            name = "recipient_user_id",
+            nullable = false,
+            updatable = false,
+            foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT) // FIX
+    )
     private UserReference recipient;
 
     // Manteniamo il riferimento loose-coupled all'Issue tramite l'ID

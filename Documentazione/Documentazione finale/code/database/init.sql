@@ -39,7 +39,7 @@ CREATE TABLE projects (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. Tabella Issue (Con FOREIGN KEYS implementate)
+-- 4. Tabella Issue
 CREATE TABLE issues (
     id BIGSERIAL PRIMARY KEY,
     title VARCHAR(200) NOT NULL,
@@ -47,7 +47,8 @@ CREATE TABLE issues (
     type VARCHAR(30) NOT NULL,     
     status VARCHAR(20) NOT NULL,   
     priority VARCHAR(20), 
-    due_date DATE,        
+    due_date DATE,
+    attachment_url VARCHAR(500),
     project_id BIGINT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     reporter_id BIGINT NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
     assignee_id BIGINT REFERENCES users(id) ON DELETE SET NULL, 

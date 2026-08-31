@@ -54,7 +54,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                     new UsernamePasswordAuthenticationToken(request.email(), request.password())
             );
         } catch (AuthenticationException e) {
-            // SOLLEVIAMO l'eccezione custom modellata nell'UML se le credenziali sono errate
             throw new InvalidCredentialsException("Credenziali non valide per l'email: " + request.email());
         }
 
