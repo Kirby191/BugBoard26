@@ -57,9 +57,9 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      # Analisi del Core Service
+# Analisi del Core Service
       - name: Build and Analyze core-service
-        working-directory: ./BugBoard26/Documentazione/Documentazione finale/code/back-end/core-service
+        working-directory: 'Documentazione/Documentazione finale/code/back-end/core-service'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -68,7 +68,7 @@ jobs:
 
       # Analisi dell'Auth Service
       - name: Build and Analyze auth-service
-        working-directory: ./BugBoard26/Documentazione/Documentazione finale/code/back-end/auth-service
+        working-directory: 'Documentazione/Documentazione finale/code/back-end/auth-service'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
