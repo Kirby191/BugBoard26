@@ -44,7 +44,7 @@ jobs:
           fetch-depth: 0 # Obbligatorio per SonarQube per analizzare la history dei commit
 
       - name: Set up Amazon Corretto Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'corretto'
@@ -57,14 +57,16 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-# Analisi del Core Service
+      # Analisi del Core Service
       - name: Build and Analyze core-service
         working-directory: 'Documentazione/Documentazione finale/code/back-end/core-service'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=bugboard26_core_service
+        run: |
+          chmod +x ./mvnw
+          ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=bugboard26_core_service
 
       # Analisi dell'Auth Service
       - name: Build and Analyze auth-service
@@ -73,4 +75,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=bugboard26_auth_service
+        run: |
+          chmod +x ./mvnw
+          ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=bugboard26_auth_service
