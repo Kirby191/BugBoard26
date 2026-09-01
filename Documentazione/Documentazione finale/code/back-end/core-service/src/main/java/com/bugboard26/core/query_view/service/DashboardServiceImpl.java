@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 /**
  * Implementazione del Query Layer per il calcolo delle metriche della Dashboard.
@@ -39,7 +40,7 @@ public class DashboardServiceImpl implements DashboardService {
         int criticalCount = issueRepository.countByPriority(IssuePriority.CRITICAL);
 
         // Calcola quante segnalazioni sono scadute e non ancora completate
-        int overdueCount = issueRepository.countByDueDateBeforeAndStatusNot(LocalDate.now(), IssueStatus.DONE);
+        int overdueCount = issueRepository.countByDueDateBeforeAndStatusNot(LocalDate.now(ZoneId.systemDefault()), IssueStatus.DONE);
 
         // 2. Metriche Sensibili al Contesto (RBAC & Identità)
         Long currentUserId = userProvider.getCurrentUserId();

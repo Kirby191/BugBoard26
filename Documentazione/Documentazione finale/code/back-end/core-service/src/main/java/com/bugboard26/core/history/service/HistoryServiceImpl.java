@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -51,7 +52,7 @@ public class HistoryServiceImpl implements HistoryService {
                 .author(authorRef)
                 .action(action)
                 .details(details)
-                .timestamp(LocalDateTime.now())
+                .timestamp(LocalDateTime.now(ZoneId.systemDefault()))
                 .build();
 
         // Salva immutabilmente l'evento nel database tramite AuditRepository[cite: 9].

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /**
  * Servizio isolato per l'assegnazione dei task (Funzionalità 4)[cite: 15].
@@ -88,7 +89,7 @@ public class AssignBugServiceImpl implements AssignBugService {
         eventPublisher.publishEvent(new BugAssignedEvent(
                 savedIssue.getId(),
                 request.assigneeId(),
-                LocalDateTime.now()
+                LocalDateTime.now(ZoneId.systemDefault())
         ));
 
         // 8. Ritorno il DTO

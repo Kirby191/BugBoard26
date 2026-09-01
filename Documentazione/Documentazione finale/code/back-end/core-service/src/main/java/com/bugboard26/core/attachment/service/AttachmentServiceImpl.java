@@ -39,20 +39,10 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
 
     /**
      * Implementazione del FileStorage esportato verso l'Issue Management.
-     * Delega l'elaborazione al metodo interno.
      */
     @Override
     @Transactional
     public String storeFile(MultipartFile file) {
-        return uploadImage(file);
-    }
-
-    /**
-     * Flusso completo di validazione, archiviazione fisica e tracciamento metadati.
-     */
-    @Override
-    @Transactional
-    public String uploadImage(MultipartFile file) {
 
         // 1. Validazione di sicurezza
         fileValidator.validate(file);

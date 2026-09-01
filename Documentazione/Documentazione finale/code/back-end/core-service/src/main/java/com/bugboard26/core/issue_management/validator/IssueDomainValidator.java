@@ -8,6 +8,7 @@ import com.bugboard26.core.issue_management.repository.ProjectRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 /**
  * Componente dedicato alla convalida delle regole di business e invarianti di dominio.
@@ -54,7 +55,7 @@ public class IssueDomainValidator {
      * @throws InvalidIssueDomainException Se la data è nel passato.
      */
     public void validateDueDate(LocalDate dueDate) {
-        if (dueDate != null && dueDate.isBefore(LocalDate.now())) {
+        if (dueDate != null && dueDate.isBefore(LocalDate.now(ZoneId.systemDefault()))) {
             throw new InvalidIssueDomainException("Errore di Dominio: La data di scadenza non può essere nel passato.");
         }
     }
