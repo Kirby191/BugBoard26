@@ -92,16 +92,24 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
         return metadata.getFileUrl();
     }
 
+
     /**
-     * Genera un nome file univoco basato su UUID, preservando l'estensione originale.
+     * Strips any malicious path sequences (e.g., "../../") from the filename
+     * and prepends a UUID to guarantee uniqueness.
      */
     private String generateUniqueFileName(String originalFilename) {
-        String extension = StringUtils.getFilenameExtension(originalFilename);
-
-        if (extension != null && !extension.isEmpty()) {
-            return UUID.randomUUID() + "." + extension;
+        if (originalFilename == null || originalFilename.isBlank()) {
+            return UUID.randomUUID().toString();
         }
 
-        return UUID.randomUUID().toString();
+        // Spring utility that extracts just the file name, ignoring any path prefix
+        String cleanFileName = StringUtils.getFilename(originalFilename);
+
+        // Fallback in case the filename is somehow empty after cleaning
+        if (cleanFileName.isBlank()) {
+            return UUID.randomUUID().toString();
+        }
+
+        return UUID.randomUUID() + "_" + cleanFileName;
     }
 }
