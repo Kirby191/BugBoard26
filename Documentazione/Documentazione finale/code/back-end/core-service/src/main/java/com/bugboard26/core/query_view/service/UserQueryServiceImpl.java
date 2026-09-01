@@ -1,7 +1,7 @@
 package com.bugboard26.core.query_view.service;
 
 import com.bugboard26.core.query_view.dto.UserReferenceDTO;
-import com.bugboard26.core.issue_management.repository.ReadOnlyUserRepository;
+import com.bugboard26.core.query_view.repository.UserReadRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,9 +13,9 @@ import java.util.List;
 @Service
 public class UserQueryServiceImpl implements UserQueryService {
 
-    private final ReadOnlyUserRepository userRepository;
+    private final UserReadRepository userRepository;
 
-    public UserQueryServiceImpl(ReadOnlyUserRepository userRepository) {
+    public UserQueryServiceImpl(UserReadRepository userRepository) {
         this.userRepository = userRepository;
     }
 
