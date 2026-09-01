@@ -9,13 +9,14 @@ import com.bugboard26.core.shared.security.AuthenticatedUserProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.util.StringUtils;
 
 import java.util.UUID;
 
 /**
  * Implementazione core del sottosistema Attachment.
  * Agisce da collante tra le validazioni, lo Storage fisico (Strategy Pattern)
- * e la persistenza dei metadati su PostgreSQL[cite: 3, 4].
+ * e la persistenza dei metadati su PostgreSQL.
  */
 @Service
 public class AttachmentServiceImpl implements FileStorage, AttachmentService {
@@ -57,7 +58,7 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
         fileValidator.validate(file);
 
         // 2. Generazione di un nome univoco
-        String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String uniqueFileName = generateUniqueFileName(file.getOriginalFilename());
 
         // 3. Delegazione dell'I/O allo StorageProvider
         String fileUrl = storageProvider.store(file, uniqueFileName);
@@ -89,5 +90,18 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
                 .orElseThrow(() -> new FileNotFoundException("Allegato non trovato con ID: " + fileId));
 
         return metadata.getFileUrl();
+    }
+
+    /**
+     * Genera un nome file univoco basato su UUID, preservando l'estensione originale.
+     */
+    private String generateUniqueFileName(String originalFilename) {
+        String extension = StringUtils.getFilenameExtension(originalFilename);
+
+        if (extension != null && !extension.isEmpty()) {
+            return UUID.randomUUID() + "." + extension;
+        }
+
+        return UUID.randomUUID().toString();
     }
 }
