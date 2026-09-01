@@ -49,10 +49,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public JwtResponse authenticate(LoginRequest request) {
         try {
-            // 1. Deleghiamo a Spring Security la validazione delle credenziali
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.email(), request.password())
-            );
+            // 1. Deleghiamo a Spring Security la validazione delle credenziali.
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.email(), request.password()));
         } catch (AuthenticationException e) {
             throw new InvalidCredentialsException("Credenziali non valide per l'email: " + request.email());
         }
