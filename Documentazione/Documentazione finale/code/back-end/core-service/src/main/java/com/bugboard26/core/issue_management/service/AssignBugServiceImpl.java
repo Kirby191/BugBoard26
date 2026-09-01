@@ -9,7 +9,7 @@ import com.bugboard26.core.shared.exception.IssueNotFoundException;
 import com.bugboard26.core.shared.exception.UserNotFoundException;
 import com.bugboard26.core.issue_management.model.Issue;
 import com.bugboard26.core.issue_management.repository.IssueRepository;
-import com.bugboard26.core.shared.repository.ReadOnlyUserRepository;
+import com.bugboard26.core.issue_management.repository.ReadOnlyUserRepository;
 import com.bugboard26.core.issue_management.validator.AccessControlValidator;
 import com.bugboard26.core.issue_management.validator.IssueDomainValidator;
 import com.bugboard26.core.shared.security.AuthenticatedUserProvider;
