@@ -27,15 +27,15 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     @Transactional(readOnly = true)
     public List<BugHistory> getHistoryForBug(Long bugId) {
-        // Estrae il log in sola lettura interrogando AuditRepository[cite: 9]
+        // Estrae il log in sola lettura interrogando AuditRepository
         return auditRepository.findByBugIdOrderByTimestampDesc(bugId).stream()
-                .map(record -> new BugHistory(
-                        record.getId(),
-                        record.getBugId(),
-                        record.getTimestamp(),
-                        record.getAction(),
-                        record.getAuthor().getEmail(),
-                        record.getDetails()
+                .map(auditRecord -> new BugHistory(
+                        auditRecord.getId(),
+                        auditRecord.getBugId(),
+                        auditRecord.getTimestamp(),
+                        auditRecord.getAction(),
+                        auditRecord.getAuthor().getEmail(),
+                        auditRecord.getDetails()
                 ))
                 .toList(); // Sintassi snella introdotta in Java 16+
     }
@@ -47,7 +47,7 @@ public class HistoryServiceImpl implements HistoryService {
         // Questo rispecchia il metodo getReferenceById(id) mostrato nel diagramma[cite: 9].
         UserReference authorRef = entityManager.getReference(UserReference.class, authorId);
 
-        AuditRecord record = AuditRecord.builder()
+        AuditRecord auditRecord = AuditRecord.builder()
                 .bugId(bugId)
                 .author(authorRef)
                 .action(action)
@@ -56,6 +56,6 @@ public class HistoryServiceImpl implements HistoryService {
                 .build();
 
         // Salva immutabilmente l'evento nel database tramite AuditRepository[cite: 9].
-        auditRepository.save(record);
+        auditRepository.save(auditRecord);
     }
 }

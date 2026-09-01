@@ -24,7 +24,6 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
     private final StorageProvider storageProvider;
     private final AttachmentMetadataRepository metadataRepository;
     private final FileValidator fileValidator;
-    private final AuthenticatedUserProvider authenticatedUserProvider;
 
     // Iniezione di tutte le dipendenze richieste dal Class Diagram
     public AttachmentServiceImpl(StorageProvider storageProvider,
@@ -34,7 +33,6 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
         this.storageProvider = storageProvider;
         this.metadataRepository = metadataRepository;
         this.fileValidator = fileValidator;
-        this.authenticatedUserProvider = authenticatedUserProvider;
     }
 
     /**
@@ -73,9 +71,6 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
     @Override
     @Transactional(readOnly = true)
     public String getFileUrl(Long fileId) {
-        // Verifica preliminare dell'utente richiedente (per sicurezza e logging)
-        Long currentUserId = authenticatedUserProvider.getCurrentUserId();
-
         AttachmentMetadata metadata = metadataRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException("Allegato non trovato con ID: " + fileId));
 

@@ -4,7 +4,6 @@ import com.bugboard26.core.history.model.AuditAction;
 import com.bugboard26.core.history.service.HistoryService;
 import com.bugboard26.core.issue_management.dto.AssignBug;
 import com.bugboard26.core.issue_management.dto.IssueResponse;
-//import com.bugboard26.core.issue_management.event.BugAssignedEvent;
 import com.bugboard26.core.issue_management.event.BugAssignedEvent;
 import com.bugboard26.core.shared.exception.IssueNotFoundException;
 import com.bugboard26.core.shared.exception.UserNotFoundException;
