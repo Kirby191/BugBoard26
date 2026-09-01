@@ -1,10 +1,10 @@
 package com.bugboard26.core.query_view.dto;
 
-import com.bugboard26.core.issue_management.model.Enums.IssuePriority;
-import com.bugboard26.core.issue_management.model.Enums.IssueType;
-import com.bugboard26.core.issue_management.model.Enums.IssueStatus;
-import com.bugboard26.core.query_view.dto.Enums.SortBy;
-import com.bugboard26.core.query_view.dto.Enums.SortDirection;
+import com.bugboard26.core.issue_management.model.enums.IssuePriority;
+import com.bugboard26.core.issue_management.model.enums.IssueType;
+import com.bugboard26.core.issue_management.model.enums.IssueStatus;
+import com.bugboard26.core.query_view.dto.enums.SortBy;
+import com.bugboard26.core.query_view.dto.enums.SortDirection;
 
 public record IssueFilter(
         Long projectId,

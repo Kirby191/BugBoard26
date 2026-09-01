@@ -1,4 +1,4 @@
-package com.bugboard26.core.shared.repository;
+package com.bugboard26.core.issue_management.repository;
 
 import com.bugboard26.core.shared.model.UserReference;
 import org.springframework.data.jpa.repository.JpaRepository;

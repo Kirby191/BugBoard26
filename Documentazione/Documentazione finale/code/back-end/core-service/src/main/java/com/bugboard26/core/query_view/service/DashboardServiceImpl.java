@@ -1,8 +1,8 @@
 package com.bugboard26.core.query_view.service;
 
-import com.bugboard26.core.issue_management.model.Enums.IssuePriority;
-import com.bugboard26.core.issue_management.model.Enums.IssueStatus;
-import com.bugboard26.core.issue_management.model.Enums.IssueType;
+import com.bugboard26.core.issue_management.model.enums.IssuePriority;
+import com.bugboard26.core.issue_management.model.enums.IssueStatus;
+import com.bugboard26.core.issue_management.model.enums.IssueType;
 import com.bugboard26.core.query_view.dto.DashboardStats;
 import com.bugboard26.core.query_view.repository.IssueReadRepository;
 import com.bugboard26.core.shared.security.AuthenticatedUserProvider;

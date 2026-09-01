@@ -11,7 +11,7 @@ import com.bugboard26.core.query_view.repository.ProjectReadRepository;
 import com.bugboard26.core.shared.exception.IssueNotFoundException;
 import com.bugboard26.core.issue_management.model.Project;
 import com.bugboard26.core.shared.model.UserReference;
-import com.bugboard26.core.shared.repository.ReadOnlyUserRepository;
+import com.bugboard26.core.query_view.repository.UserReadRepository;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,12 +27,12 @@ public class IssueQueryServiceImpl implements IssueQueryService {
 
     private final IssueReadRepository issueRepository;
     private final ProjectReadRepository projectRepository;
-    private final ReadOnlyUserRepository userRepository;
-    private final HistoryService historyService;;
+    private final UserReadRepository userRepository;
+    private final HistoryService historyService;
 
     public IssueQueryServiceImpl(IssueReadRepository issueRepository,
                                  ProjectReadRepository projectRepository,
-                                 ReadOnlyUserRepository userRepository,
+                                 UserReadRepository userRepository,
                                  HistoryService historyService) {
         this.issueRepository = issueRepository;
         this.projectRepository = projectRepository;

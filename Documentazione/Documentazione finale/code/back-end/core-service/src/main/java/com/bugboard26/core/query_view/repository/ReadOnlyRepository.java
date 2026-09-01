@@ -13,9 +13,9 @@ import java.util.Optional;
  * L'annotazione @NoRepositoryBean impedisce a Spring di istanziarla direttamente.
  */
 @NoRepositoryBean
-public interface ReadOnlyRepository<T, ID> extends Repository<T, ID> {
+public interface ReadOnlyRepository<T, K> extends Repository<T, K> {
 
-    Optional<T> findById(ID id);
+    Optional<T> findById(K id);
 
     List<T> findAll();
 

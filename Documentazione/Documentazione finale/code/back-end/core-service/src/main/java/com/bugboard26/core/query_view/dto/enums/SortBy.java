@@ -1,4 +1,4 @@
-package com.bugboard26.core.query_view.dto.Enums;
+package com.bugboard26.core.query_view.dto.enums;
 
 public enum SortBy {
     CREATED_AT,

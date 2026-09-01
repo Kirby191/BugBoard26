@@ -28,8 +28,7 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
     // Iniezione di tutte le dipendenze richieste dal Class Diagram
     public AttachmentServiceImpl(StorageProvider storageProvider,
                                  AttachmentMetadataRepository metadataRepository,
-                                 FileValidator fileValidator,
-                                 AuthenticatedUserProvider authenticatedUserProvider) {
+                                 FileValidator fileValidator) {
         this.storageProvider = storageProvider;
         this.metadataRepository = metadataRepository;
         this.fileValidator = fileValidator;
