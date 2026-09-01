@@ -1,7 +1,7 @@
 package com.bugboard26.core.query_view.service;
 
 import com.bugboard26.core.query_view.dto.UserReferenceDTO;
-import com.bugboard26.core.shared.repository.ReadOnlyUserRepository;
+import com.bugboard26.core.issue_management.repository.ReadOnlyUserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
