@@ -1,6 +1,5 @@
 package com.bugboard26.core.service;
 
-import com.bugboard26.core.attachment.service.FileStorage;
 import com.bugboard26.core.history.model.AuditAction;
 import com.bugboard26.core.history.model.AuditRecord;
 import com.bugboard26.core.history.repository.AuditRepository;
@@ -54,7 +53,6 @@ class UnitTests {
     @Mock private HistoryServiceImpl historyService;
     @Mock private ApplicationEventPublisher eventPublisher;
     @Mock private AuthenticatedUserProvider userProvider;
-    @Mock private FileStorage fileStorage;
     @Mock private AuditRepository auditRepository;
     @Mock private EntityManager entityManager;
 
@@ -106,7 +104,7 @@ class UnitTests {
         assertNotNull(response);
         assertEquals(200L, testBug.getAssigneeId());
         verify(historyService, times(1)).recordEvent(eq(1L), eq(999L), eq(AuditAction.ASSIGNED), anyString());
-        verify(eventPublisher, times(1)).publishEvent((Object) any(BugAssignedEvent.class));
+        verify(eventPublisher, times(1)).publishEvent(any(BugAssignedEvent.class));
     }
 
     @Test
