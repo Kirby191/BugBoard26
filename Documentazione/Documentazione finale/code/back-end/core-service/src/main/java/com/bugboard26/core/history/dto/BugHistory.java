@@ -3,6 +3,9 @@ package com.bugboard26.core.history.dto;
 import java.time.LocalDateTime;
 import com.bugboard26.core.history.model.AuditAction;
 
+/**
+ * DTO per la rappresentazione della cronologia dei bug.
+ */
 public record BugHistory(
     Long id,
     Long bugId,
