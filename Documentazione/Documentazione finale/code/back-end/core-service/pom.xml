@@ -12,8 +12,8 @@
 
     <groupId>com.bugboard26</groupId>
     <artifactId>core-service</artifactId>
-    <version>1.0</version>
-    <name>core-service</name>
+    <version>2.0</version>
+    <name>BugBoard26 - Core Service</name>
     <description>Core Service per BugBoard26</description>
 
     <properties>

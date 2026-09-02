@@ -12,7 +12,7 @@
     <groupId>com.bugboard26</groupId>
     <artifactId>auth</artifactId>
     <version>1.0</version>
-    <name>auth-service</name>
+    <name>BugBoard26 - Auth Service</name>
     <description>Auth Service per BugBoard26</description>
 
     <properties>
