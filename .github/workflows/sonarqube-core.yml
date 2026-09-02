@@ -1,0 +1,47 @@
+name: SonarQube - Core Service
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'Documentazione/Documentazione finale/code/back-end/core-service/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'Documentazione/Documentazione finale/code/back-end/core-service/**'
+  workflow_dispatch:
+
+jobs:
+  Analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Set up Amazon Corretto Java 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+          cache: 'maven'
+
+      - name: Cache SonarQube packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Build and Analyze core-service
+        working-directory: 'Documentazione/Documentazione finale/code/back-end/core-service'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          chmod +x ./mvnw
+          ./mvnw -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:5.7.0.6970:sonar \
+          -Dsonar.projectKey=bugboard26_core_service \
+          -Dsonar.organization=kirby191
