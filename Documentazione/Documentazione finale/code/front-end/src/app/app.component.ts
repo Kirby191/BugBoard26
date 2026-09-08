@@ -1,11 +1,10 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { Login } from "./core-auth/components/login/login";
+import { RouterLink, RouterOutlet, RouterLinkActive } from '@angular/router';
 
 @Component({
-  imports: [RouterOutlet, Login],
+  imports: [RouterLink, RouterOutlet, RouterLinkActive],
   selector: 'app-root',
-  styleUrl: './app.component.css',
+  styleUrl: './app.component.scss',
   templateUrl: './app.component.html',
 })
 export class AppComponent {

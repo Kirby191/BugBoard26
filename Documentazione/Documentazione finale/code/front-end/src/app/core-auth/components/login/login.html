@@ -1,4 +1,7 @@
-<label for = "username">Username</label>
-<input id = "user" type = "text" name = "username" [formControl] = "credentials" />
+<h1>Login</h1>
+<form [formGroup] = "loginForm" (ngSubmit) = "login()">
+<label for = "email">Email</label>
+<input id = "email" type = "text"  name = "email" formControlName = "email" submit = "checkEmail()"/>
 <label for = "password">Password</label>
-<input id = "pass" type = "password" name = "password" [formControl] = "credentials" />
+<input id = "pwd" type = "password" name = "password" formControlName = "password"  submit = "checkPassword()"/>
+<button type = "submit">Login</button>
