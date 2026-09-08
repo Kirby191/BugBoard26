@@ -1,7 +1,40 @@
-<h1>Login</h1>
-<form [formGroup] = "loginForm" (ngSubmit) = "login()">
-<label for = "email">Email</label>
-<input id = "email" type = "text"  name = "email" formControlName = "email" submit = "checkEmail()"/>
-<label for = "password">Password</label>
-<input id = "pwd" type = "password" name = "password" formControlName = "password"  submit = "checkPassword()"/>
-<button type = "submit">Login</button>
+<div class="login-container">
+  <h1>Login</h1>
+
+
+  <!-- 1. Gestione dell'errore globale tramite Signal. -->
+  @if (errorMessage()) {
+    <div class="error-banner" style="color: red; margin-bottom: 15px; font-weight: bold;">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <!-- 2. Collegamento del form reattivo -->
+  <form [formGroup]="loginForm" (ngSubmit)="login()">
+    
+    <div class="form-group" style="margin-bottom: 10px;">
+      <label for="email">Email</label>
+      <!-- Collegamento al FormControl 'email' -->
+      <input id="email" type="email" formControlName="email" placeholder="Inserisci email" />
+      
+      <!-- Feedback visivo per l'email: compare solo se il campo è invalido E se l'utente lo ha toccato -->
+      @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
+        <small style="color: red; display: block;">Inserisci un'email valida.</small>
+      }
+    </div>
+
+    <div class="form-group" style="margin-bottom: 15px;">
+      <label for="password">Password</label>
+      <!-- Collegamento al FormControl 'password'[cite: 5] -->
+      <input id="password" type="password" formControlName="password" placeholder="Inserisci password" />
+      
+      <!-- Feedback visivo per la password -->
+      @if (loginForm.get('password')?.invalid && loginForm.get('password')?.touched) {
+        <small style="color: red; display: block;">La password deve avere almeno 6 caratteri.</small>
+      }
+    </div>
+
+    <!-- 3. Submit delegato al form tramite (ngSubmit) -->
+    <button type="submit">Accedi</button>
+  </form>
+</div>

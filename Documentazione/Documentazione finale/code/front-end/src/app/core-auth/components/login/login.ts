@@ -1,33 +1,45 @@
-import { Component } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
+import { LoginRequest } from '../../models/auth-dtos';
 
 @Component({
   imports: [ReactiveFormsModule],
   standalone: true,
   selector: 'app-login',
   styleUrl: './login.scss',
-  templateUrl: './login.html',
+  templateUrl: './login.html'
 })
 export class Login {
-  loginForm = new FormGroup({
-    email: new FormControl(''),
-    password: new FormControl('')
-  });
-  login() {
-    const email = this.loginForm.get('email')?.value;
-    const password = this.loginForm.get('password')?.value;
+  private readonly authService = inject(AuthService);
+  protected readonly errorMessage = signal<string | null>(null);
 
-    if (!email || !password) {
-      console.error('Email and password are required.');
+  loginForm = new FormGroup({
+    email: new FormControl('', [Validators.required, Validators.email]),
+    password: new FormControl('', [Validators.required, Validators.minLength(6)])
+  });
+
+  login() {
+    this.errorMessage.set(null);
+
+    if (this.loginForm.invalid) {
+      this.errorMessage.set('Per favore, inserisci un\'email valida e una password di almeno 6 caratteri.');
+      this.loginForm.markAllAsTouched();
       return;
     }
-    if ( !email.includes('@') || !email.includes('.')) {
-      console.error('Invalid email format.');
-      return;
-    }
-    if (password.length < 6) {
-      console.error('Password must be at least 6 characters long.');
-      return;
-    }
+
+    const request: LoginRequest = {
+      email: this.loginForm.value.email!,
+      passwordHash: this.loginForm.value.password!
+    };
+
+    this.authService.login(request).subscribe({
+      next: (response) => {
+        console.log('Login avvenuto con successo', response);
+      },
+      error: (err) => {
+        this.errorMessage.set(err.error?.message || 'Credenziali errate, riprova.');
+      }
+    });
   }
 }
