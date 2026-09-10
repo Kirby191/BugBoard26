@@ -19,17 +19,36 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render the login router link with correct attributes', () => {
+  it('should display the correct brand name', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges(); // Triggera il ciclo di rendering del DOM HTML
+
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.querySelector('strong')?.textContent).toContain('BugBoard26');
+  });
+
+  it('should render the navigation bar with brand and ALL correct router links', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges(); // Triggera il ciclo di rendering del DOM HTML
     
     const compiled = fixture.nativeElement as HTMLElement;
-    const loginLink = compiled.querySelector('a');
     
-    // Verifichiamo che il link esista e che punti alla rotta corretta
-    expect(loginLink).toBeTruthy();
-    expect(loginLink?.textContent).toContain('Login');
-    expect(loginLink?.getAttribute('routerLink')).toBe('/login');
+    // 1. Verifichiamo la presenza del Brand Name
+    const brand = compiled.querySelector('strong');
+    expect(brand?.textContent).toContain('BugBoard26');
+
+    // 2. Estraiamo la NodeList di TUTTI i link usando querySelectorAll
+    const links = compiled.querySelectorAll('a');
+    expect(links.length).toBe(2);
+    
+    // Verifichiamo la corretta renderizzazione della branch 1 (Login)
+    expect(links[0].textContent).toContain('Login');
+    expect(links[0].getAttribute('routerLink')).toBe('/login');
+
+    // Verifichiamo la corretta renderizzazione della branch 2 (Issues)
+    expect(links[1].textContent).toContain('Issues');
+    expect(links[1].getAttribute('routerLink')).toBe('/issues');
   });
 
   it('should contain a router-outlet for SPA navigation', () => {

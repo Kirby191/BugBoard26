@@ -8,6 +8,8 @@ describe('AdminGuard', () => {
   let routerMock: any;
 
   beforeEach(() => {
+    TestBed.resetTestingModule(); // Previene crash con Vitest
+    
     authServiceMock = { isLoggedIn: vi.fn() };
     routerMock = { createUrlTree: vi.fn().mockReturnValue({} as UrlTree) };
 
@@ -18,7 +20,6 @@ describe('AdminGuard', () => {
       ]
     });
 
-    // Intercettiamo le chiamate al localStorage per poterle simulare nei test
     vi.spyOn(Storage.prototype, 'getItem');
   });
 
@@ -46,7 +47,7 @@ describe('AdminGuard', () => {
 
   it('should return UrlTree to /login if user is not logged in at all', () => {
     authServiceMock.isLoggedIn.mockReturnValue(false);
-    vi.mocked(localStorage.getItem).mockReturnValue('ADMIN'); // Anche se l'HTML storage è manipolato
+    vi.mocked(localStorage.getItem).mockReturnValue('ADMIN'); 
 
     TestBed.runInInjectionContext(() => adminGuard({} as any, {} as any));
     
