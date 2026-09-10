@@ -1,2 +1,13 @@
-<a routerLink="/login" routerLinkActive="active" >Login</a>
-<router-outlet />
+<!-- Temp -->
+<nav class="main-navbar" style="padding: 15px; background: #1A237E; color: white; display: flex; gap: 20px;">
+  <strong style="font-size: 1.2rem;">BugBoard26</strong>
+  
+  <!-- Usiamo routerLink per navigare senza ricaricare la pagina -->
+    <a routerLink="/login" routerLinkActive="active" style="color: white; text-decoration: none;">Login</a>
+    <a routerLink="/issues" routerLinkActive="active" style="color: white; text-decoration: none;">Issues</a>
+</nav>
+
+<!-- Container principale dove il router inietterà dinamicamente le viste (es. IssueListComponent) -->
+<main class="app-content" style="padding: 20px;">
+  <router-outlet />
+</main>

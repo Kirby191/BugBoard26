@@ -30,7 +30,7 @@ export class Login {
 
     const request: LoginRequest = {
       email: this.loginForm.value.email!,
-      passwordHash: this.loginForm.value.password!
+      password: this.loginForm.value.password!
     };
 
     this.authService.login(request).subscribe({

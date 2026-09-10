@@ -13,7 +13,7 @@ export interface NotificationDTO {
     id: number;
     message: string;
     timestamp: string;
-    isread: boolean;
+    isRead: boolean;
 }
 
 export interface ProjectState {

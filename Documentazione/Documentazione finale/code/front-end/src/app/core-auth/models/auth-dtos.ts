@@ -4,7 +4,7 @@ import { UserRole } from "../../shared/models/enums";
  */
 export interface LoginRequest {
   email: string;
-  passwordHash: string;
+  password: string;
 }
 
 /**
