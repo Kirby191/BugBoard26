@@ -1,0 +1,23 @@
+<nav class="navbar">
+  <!-- Brand Logo -->
+  <div class="navbar-brand">
+    <strong class="brand-text">BugBoard26</strong>
+  </div>
+
+  <!-- Menu Links -->
+  <div class="navbar-menu">
+    @if (isLoggedIn()) {
+      <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Progetti</a>
+      <a routerLink="/issues" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Segnalazioni</a>
+      
+      <!-- Content Projection: Qui verrà iniettata la campanellina delle notifiche -->
+      <div class="nav-widget">
+        <ng-content></ng-content>
+      </div>
+
+      <button class="btn-logout" (click)="onLogout()">Logout</button>
+    } @else {
+      <a routerLink="/login" routerLinkActive="active" class="nav-link">Login</a>
+    }
+  </div>
+</nav>
