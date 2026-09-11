@@ -1,0 +1,36 @@
+@if (isOpen()) {
+  <!-- Overlay scuro di sfondo. Cliccando qui il modale si chiude -->
+  <div class="modal-backdrop" (click)="onCancel()">
+    
+    <!-- Contenitore principale del modale. Blocca la propagazione del click -->
+    <div class="modal-content" (click)="stopPropagation($event)">
+      
+      <!-- Intestazione -->
+      <div class="modal-header">
+        <h3 class="modal-title">{{ title() }}</h3>
+        <button class="btn-close" aria-label="Chiudi" (click)="onCancel()">&times;</button>
+      </div>
+
+      <!-- Corpo del modale -->
+      <div class="modal-body">
+        @if (message()) {
+          <p>{{ message() }}</p>
+        }
+        <!-- Permette l'inserimento di template HTML customizzati dall'esterno -->
+        <ng-content></ng-content>
+      </div>
+
+      <!-- Pannello azioni -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="onCancel()">
+          {{ cancelText() }}
+        </button>
+        <!-- Applica classi dinamiche in base al tipo (info, warning, danger) -->
+        <button class="btn btn-{{ type() }}" (click)="onConfirm()">
+          {{ confirmText() }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

@@ -1,0 +1,99 @@
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6); // Effetto oscuramento pagina
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050; // Molto alto per coprire navbar e altri elementi
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.modal-content {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 500px;
+  min-width: 300px;
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  animation: slideDown 0.2s ease-out forwards;
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eaeaea;
+
+    .modal-title {
+      margin: 0;
+      font-size: 1.25rem;
+      color: #2c3e50;
+    }
+
+    .btn-close {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      line-height: 1;
+      color: #adb5bd;
+      cursor: pointer;
+      transition: color 0.2s;
+
+      &:hover {
+        color: #343a40;
+      }
+    }
+  }
+
+  .modal-body {
+    padding: 20px;
+    color: #495057;
+    font-size: 1rem;
+    line-height: 1.5;
+
+    p { margin: 0; }
+  }
+
+  .modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #eaeaea;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    background-color: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+  }
+}
+
+// Stili standard per i bottoni (condivisi, ma definiti qui per autonomia del modulo)
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &-secondary { background-color: #6c757d; color: white; &:hover { background-color: #5a6268; } }
+  &-info      { background-color: #0d6efd; color: white; &:hover { background-color: #0b5ed7; } }
+  &-warning   { background-color: #ffc107; color: black; &:hover { background-color: #e0a800; } }
+  &-danger    { background-color: #dc3545; color: white; &:hover { background-color: #c82333; } }
+}
+
+// Animazioni fluide
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
