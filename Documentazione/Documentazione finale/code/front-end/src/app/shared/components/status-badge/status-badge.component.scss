@@ -1,0 +1,41 @@
+.badge {
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  text-align: center;
+  white-space: nowrap;
+
+  // ==========================================
+  // CATEGORIA: TYPE (Tipologia Issue)
+  // ==========================================
+  &.type-bug { background-color: #dc3545; }           // Rosso (Danger)
+  &.type-feature { background-color: #0dcaf0; }       // Azzurro (Info)
+  &.type-question { background-color: #6f42c1; }      // Viola
+  &.type-documentation { background-color: #20c997; } // Verde acqua
+
+  // ==========================================
+  // CATEGORIA: STATUS (Stato Avanzamento)
+  // ==========================================
+  &.status-todo { background-color: #6c757d; }        // Grigio (Secondary)
+  &.status-in_progress { background-color: #0d6efd; } // Blu (Primary)
+  &.status-done { background-color: #198754; }        // Verde (Success)
+
+  // ==========================================
+  // CATEGORIA: PRIORITY (Priorità)
+  // ==========================================
+  &.priority-low { background-color: #adb5bd; }       // Grigio chiaro
+  &.priority-medium { background-color: #fd7e14; }    // Arancione (Warning)
+  &.priority-high { background-color: #e3000f; }      // Rosso acceso
+  &.priority-critical { 
+    background-color: #8b0000;                        // Rosso scuro
+    box-shadow: 0 0 5px rgba(139, 0, 0, 0.6);         // Effetto glow per criticità
+  }
+
+  // Fallback di sicurezza se arriva un valore non mappato
+  background-color: #343a40; 
+}
