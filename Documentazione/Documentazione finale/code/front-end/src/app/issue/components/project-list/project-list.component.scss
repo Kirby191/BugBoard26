@@ -1,0 +1,77 @@
+.issue-list-container {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+
+  .header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    h2 {
+      margin: 0;
+      color: #333;
+    }
+  }
+
+  .issue-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f1f3f5;
+      color: #495057;
+      font-weight: 600;
+    }
+
+    tbody tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .actions-cell {
+      display: flex;
+      gap: 10px;
+    }
+  }
+
+  // Stili base bottoni coerenti col sistema[cite: 3]
+  .btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    
+    &-primary { background-color: #0d6efd; color: white; &:hover { background-color: #0b5ed7; } }
+    &-warning { background-color: #ffc107; color: black; &:hover { background-color: #e0a800; } }
+    &-danger  { background-color: #dc3545; color: white; &:hover { background-color: #c82333; } }
+    &-sm { padding: 4px 8px; font-size: 0.875rem; }
+  }
+
+  // Gestione messaggi di stato
+  .loading-spinner {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    padding: 20px;
+  }
+
+  .alert-danger {
+    background-color: #f8d7da;
+    color: #842029;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    border: 1px solid #f5c2c7;
+  }
+}

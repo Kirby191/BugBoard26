@@ -1,0 +1,69 @@
+<div class="detail-container">
+  
+  <div class="header-actions">
+    <button class="btn btn-secondary" (click)="goBack()">← Torna all'elenco</button>
+    @if (project()) {
+      <button class="btn btn-warning" (click)="goToEdit()">Modifica Progetto</button>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-spinner"><p>Caricamento dati del progetto...</p></div>
+  } @else if (errorMessage()) {
+    <div class="alert alert-danger">{{ errorMessage() }}</div>
+  } @else if (project(); as p) {
+
+    <!-- CARD 1: Dettagli Progetto -->
+    <div class="card main-info-card">
+      <div class="card-header">
+        <h2>#{{ p.id }} - {{ p.name }}</h2>
+        <span class="last-modified">Ultima modifica: {{ p.lastModified | date:'dd/MM/yyyy HH:mm' }}</span>
+      </div>
+      <div class="card-body">
+        <h3>Descrizione</h3>
+        <p style="white-space: pre-wrap;">{{ p.description || 'Nessuna descrizione fornita per questo progetto.' }}</p>
+      </div>
+    </div>
+
+    <!-- CARD 2: Lista delle Segnalazioni associate -->
+    <div class="card issues-card">
+      <div class="card-header">
+        <h3>Segnalazioni nel Progetto ({{ projectIssues().length }})</h3>
+      </div>
+      
+      <div class="card-body p-0">
+        <table class="issue-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Titolo</th>
+              <th>Tipo</th>
+              <th>Stato</th>
+              <th>Assegnato a</th>
+              <th>Azione</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (issue of projectIssues(); track issue.id) {
+              <tr>
+                <td>#{{ issue.id }}</td>
+                <td class="fw-bold">{{ issue.title }}</td>
+                <td><span class="badge type-{{issue.type | lowercase}}">{{ issue.type }}</span></td>
+                <td><span class="badge status-{{issue.status | lowercase}}">{{ issue.status }}</span></td>
+                <td>{{ issue.assigneeEmail || 'Non assegnato' }}</td>
+                <td>
+                  <button class="btn btn-sm btn-info" (click)="goToIssueDetail(issue.id)">Vedi Issue</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="text-center" style="padding: 20px;">Nessuna segnalazione aperta per questo progetto.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  }
+</div>

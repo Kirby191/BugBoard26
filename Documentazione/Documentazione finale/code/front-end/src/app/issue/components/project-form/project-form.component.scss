@@ -1,0 +1,101 @@
+.form-container {
+  max-width: 600px; // Leggermente più stretto del form issue perché ha meno campi
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+  .card-header {
+    border-bottom: 2px solid #f1f3f5;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+
+    h2 {
+      margin: 0;
+      color: #2c3e50;
+      font-size: 1.5rem;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+      background-color: #fff;
+      box-sizing: border-box;
+
+      &:focus {
+        outline: none;
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+      }
+
+      // Evidenziazione campi invalidi toccati dall'utente
+      &.ng-invalid.ng-touched {
+        border-color: #dc3545;
+        background-color: #fff8f8;
+      }
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 100px;
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 25px;
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.2s, background-color 0.2s;
+
+      &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
+
+      &-primary {
+        background-color: #0d6efd;
+        color: white;
+        &:hover:not(:disabled) { background-color: #0b5ed7; }
+      }
+
+      &-secondary {
+        background-color: #6c757d;
+        color: white;
+        &:hover:not(:disabled) { background-color: #5c636a; }
+      }
+    }
+  }
+
+  .alert-danger {
+    background-color: #f8d7da;
+    color: #842029;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    border: 1px solid #f5c2c7;
+  }
+}

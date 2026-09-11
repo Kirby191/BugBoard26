@@ -1,0 +1,167 @@
+.detail-container {
+  max-width: 1000px; // Più largo dei form per ospitare comodamente la tabella
+  margin: 0 auto;
+  padding: 20px;
+
+  // --- AZIONI INTESTAZIONE ---
+  .header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+
+  // --- STRUTTURA A CARD ---
+  .card {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 25px;
+    overflow: hidden; // Evita che la tabella sbordi dagli angoli arrotondati della card
+    
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #eaeaea;
+      padding: 15px 20px;
+      background-color: #fafbfc; // Sfondo leggermente grigio per staccare dal body
+      
+      h2, h3 { 
+        margin: 0; 
+        color: #2c3e50; 
+      }
+      
+      .last-modified {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-style: italic;
+      }
+    }
+
+    .card-body {
+      padding: 20px;
+      color: #495057;
+      line-height: 1.6;
+
+      h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 1.1rem;
+        color: #343a40;
+      }
+
+      // Classe utility per annullare il padding quando serve far aderire la tabella ai bordi
+      &.p-0 { 
+        padding: 0; 
+      } 
+    }
+  }
+
+  // --- TABELLA DELLE ISSUE ---
+  .issue-table {
+    width: 100%;
+    border-collapse: collapse;
+    
+    th, td {
+      padding: 15px 20px;
+      text-align: left;
+      border-bottom: 1px solid #f1f3f5;
+    }
+    
+    th {
+      background-color: #ffffff; // Si fonde con la card, ma il testo è marcato
+      color: #495057;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-bottom: 2px solid #eaeaea; // Bordo più spesso per separare l'header
+    }
+    
+    tbody tr {
+      transition: background-color 0.2s ease;
+      
+      &:hover {
+        background-color: #f8f9fa;
+      }
+      
+      // Rimuove l'ultimo bordo per non avere doppie linee col bordo della card
+      &:last-child td {
+        border-bottom: none;
+      }
+    }
+
+    .fw-bold {
+      font-weight: 600;
+      color: #212529;
+    }
+  }
+
+  // --- BOTTONI ---
+  .btn {
+    padding: 8px 16px; 
+    border: none; 
+    border-radius: 4px; 
+    cursor: pointer; 
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+
+    &-secondary { 
+      background-color: #6c757d; 
+      color: white; 
+      &:hover { background-color: #5a6268; }
+    }
+    
+    &-warning { 
+      background-color: #ffc107; 
+      color: black; 
+      &:hover { background-color: #e0a800; }
+    }
+    
+    &-info { 
+      background-color: #0dcaf0; 
+      color: white; 
+      &:hover { background-color: #11a2bd; }
+    }
+    
+    &-sm { 
+      padding: 6px 12px; 
+      font-size: 0.85rem; 
+    }
+  }
+
+  // --- BADGE (Stesso schema colori di issue-list) ---
+  .badge {
+    padding: 5px 10px; 
+    border-radius: 12px; 
+    color: white; 
+    font-weight: bold; 
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &.type-bug { background-color: #dc3545; }
+    &.type-feature { background-color: #0dcaf0; }
+    &.status-todo { background-color: #6c757d; }
+    &.status-in_progress { background-color: #0d6efd; }
+    &.status-done { background-color: #198754; }
+  }
+
+  // --- GESTIONE STATI (Caricamento ed Errori) ---
+  .loading-spinner {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+    font-style: italic;
+    font-size: 1.1rem;
+  }
+
+  .alert-danger {
+    background-color: #f8d7da; 
+    color: #842029; 
+    padding: 15px 20px; 
+    border-radius: 4px;
+    border: 1px solid #f5c2c7;
+    margin-bottom: 25px;
+    font-weight: 500;
+  }
+}

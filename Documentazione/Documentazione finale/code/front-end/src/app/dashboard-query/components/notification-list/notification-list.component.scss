@@ -1,0 +1,131 @@
+.notification-wrapper {
+  position: relative;
+  font-family: sans-serif;
+
+  // Icona campanella e Badge
+  .bell-icon-container {
+    position: relative;
+    cursor: pointer;
+    padding: 5px;
+    display: inline-block;
+
+    .bell-icon {
+      font-size: 1.5rem;
+    }
+
+    .badge {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: #dc3545; // Rosso alert
+      color: white;
+      font-size: 0.75rem;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 10px;
+      transform: translate(25%, -25%);
+    }
+  }
+
+  // Pannello dropdown
+  .notification-panel {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    width: 320px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border: 1px solid #eaeaea;
+    z-index: 1000;
+
+    .panel-header {
+      padding: 12px 15px;
+      border-bottom: 1px solid #eaeaea;
+      background-color: #f8f9fa;
+      border-radius: 8px 8px 0 0;
+
+      h4 {
+        margin: 0;
+        font-size: 1rem;
+        color: #343a40;
+      }
+    }
+
+    .panel-body {
+      max-height: 400px;
+      overflow-y: auto;
+
+      .loading-text, .empty-state {
+        padding: 20px;
+        text-align: center;
+        color: #6c757d;
+        font-size: 0.9rem;
+      }
+
+      .notification-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        .notification-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 15px;
+          border-bottom: 1px solid #f1f3f5;
+          cursor: pointer;
+          transition: background-color 0.2s;
+
+          &:hover {
+            background-color: #f8f9fa;
+          }
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .notif-content {
+            flex: 1;
+
+            .notif-message {
+              margin: 0 0 5px 0;
+              font-size: 0.9rem;
+              color: #212529;
+              font-weight: 500;
+            }
+
+            .notif-time {
+              font-size: 0.75rem;
+              color: #adb5bd;
+            }
+          }
+
+          .notif-actions {
+            margin-left: 10px;
+
+            .btn-read {
+              background: none;
+              border: 1px solid #ced4da;
+              border-radius: 50%;
+              width: 28px;
+              height: 28px;
+              color: #198754; // Verde
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              transition: all 0.2s;
+
+              &:hover {
+                background-color: #198754;
+                color: white;
+                border-color: #198754;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

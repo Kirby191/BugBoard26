@@ -1,0 +1,44 @@
+<div class="notification-wrapper">
+  <!-- Trigger: Campanellina -->
+  <div class="bell-icon-container">
+    <span class="bell-icon">🔔</span>
+    @if (unreadCount() > 0) {
+      <span class="badge">{{ unreadCount() }}</span>
+    }
+  </div>
+
+  <!-- Pannello Notifiche -->
+  <div class="notification-panel">
+    <div class="panel-header">
+      <h4>Notifiche</h4>
+    </div>
+
+    <div class="panel-body">
+      @if (isLoading()) {
+        <div class="loading-text">Caricamento...</div>
+      } @else if (notifications().length === 0) {
+        <div class="empty-state">
+          Nessuna nuova notifica.
+        </div>
+      } @else {
+        <ul class="notification-list">
+          @for (notif of notifications(); track notif.id) {
+            <!-- Se la notifica viene cliccata, l'utente viene portato al dettaglio -->
+            <li class="notification-item" (click)="goToIssue(notif.message)">
+              <div class="notif-content">
+                <p class="notif-message">{{ notif.message }}</p>
+                <span class="notif-time">{{ notif.timestamp | date:'dd/MM/yy HH:mm' }}</span>
+              </div>
+              <div class="notif-actions">
+                <!-- Bottone per segnare come letta -->
+                <button class="btn-read" title="Segna come letta" (click)="markAsRead(notif.id, $event)">
+                  ✔
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+</div>
