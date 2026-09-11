@@ -10,6 +10,38 @@ export const routes: Routes = [
   { path: 'login', title: 'Login', component: Login },
 
   // ==========================================================
+  // MODULO PROJECT (Lazy Loaded e Protette da AuthGuard, AdminGuard)
+  // ==========================================================
+  {
+    path: 'projects',
+    title: 'Elenco Progetti',
+    // Lazy loading del componente
+  //  loadComponent: () => import('./issue/components/project-list/project-list.component').then(c => c.ProjectListComponent),
+    //canActivate: [authGuard]
+  },
+  {
+    path: 'projects/new',
+    title: 'Nuovo Progetto',
+    // Lazy loading del componente
+  //  loadComponent: () => import('./issue/components/project-form/project-form.component').then(c => c.ProjectFormComponent),
+    //canActivate: [authGuard, adminGuard]
+  },
+  {
+    path: 'projects/edit/:id',
+    title: 'Modifica Progetto',
+    // Lazy loading del componente
+  //  loadComponent: () => import('./issue/components/project-form/project-form.component').then(c => c.ProjectFormComponent),
+    //canActivate: [authGuard, adminGuard]
+  }
+  {
+    path: 'projects/:id',
+    title: 'Dettaglio Progetto',
+    // Lazy loading del componente
+  //  loadComponent: () => import('./issue/components/project-detail/project-detail.component').then(c => c.ProjectDetailComponent),
+    //canActivate: [authGuard]
+  }
+
+  // ==========================================================
   // MODULO ISSUE (Lazy Loaded e Protette da AuthGuard)
   // ==========================================================
   
@@ -20,7 +52,6 @@ export const routes: Routes = [
  //   canActivate: [authGuard] 
   },
   { 
-    // DEVE STARE PRIMA DI :id
     path: 'issues/new', 
     title: 'Nuova Segnalazione',
     loadComponent: () => import('./issue/components/issue-form/issue-form.component').then(c => c.IssueFormComponent),
