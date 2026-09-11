@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Componente dedicato esclusivamente alla valutazione delle regole RBAC.
- * Isola i controlli di sicurezza dalla logica di business dei Service (Funzionalità 9)[cite: 4, 8].
+ * Isola i controlli di sicurezza dalla logica di business dei Service (Funzionalità 9) 4, 8].
  */
 @Component
 public class AccessControlValidator {
@@ -20,7 +20,7 @@ public class AccessControlValidator {
 
     /**
      * Verifica che l'utente corrente abbia i privilegi per modificare la Issue.
-     * Regola: Modifica consentita solo all'autore (Reporter) o a un Amministratore[cite: 4, 8].
+     * Regola: Modifica consentita solo all'autore (Reporter) o a un Amministratore 4, 8].
      *
      * @param issue La segnalazione che si intende modificare.
      * @throws UnauthorizedActionException Se i permessi sono insufficienti.
@@ -36,7 +36,7 @@ public class AccessControlValidator {
 
     /**
      * Verifica che l'operazione in corso sia eseguita da un Amministratore.
-     * Utilizzato per l'assegnazione dei task o la gestione dei progetti[cite: 4].
+     * Utilizzato per l'assegnazione dei task o la gestione dei progetti 4].
      *
      * @throws UnauthorizedActionException Se l'utente non è un Amministratore.
      */

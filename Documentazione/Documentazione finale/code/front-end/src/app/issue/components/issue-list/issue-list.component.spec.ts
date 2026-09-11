@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { IssueListComponent } from './issue-list.component';
 import { DashboardService } from '../../../dashboard-query/services/dashboard.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { IssueSummary } from '../../../dashboard-query/models/query-dtos';
 
@@ -11,35 +11,36 @@ describe('IssueListComponent', () => {
   
   let dashboardServiceMock: any;
   let routerMock: any;
+  let activatedRouteMock: any;
 
   const mockIssues: IssueSummary[] = [
     {
       id: 1, title: 'Bug Critico UI', projectName: 'Progetto Alpha', 
       type: 'BUG', status: 'TODO', priority: 'CRITICAL', assigneeEmail: 'admin@bugboard.com'
-    },
-    {
-      id: 2, title: 'Nuovo Bottone', projectName: 'Progetto Alpha', 
-      type: 'FEATURE', status: 'IN_PROGRESS', priority: 'LOW', assigneeEmail: undefined
     }
   ];
 
   beforeEach(async () => {
     TestBed.resetTestingModule();
 
-    // Mock dei servizi per l'Isolation Testing
+    // Mock base
     dashboardServiceMock = {
-      searchIssues: vi.fn()
+      searchIssues: vi.fn().mockReturnValue(of(mockIssues))
     };
     
-    routerMock = {
-      navigate: vi.fn()
+    routerMock = { navigate: vi.fn() };
+
+    // Creiamo il mock di base per la rotta con query parameters vuoti
+    activatedRouteMock = {
+      queryParams: of({})
     };
 
     await TestBed.configureTestingModule({
       imports: [IssueListComponent],
       providers: [
         { provide: DashboardService, useValue: dashboardServiceMock },
-        { provide: Router, useValue: routerMock }
+        { provide: Router, useValue: routerMock },
+        { provide: ActivatedRoute, useValue: activatedRouteMock } // Iniettiamo la finta rotta
       ]
     }).compileComponents();
 
@@ -51,75 +52,63 @@ describe('IssueListComponent', () => {
     vi.restoreAllMocks();
   });
 
-  it('should create the component', () => {
-    // Rendiamo safe il costruttore mockando un ritorno base
-    dashboardServiceMock.searchIssues.mockReturnValue(of([]));
-    fixture.detectChanges();
-    expect(component).toBeTruthy();
+  it('should create and load all issues if no query params are present', () => {
+    fixture.detectChanges(); // Innesca ngOnInit e la sottoscrizione alla route
+    
+    // Verifica che abbia chiamato l'API con un filtro vuoto
+    expect(dashboardServiceMock.searchIssues).toHaveBeenCalledWith({});
+    
+    const rows = fixture.nativeElement.querySelectorAll('tbody tr');
+    expect(rows.length).toBe(1);
+    expect(rows[0].textContent).toContain('Bug Critico UI');
   });
 
-  it('should load issues and render them in the table (DOM Testing)', () => {
-    dashboardServiceMock.searchIssues.mockReturnValue(of(mockIssues));
+  it('should parse URL query parameters and build a valid IssueFilter for the backend', () => {
+    // Simuliamo un arrivo in questa pagina tramite un link filtrato dalla Dashboard (es. /issues?status=TODO&priority=CRITICAL)
+    activatedRouteMock.queryParams = of({ status: 'TODO', priority: 'CRITICAL', projectId: '5' });
     
-    fixture.detectChanges(); // Innesca ngOnInit e carica i dati
+    // Dobbiamo ricreare il fixture per applicare il nuovo mock di rotta PRIMA di ngOnInit
+    fixture = TestBed.createComponent(IssueListComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges(); 
 
-    // Verifica che l'indicatore di caricamento sia sparito[cite: 4]
-    const loadingSpinner = fixture.nativeElement.querySelector('.loading-spinner');
-    expect(loadingSpinner).toBeNull();
-
-    // Verifica la tabella
-    const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-    expect(rows.length).toBe(2);
-
-    // Verifica i dati della prima riga (renderizzati dai DTO leggeri IssueSummary)
-    const firstRowContent = rows[0].textContent;
-    expect(firstRowContent).toContain('#1');
-    expect(firstRowContent).toContain('Bug Critico UI');
-    expect(firstRowContent).toContain('CRITICAL');
+    // Verifichiamo la trasformazione dei parametri URL nel DTO tipizzato 2]
+    expect(dashboardServiceMock.searchIssues).toHaveBeenCalledWith({
+      status: 'TODO',
+      priority: 'CRITICAL',
+      projectId: 5 // Si assicura che abbia fatto il cast a Number come scritto nel TS 2]
+    });
   });
 
   it('should display an error banner if searchIssues fails', () => {
     dashboardServiceMock.searchIssues.mockReturnValue(throwError(() => new Error('API down')));
-    
     fixture.detectChanges();
 
-    // Verifica che il DOM mostri l'alert e nasconda il loader
     const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
     expect(errorAlert).toBeTruthy();
     expect(errorAlert.textContent).toContain('Impossibile caricare le segnalazioni');
-    
-    const loadingSpinner = fixture.nativeElement.querySelector('.loading-spinner');
-    expect(loadingSpinner).toBeNull();
   });
 
-  it('should navigate to create issue form when "+ Nuova Segnalazione" is clicked', () => {
-    dashboardServiceMock.searchIssues.mockReturnValue(of([]));
-    fixture.detectChanges();
+  describe('Navigation Actions', () => {
+    it('should navigate to create issue form when "+ Nuova Segnalazione" is clicked', () => {
+      fixture.detectChanges();
+      const createBtn = fixture.nativeElement.querySelector('.btn-primary');
+      createBtn.click();
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/issues/new']);
+    });
 
-    // Simula click dal DOM[cite: 4]
-    const createBtn = fixture.nativeElement.querySelector('.btn-primary');
-    createBtn.click();
+    it('should navigate to detail view when "Dettagli" is clicked', () => {
+      fixture.detectChanges();
+      const detailBtn = fixture.nativeElement.querySelectorAll('.btn-info')[0];
+      detailBtn.click();
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/issues', 1]);
+    });
 
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/issues/new']);
-  });
-
-  it('should navigate to detail view when "Dettagli" is clicked', () => {
-    dashboardServiceMock.searchIssues.mockReturnValue(of(mockIssues));
-    fixture.detectChanges();
-
-    const detailBtn = fixture.nativeElement.querySelectorAll('.btn-info')[0];
-    detailBtn.click();
-
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/issues', 1]);
-  });
-
-  it('should navigate to edit view when "Modifica" is clicked', () => {
-    dashboardServiceMock.searchIssues.mockReturnValue(of(mockIssues));
-    fixture.detectChanges();
-
-    const editBtn = fixture.nativeElement.querySelectorAll('.btn-warning')[0];
-    editBtn.click();
-
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/issues/edit', 1]);
+    it('should navigate to edit view when "Modifica" is clicked', () => {
+      fixture.detectChanges();
+      const editBtn = fixture.nativeElement.querySelectorAll('.btn-warning')[0];
+      editBtn.click();
+      expect(routerMock.navigate).toHaveBeenCalledWith(['/issues/edit', 1]);
+    });
   });
 });

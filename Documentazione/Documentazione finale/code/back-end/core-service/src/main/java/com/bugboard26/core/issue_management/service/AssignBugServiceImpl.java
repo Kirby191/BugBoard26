@@ -21,8 +21,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 /**
- * Servizio isolato per l'assegnazione dei task (Funzionalità 4)[cite: 15].
- * Rispetta l'Interface Segregation Principle e orchestra il Command Layer in modo Event-Driven[cite: 16].
+ * Servizio isolato per l'assegnazione dei task (Funzionalità 4) 15].
+ * Rispetta l'Interface Segregation Principle e orchestra il Command Layer in modo Event-Driven 16].
  */
 @Service
 public class AssignBugServiceImpl implements AssignBugService {

@@ -4,7 +4,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * Interfaccia che implementa lo Strategy Pattern per l'archiviazione fisica dei file[cite: 3].
+ * Interfaccia che implementa lo Strategy Pattern per l'archiviazione fisica dei file 3].
  * Disaccoppia la logica di business dalla tecnologia di storage effettiva (es. File System Locale o AWS S3).
  */
 public interface StorageProvider {

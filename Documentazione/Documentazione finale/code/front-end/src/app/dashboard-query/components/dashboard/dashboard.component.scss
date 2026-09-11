@@ -1,0 +1,124 @@
+.dashboard-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 15px;
+
+    h2 {
+      margin: 0;
+      color: #2c3e50;
+    }
+  }
+
+  .section-title {
+    color: #495057;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+    border-left: 4px solid #1A237E;
+    padding-left: 10px;
+  }
+
+  .mt-4 {
+    margin-top: 40px;
+  }
+
+  // Layout a griglia per le card
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+
+    &.three-cols {
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+  }
+
+  // Stile delle singole Card
+  .stat-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    border-top: 4px solid #ced4da;
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .stat-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #6c757d;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #343a40;
+      margin-bottom: 5px;
+    }
+
+    .stat-desc {
+      font-size: 0.85rem;
+      color: #adb5bd;
+    }
+
+    // Varianti di colore per i bordi superiori (Allarmi)
+    &.primary-border { border-top-color: #0d6efd; }
+    &.warning-border { border-top-color: #fd7e14; }
+    &.danger-border { border-top-color: #dc3545; }
+    &.info-border { border-top-color: #0dcaf0; }
+
+    &.workflow-card {
+      text-align: center;
+      .stat-title { margin-bottom: 15px; }
+      .stat-value { font-size: 3rem; }
+    }
+  }
+
+  // Utility text colors
+  .text-danger { color: #dc3545 !important; }
+  .text-warning { color: #fd7e14 !important; }
+  .text-info { color: #0dcaf0 !important; }
+  .text-primary { color: #0d6efd !important; }
+  .text-success { color: #198754 !important; }
+
+  // Componenti standard
+  .btn-primary {
+    padding: 10px 20px;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    &:hover { background-color: #0b5ed7; }
+  }
+
+  .loading-spinner {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+    font-style: italic;
+  }
+
+  .alert-danger {
+    background-color: #f8d7da;
+    color: #842029;
+    padding: 15px;
+    border-radius: 4px;
+    border: 1px solid #f5c2c7;
+  }
+}

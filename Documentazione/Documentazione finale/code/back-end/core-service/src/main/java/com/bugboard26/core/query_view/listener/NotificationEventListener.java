@@ -37,7 +37,7 @@ public class NotificationEventListener {
         // 2. Costruzione del messaggio descrittivo per l'utente
         String message = "Ti è stato assegnato il Bug #" + bugId;
 
-        // 3. Delegazione al NotificationService locale per la persistenza della notifica[cite: 2, 4]
+        // 3. Delegazione al NotificationService locale per la persistenza della notifica 2, 4]
         notificationService.createNotification(assigneeId, bugId, message);
     }
 }

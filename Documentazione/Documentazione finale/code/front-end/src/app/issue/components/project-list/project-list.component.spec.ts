@@ -22,7 +22,7 @@ describe('ProjectListComponent', () => {
   beforeEach(async () => {
     TestBed.resetTestingModule();
 
-    // Mocks inizializzati in modo sicuro[cite: 3, 5]
+    // Mocks inizializzati in modo sicuro 3, 5]
     projectQueryServiceMock = {
       getProjects: vi.fn().mockReturnValue(of(mockProjects))
     };

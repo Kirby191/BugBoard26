@@ -44,7 +44,7 @@ public class HistoryServiceImpl implements HistoryService {
     @Transactional
     public void recordEvent(Long bugId, Long authorId, AuditAction action, String details) {
         // Usa il pattern proxy per collegare l'autore senza eseguire una query SELECT su DB.
-        // Questo rispecchia il metodo getReferenceById(id) mostrato nel diagramma[cite: 9].
+        // Questo rispecchia il metodo getReferenceById(id) mostrato nel diagramma 9].
         UserReference authorRef = entityManager.getReference(UserReference.class, authorId);
 
         AuditRecord auditRecord = AuditRecord.builder()
@@ -55,7 +55,7 @@ public class HistoryServiceImpl implements HistoryService {
                 .timestamp(LocalDateTime.now(ZoneId.systemDefault()))
                 .build();
 
-        // Salva immutabilmente l'evento nel database tramite AuditRepository[cite: 9].
+        // Salva immutabilmente l'evento nel database tramite AuditRepository 9].
         auditRepository.save(auditRecord);
     }
 }

@@ -49,7 +49,7 @@ describe('DashboardService', () => {
       expect(issues[0].title).toBe('Test Bug');
     });
 
-    // CORREZIONE: Il service vero chiama API_ISSUES (senza /summary)[cite: 3]
+    // CORREZIONE: Il service vero chiama API_ISSUES (senza /summary)
     const req = httpMock.expectOne(request => request.url === API_ISSUES);
     expect(req.request.method).toBe('GET');
     

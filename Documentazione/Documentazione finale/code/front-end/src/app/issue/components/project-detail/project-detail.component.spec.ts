@@ -84,7 +84,7 @@ describe('ProjectDetailComponent', () => {
   it('should load project details and its associated issues (Double Query)', () => {
     fixture.detectChanges(); // Innesca ngOnInit
 
-    // Verifica le due chiamate separate imposte dall'architettura CQRS[cite: 2]
+    // Verifica le due chiamate separate imposte dall'architettura CQRS 2]
     expect(projectQueryMock.getProjectById).toHaveBeenCalledWith(10);
     expect(dashboardServiceMock.searchIssues).toHaveBeenCalledWith({ projectId: 10 });
 

@@ -56,7 +56,7 @@ public class DashboardServiceImpl implements DashboardService {
             unassignedBugCount = issueRepository.countByTypeAndAssigneeIdIsNull(IssueType.BUG);
         }
 
-        // 3. Generazione DTO finale[cite: 4]
+        // 3. Generazione DTO finale 4]
         return new DashboardStats(
                 totalIssues,
                 todoCount,

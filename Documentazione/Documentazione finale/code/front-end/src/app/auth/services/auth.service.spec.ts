@@ -54,7 +54,7 @@ describe('AuthService', () => {
     expect(req.request.body).toEqual(mockRequest);
     req.flush(mockResponse); // Simuliamo la risposta del server (back-end mockato)
 
-    // Verifichiamo i side-effects sul localStorage stabiliti nell'operatore tap()[cite: 3]
+    // Verifichiamo i side-effects sul localStorage stabiliti nell'operatore tap() 3]
     expect(localStorage.setItem).toHaveBeenCalledWith('jwt_token', 'fake-jwt');
     expect(localStorage.setItem).toHaveBeenCalledWith('user_role', 'ADMIN');
     expect(localStorage.setItem).toHaveBeenCalledWith('user_id', '1');

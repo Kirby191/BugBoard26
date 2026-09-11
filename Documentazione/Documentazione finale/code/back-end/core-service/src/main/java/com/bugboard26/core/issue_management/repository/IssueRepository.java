@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 /**
  * Repository JPA per la gestione in scrittura dell'entità Issue (Command Layer).
- * Fornisce i metodi necessari per le mutazioni di stato e le validazioni pre-inserimento[cite: 4].
+ * Fornisce i metodi necessari per le mutazioni di stato e le validazioni pre-inserimento 4].
  */
 @Repository
 public interface IssueRepository extends JpaRepository<Issue, Long> {
@@ -23,5 +23,5 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
     boolean existsByProjectIdAndTitle(Long projectId, String title);
 
     // I metodi standard come save(), findById(), existsById() e getReferenceById()
-    // sono ereditati nativamente da JpaRepository[cite: 4].
+    // sono ereditati nativamente da JpaRepository 4].
 }

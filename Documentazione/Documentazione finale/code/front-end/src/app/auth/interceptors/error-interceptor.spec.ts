@@ -21,14 +21,14 @@ describe('ErrorInterceptor', () => {
     const request = new HttpRequest('GET', '/api/test');
     const errorResponse = new HttpErrorResponse({ status: 401, statusText: 'Unauthorized' });
     
-    // La funzione next simula un fallimento di rete restituendo un errore RxJS[cite: 10]
+    // La funzione next simula un fallimento di rete restituendo un errore RxJS 10]
     const nextFn = vi.fn().mockReturnValue(throwError(() => errorResponse));
 
     TestBed.runInInjectionContext(() => {
       errorInterceptor(request, nextFn).subscribe({
         error: (err) => {
           expect(err).toBe(errorResponse);
-          // Verifica la classe di equivalenza "401" -> logout invocato[cite: 3]
+          // Verifica la classe di equivalenza "401" -> logout invocato 3]
           expect(authServiceMock.logout).toHaveBeenCalled();
         }
       });
@@ -43,7 +43,7 @@ describe('ErrorInterceptor', () => {
     TestBed.runInInjectionContext(() => {
       errorInterceptor(request, nextFn).subscribe({
         error: () => {
-          // Verifica la classe di equivalenza "403" -> logout invocato[cite: 3]
+          // Verifica la classe di equivalenza "403" -> logout invocato 3]
           expect(authServiceMock.logout).toHaveBeenCalled();
         }
       });
@@ -58,7 +58,7 @@ describe('ErrorInterceptor', () => {
     TestBed.runInInjectionContext(() => {
       errorInterceptor(request, nextFn).subscribe({
         error: () => {
-          // Verifica la classe di equivalenza "500" -> logout ignorato[cite: 3]
+          // Verifica la classe di equivalenza "500" -> logout ignorato 3]
           expect(authServiceMock.logout).not.toHaveBeenCalled();
         }
       });

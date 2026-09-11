@@ -127,7 +127,7 @@ describe('IssueDetailComponent', () => {
     expect(errorAlert).toBeTruthy();
     expect(errorAlert.textContent).toContain('Impossibile caricare i dettagli');
     
-    // DOM Testing: verifichiamo che il div .loading non esista più nel DOM[cite: 3]
+    // DOM Testing: verifichiamo che il div .loading non esista più nel DOM 3]
     const loadingIndicator = fixture.nativeElement.querySelector('.loading');
     expect(loadingIndicator).toBeNull();
   });

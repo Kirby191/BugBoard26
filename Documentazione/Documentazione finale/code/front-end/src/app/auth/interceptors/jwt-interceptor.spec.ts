@@ -19,12 +19,12 @@ describe('JwtInterceptor', () => {
   it('should add Authorization header if token exists', () => {
     authServiceMock.getToken.mockReturnValue('fake-token');
     
-    // Creiamo una richiesta mock uscente verso le API[cite: 10]
+    // Creiamo una richiesta mock uscente verso le API 10]
     const request = new HttpRequest('GET', '/api/issues');
     
     // Creiamo una funzione "next" fittizia per catturare l'output dell'interceptor
     const nextFn = vi.fn().mockImplementation((req: HttpRequest<any>) => {
-      // Verifichiamo che la richiesta clonata abbia l'header corretto[cite: 3]
+      // Verifichiamo che la richiesta clonata abbia l'header corretto 3]
       expect(req.headers.has('Authorization')).toBe(true);
       expect(req.headers.get('Authorization')).toBe('Bearer fake-token');
       return 'obs-mock';
@@ -42,7 +42,7 @@ describe('JwtInterceptor', () => {
     const request = new HttpRequest('GET', '/api/issues');
     
     const nextFn = vi.fn().mockImplementation((req: HttpRequest<any>) => {
-      // Verifichiamo che l'header non sia stato alterato[cite: 3]
+      // Verifichiamo che l'header non sia stato alterato 3]
       expect(req.headers.has('Authorization')).toBe(false);
       return 'obs-mock';
     });

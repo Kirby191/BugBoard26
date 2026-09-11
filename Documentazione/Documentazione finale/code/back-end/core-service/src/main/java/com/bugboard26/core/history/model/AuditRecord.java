@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 /**
  * Entità JPA che rappresenta un singolo log nel registro storico.
- * Mappa la tabella fisica 'bug_history' e garantisce l'immutabilità dei dati[cite: 10].
+ * Mappa la tabella fisica 'bug_history' e garantisce l'immutabilità dei dati 10].
  */
 @Entity
 @Table(name = "bug_history", schema = "bugboard")
@@ -24,7 +24,7 @@ public class AuditRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Associa l'evento unicamente alle segnalazioni di tipo BUG [cite: 10]
+    // Associa l'evento unicamente alle segnalazioni di tipo BUG  10]
     @Column(name = "bug_id", nullable = false, updatable = false)
     private Long bugId;
 
@@ -38,7 +38,7 @@ public class AuditRecord {
     @Column(name = "timestamp", nullable = false, updatable = false)
     private LocalDateTime timestamp;
 
-    // Relazione mappata sulla FK 'performed_by_user_id' e associata al ruolo 'author'[cite: 3, 10]
+    // Relazione mappata sulla FK 'performed_by_user_id' e associata al ruolo 'author' 3, 10]
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "performed_by_user_id",

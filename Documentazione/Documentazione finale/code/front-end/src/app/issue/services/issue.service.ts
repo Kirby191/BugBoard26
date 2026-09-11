@@ -38,7 +38,7 @@ export class IssueService {
     }));
 
     if (file) {
-      // Il backend si aspetta opzionalmente una RequestPart "file"[cite: 12].
+      // Il backend si aspetta opzionalmente una RequestPart "file" 12].
       formData.append('file', file);
     }
 

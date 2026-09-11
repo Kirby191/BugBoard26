@@ -36,7 +36,7 @@ describe('IssueFormComponent', () => {
     TestBed.resetTestingModule();
 
     // INIZIALIZZAZIONE MOCK SICURA:
-    // Aggiungiamo .mockReturnValue(of({})) per prevenire i TypeError sui subscribe()[cite: 6]
+    // Aggiungiamo .mockReturnValue(of({})) per prevenire i TypeError sui subscribe() 6]
     issueServiceMock = {
       createIssue: vi.fn().mockReturnValue(of({})),
       updateIssue: vi.fn().mockReturnValue(of({})),
@@ -87,7 +87,7 @@ describe('IssueFormComponent', () => {
       // Il form deve essere invalido all'avvio a causa dei Validators.required
       expect(component.issueForm.valid).toBe(false);
       
-      // Verifica l'uso del nuovo servizio separato per i progetti[cite: 4, 5]
+      // Verifica l'uso del nuovo servizio separato per i progetti 4, 5]
       expect(projectQueryServiceMock.getProjects).toHaveBeenCalled();
       
       // Lo status non serve in creazione, quindi deve essere disabilitato
@@ -97,7 +97,7 @@ describe('IssueFormComponent', () => {
     it('should enforce domain constraints (Title max 32, Desc max 500)', () => {
       fixture.detectChanges();
 
-      // Test validazione superamento limiti (Equivalence Classes: Invalid)[cite: 6, 7]
+      // Test validazione superamento limiti (Equivalence Classes: Invalid) 6, 7]
       component.issueForm.patchValue({
         projectId: 1,
         title: 'a'.repeat(33), // Troppo lungo
@@ -119,7 +119,7 @@ describe('IssueFormComponent', () => {
       component.onSubmit();
       fixture.detectChanges();
 
-      // Black-Box Testing: verifichiamo la comparsa dell'errore nell'HTML[cite: 6]
+      // Black-Box Testing: verifichiamo la comparsa dell'errore nell'HTML 6]
       const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
       expect(errorAlert).toBeTruthy();
       expect(errorAlert.textContent).toContain('Compila correttamente i campi');
@@ -171,7 +171,7 @@ describe('IssueFormComponent', () => {
       
       component.onSubmit();
 
-      // Verifica Branch: poiché dueDate è valorizzata, deve chiamare entrambi i metodi[cite: 6]
+      // Verifica Branch: poiché dueDate è valorizzata, deve chiamare entrambi i metodi 6]
       expect(issueServiceMock.updateIssue).toHaveBeenCalled();
       expect(issueServiceMock.setDueDate).toHaveBeenCalledWith(10, '2026-12-31');
       
@@ -188,7 +188,7 @@ describe('IssueFormComponent', () => {
 
       expect(issueServiceMock.updateIssue).toHaveBeenCalled();
       
-      // Verifichiamo il ramo "falso" della condizione dueDate (evitando il vecchio crash)[cite: 6]
+      // Verifichiamo il ramo "falso" della condizione dueDate (evitando il vecchio crash) 6]
       expect(issueServiceMock.setDueDate).not.toHaveBeenCalled(); 
     });
   });
@@ -197,7 +197,7 @@ describe('IssueFormComponent', () => {
     it('should display server error messages on API failure (DOM Testing)', () => {
       fixture.detectChanges();
       
-      // Mockiamo un errore 500 o 400 dal backend sovrascrivendo il mock predefinito[cite: 6]
+      // Mockiamo un errore 500 o 400 dal backend sovrascrivendo il mock predefinito 6]
       issueServiceMock.createIssue.mockReturnValue(throwError(() => ({
         error: { message: 'Errore generico dal server' }
       })));

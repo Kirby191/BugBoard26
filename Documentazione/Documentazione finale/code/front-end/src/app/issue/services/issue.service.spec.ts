@@ -45,7 +45,7 @@ describe('IssueService', () => {
       const req = httpMock.expectOne(API_ISSUES);
       expect(req.request.method).toBe('POST');
       
-      // Verifica l'uso di FormData per il Multipart richiesto dal back-end[cite: 4, 13]
+      // Verifica l'uso di FormData per il Multipart richiesto dal back-end 4, 13]
       expect(req.request.body instanceof FormData).toBe(true);
       const formData = req.request.body as FormData;
       expect(formData.has('issue')).toBe(true);
@@ -64,7 +64,7 @@ describe('IssueService', () => {
       
       const formData = req.request.body as FormData;
       expect(formData.has('issue')).toBe(true);
-      expect(formData.has('file')).toBe(true); // Il file è stato agganciato[cite: 4]
+      expect(formData.has('file')).toBe(true); // Il file è stato agganciato 4]
       expect(formData.get('file')).toBe(dummyFile);
 
       req.flush({});
@@ -77,7 +77,7 @@ describe('IssueService', () => {
 
       const req = httpMock.expectOne(`${API_ISSUES}/10`);
       expect(req.request.method).toBe('PUT');
-      expect(req.request.body).toEqual(updateDto); // Invio Standard JSON[cite: 4, 13]
+      expect(req.request.body).toEqual(updateDto); // Invio Standard JSON 4, 13]
       
       req.flush({});
     });
@@ -100,7 +100,7 @@ describe('IssueService', () => {
       const req = httpMock.expectOne(request => request.url === `${API_ISSUES}/10/due-date`);
       expect(req.request.method).toBe('PUT');
       
-      // Il backend Spring si aspetta la data come @RequestParam[cite: 4, 13]
+      // Il backend Spring si aspetta la data come @RequestParam 4, 13]
       expect(req.request.params.get('dueDate')).toBe('2026-12-31');
       expect(req.request.body).toBeNull(); 
       

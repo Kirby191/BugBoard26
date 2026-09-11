@@ -11,12 +11,12 @@ describe('ProjectService', () => {
   const API_PROJECTS = 'http://localhost:8080/api/projects';
 
   beforeEach(() => {
-    TestBed.resetTestingModule(); // Prevenzione crash Vitest[cite: 3]
+    TestBed.resetTestingModule(); // Prevenzione crash Vitest 3]
     TestBed.configureTestingModule({
       providers: [
         ProjectService,
         provideHttpClient(),
-        provideHttpClientTesting() // Sostituisce la rete reale[cite: 3]
+        provideHttpClientTesting() // Sostituisce la rete reale 3]
       ]
     });
     service = TestBed.inject(ProjectService);
@@ -24,7 +24,7 @@ describe('ProjectService', () => {
   });
 
   afterEach(() => {
-    httpMock.verify(); // Assicura che non ci siano chiamate HTTP pendenti[cite: 3]
+    httpMock.verify(); // Assicura che non ci siano chiamate HTTP pendenti 3]
   });
 
   it('should be created', () => {
@@ -41,7 +41,7 @@ describe('ProjectService', () => {
 
     const req = httpMock.expectOne(API_PROJECTS);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(requestDto); // Verifica payload JSON[cite: 6, 10]
+    expect(req.request.body).toEqual(requestDto); // Verifica payload JSON 6, 10]
     
     req.flush(mockResponse);
   });
