@@ -107,22 +107,4 @@ describe('IssueService', () => {
       req.flush({});
     });
   });
-
-  describe('Project Commands', () => {
-    it('should POST JSON to createProject', () => {
-      service.createProject({ name: 'Proj', description: 'Desc' }).subscribe();
-      
-      const req = httpMock.expectOne(API_PROJECTS);
-      expect(req.request.method).toBe('POST');
-      req.flush({});
-    });
-
-    it('should DELETE project', () => {
-      service.deleteProject(1).subscribe();
-      
-      const req = httpMock.expectOne(`${API_PROJECTS}/1`);
-      expect(req.request.method).toBe('DELETE');
-      req.flush({});
-    });
-  });
 });

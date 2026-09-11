@@ -7,9 +7,7 @@ import {
   CreateIssue, 
   UpdateIssue, 
   AssignBug, 
-  IssueResponse, 
-  CreateProject, 
-  UpdateProject 
+  IssueResponse
 } from '../models/issue-dtos';
 
 @Injectable({
@@ -75,33 +73,5 @@ export class IssueService {
     
     // Essendo una PUT che usa parametri in query string, il body può essere null
     return this.http.put<IssueResponse>(`${this.API_ISSUES}/${id}/due-date`, null, { params });
-  }
-
-  // ==========================================================================
-  // PROJECT COMMANDS (Scrittura e Mutazione Progetti)
-  // ==========================================================================
-
-  /**
-   * Crea un nuovo progetto (Admin).
-   * Mappato su POST /api/projects.
-   */
-  createProject(request: CreateProject): Observable<any> {
-    return this.http.post(`${this.API_PROJECTS}`, request);
-  }
-
-  /**
-   * Aggiorna un progetto esistente (Admin).
-   * Mappato su PUT /api/projects/{id}.
-   */
-  updateProject(id: number, request: UpdateProject): Observable<any> {
-    return this.http.put(`${this.API_PROJECTS}/${id}`, request);
-  }
-
-  /**
-   * Elimina un progetto (Solo Admin).
-   * Mappato su DELETE /api/projects/{id}.
-   */
-  deleteProject(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.API_PROJECTS}/${id}`);
   }
 }

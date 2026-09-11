@@ -8,3 +8,13 @@ export interface ErrorResponse {
   error: string;
   message: string;
 }
+/**
+ * Interfaccia per la rappresentazione dello stato di un progetto.
+ * Fondamentale per la visualizzazione della lista e per la gestione dei progetti.
+ */
+export interface ProjectState {
+    id: number;
+    name: string;
+    description: string;
+    lastModified: string;
+}

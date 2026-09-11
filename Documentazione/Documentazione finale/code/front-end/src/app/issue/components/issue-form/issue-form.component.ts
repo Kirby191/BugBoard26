@@ -3,14 +3,15 @@ import { CommonModule, Location } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-// Servizi per il Command (Scrittura) e Query (Lettura)[cite: 2, 4]
+// Servizi per il Command (Scrittura) e Query (Lettura)[cite: 1]
 import { IssueService } from '../../services/issue.service';
 import { DashboardService } from '../../../dashboard-query/services/dashboard.service';
+import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service'; // NUOVO: Servizio isolato per la lettura progetti
 
-// DTO e Types
+// DTO e Types[cite: 1]
 import { CreateIssue, UpdateIssue } from '../../models/issue-dtos';
 import { IssueType, IssuePriority, IssueStatus } from '../../../shared/models/enums';
-import { ProjectState } from '../../../dashboard-query/models/query-dtos';
+import { ProjectState } from '../../../shared/models/shared-dtos';
 
 @Component({
   selector: 'app-issue-form',
@@ -21,19 +22,20 @@ import { ProjectState } from '../../../dashboard-query/models/query-dtos';
 })
 export class IssueFormComponent implements OnInit {
 
-  // Iniezione delle dipendenze native e dei servizi
+  // Iniezione delle dipendenze native e dei servizi[cite: 1]
   private readonly issueService = inject(IssueService);
   private readonly dashboardService = inject(DashboardService);
+  private readonly projectQueryService = inject(ProjectQueryService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
 
-  // Enum esposte al template HTML per i menu a tendina
+  // Enum esposte al template HTML per i menu a tendina[cite: 1]
   protected readonly issueTypes: IssueType[] = ['BUG', 'FEATURE', 'QUESTION', 'DOCUMENTATION'];
   protected readonly issuePriorities: IssuePriority[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
   protected readonly issueStatuses: IssueStatus[] = ['TODO', 'IN_PROGRESS', 'DONE'];
 
-  // State Signals per la UI
+  // State Signals per la UI[cite: 1]
   protected readonly isEditMode = signal<boolean>(false);
   protected readonly issueId = signal<number | null>(null);
   protected readonly isSubmitting = signal<boolean>(false);
@@ -41,53 +43,53 @@ export class IssueFormComponent implements OnInit {
   protected readonly projects = signal<ProjectState[]>([]);
   protected readonly selectedFile = signal<File | null>(null);
 
-  // Definizione del Form Reattivo con applicazione stringente dei vincoli di Dominio
+  // Definizione del Form Reattivo con applicazione stringente dei vincoli di Dominio[cite: 1]
   issueForm = new FormGroup({
     projectId: new FormControl<number | null>(null, [Validators.required]),
-    title: new FormControl('', [Validators.required, Validators.maxLength(32)]), // Max 32 char
-    description: new FormControl('', [Validators.required, Validators.maxLength(500)]), // Max 500 char
+    title: new FormControl('', [Validators.required, Validators.maxLength(32)]),
+    description: new FormControl('', [Validators.required, Validators.maxLength(500)]),
     type: new FormControl<IssueType | null>(null, [Validators.required]),
-    status: new FormControl<IssueStatus | null>(null), // Usato solo in Edit Mode
-    priority: new FormControl<IssuePriority | null>(null), // Opzionale
-    dueDate: new FormControl<string | null>(null) // Opzionale
+    status: new FormControl<IssueStatus | null>(null),
+    priority: new FormControl<IssuePriority | null>(null),
+    dueDate: new FormControl<string | null>(null)
   });
 
   ngOnInit(): void {
-    // 1. Carica i progetti disponibili per la select
+    // 1. Carica i progetti disponibili in sola lettura per la select (Query Layer)[cite: 1]
     this.loadProjects();
 
-    // 2. Determina se siamo in Creazione o Modifica analizzando la rotta
+    // 2. Determina se siamo in Creazione o Modifica analizzando la rotta[cite: 1]
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.isEditMode.set(true);
       this.issueId.set(Number(idParam));
       this.prepareEditMode(this.issueId()!);
     } else {
-      // In creazione lo status non serve, è TODO di default nel back-end[cite: 10]
+      // In creazione lo status non serve, è TODO di default nel back-end[cite: 1]
       this.issueForm.controls.status.disable();
     }
   }
 
   /**
-   * Carica la lista dei progetti interrogando il Query Layer.
+   * Carica la lista dei progetti interrogando il Query Layer tramite il nuovo ProjectQueryService.
    */
   private loadProjects(): void {
-    this.dashboardService.getProjects().subscribe({
+    this.projectQueryService.getProjects().subscribe({
       next: (projs) => this.projects.set(projs),
       error: () => this.errorMessage.set('Impossibile caricare la lista dei progetti.')
     });
   }
 
   /**
-   * Prepara il form per la modifica, bloccando i campi non modificabili.
+   * Prepara il form per la modifica, bloccando i campi di contesto immutabili.
    */
   private prepareEditMode(id: number): void {
-    // In edit mode disabilitiamo progetto e tipo, in quanto immodificabili[cite: 9]
+    // In edit mode disabilitiamo progetto e tipo[cite: 1]
     this.issueForm.controls.projectId.disable();
     this.issueForm.controls.type.disable();
     this.issueForm.controls.status.setValidators([Validators.required]); // Lo stato diviene obbligatorio
     
-    // Leggiamo dal Query Layer i dati attuali della Issue
+    // Leggiamo dal Query Layer i dati attuali della Issue (Questo richiede ancora DashboardService)[cite: 1]
     this.dashboardService.getIssueDetailed(id).subscribe({
       next: (data) => {
         this.issueForm.patchValue({
@@ -143,12 +145,12 @@ export class IssueFormComponent implements OnInit {
       title: formValues.title!,
       description: formValues.description!,
       type: formValues.type as IssueType,
-      priority: formValues.priority as IssuePriority || undefined
+      priority: formValues.priority as IssuePriority || undefined,
     };
 
     const file = this.selectedFile() || undefined;
 
-    // Delegazione all'IssueService passando DTO e opzionalmente l'allegato
+    // Delegazione all'IssueService passando DTO e opzionalmente l'allegato[cite: 1]
     this.issueService.createIssue(request, file).subscribe({
       next: () => {
         this.isSubmitting.set(false);
@@ -172,10 +174,10 @@ export class IssueFormComponent implements OnInit {
       priority: formValues.priority as IssuePriority || undefined
     };
 
-    // Chiama l'aggiornamento generale
+    // Chiama l'aggiornamento generale[cite: 1]
     this.issueService.updateIssue(id, request).subscribe({
       next: () => {
-        // Se c'è una data di scadenza, la aggiorniamo con una seconda chiamata
+        // Se c'è una data di scadenza, la aggiorniamo con una seconda chiamata (Funzionalità 18)
         if (formValues.dueDate) {
            this.issueService.setDueDate(id, formValues.dueDate).subscribe({
              next: () => this.navigateBack(),

@@ -9,9 +9,10 @@ import {
   IssueFilter, 
   DashboardStats, 
   UserReference,
-  ProjectState,
   BugHistory
 } from '../models/query-dtos';
+
+import { ProjectState } from '../../shared/models/shared-dtos';
 
 @Injectable({
   providedIn: 'root'
@@ -76,13 +77,6 @@ export class DashboardService {
    */
   getUsersReference(): Observable<UserReference[]> {
     return this.http.get<UserReference[]>(this.API_USERS);
-  }
-
-  /**
-   * Recupera la lista dei progetti per popolare filtri e form di creazione.
-   */
-  getProjects(): Observable<ProjectState[]> {
-    return this.http.get<ProjectState[]>(this.API_PROJECTS);
   }
 
   /**

@@ -16,13 +16,6 @@ export interface NotificationDTO {
     isRead: boolean;
 }
 
-export interface ProjectState {
-    id: number;
-    name: string;
-    description: string;
-    lastModified: string;
-}
-
 export interface DashboardStats {
     totalIssues: number;
     todoCount: number;

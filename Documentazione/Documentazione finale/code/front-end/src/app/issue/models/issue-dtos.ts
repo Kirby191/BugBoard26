@@ -36,16 +36,3 @@ export interface IssueResponse {
   priority?: IssuePriority; // Opzionale
   assigneeId?: number;      // Opzionale: se non assegnato arriva null/undefined
 }
-
-/**
- * DTO solo per admin per la gestione progetti
- */
-export interface CreateProject {
-    name: string;
-    description: string;
-}
-
-export interface UpdateProject {
-    name: string;
-    description: string;
-}
