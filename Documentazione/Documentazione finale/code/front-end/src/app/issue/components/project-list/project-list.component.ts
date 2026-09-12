@@ -1,17 +1,15 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-
-// Servizi
 import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service';
 import { ProjectService } from '../../services/project.service';
 import { ProjectState } from '../../../shared/models/shared-dtos';
-import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { ModalComponent } from '../../../shared/components/modal/modal.component'; // <-- Aggiunto
 
 @Component({
   selector: 'app-project-list',
   standalone: true,
-  imports: [CommonModule, ModalComponent], 
+  imports: [CommonModule, ModalComponent], // <-- Aggiunto ModalComponent
   templateUrl: './project-list.component.html',
   styleUrl: './project-list.component.scss'
 })
@@ -55,39 +53,27 @@ export class ProjectListComponent implements OnInit {
   }
 
   // ==========================================
-  // GESTIONE ELIMINAZIONE
+  // GESTIONE ELIMINAZIONE CON MODALE
   // ==========================================
 
-  /**
-   * 1. Innescata dal click sul tasto "Elimina" nella tabella.
-   * Salva l'ID e apre il modale grafico.
-   */
   openDeleteModal(id: number): void {
     this.projectToDelete.set(id);
     this.isModalOpen.set(true);
   }
 
-  /**
-   * 2. Innescata dall'evento (cancel) del ModalComponent
-   */
   cancelDelete(): void {
     this.isModalOpen.set(false);
     this.projectToDelete.set(null);
   }
 
-  /**
-   * 3. Innescata dall'evento (confirm) del ModalComponent.
-   * Esegue la vera chiamata HTTP al Command Layer.
-   */
   confirmDelete(): void {
     const id = this.projectToDelete();
     if (id !== null) {
-      this.isModalOpen.set(false); // Chiudiamo sùbito il modale
-      
+      this.isModalOpen.set(false);
       this.projectCommandService.deleteProject(id).subscribe({
         next: () => {
           this.projectToDelete.set(null);
-          this.loadProjects(); // Ricarica la lista per riflettere l'eliminazione
+          this.loadProjects(); // Ricarica la lista
         },
         error: (err) => {
           this.projectToDelete.set(null);

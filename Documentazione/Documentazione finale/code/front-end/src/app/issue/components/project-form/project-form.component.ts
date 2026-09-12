@@ -5,11 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service';
 import { CreateProject, UpdateProject } from '../../models/project-dtos';
+import { ModalComponent } from '../../../shared/components/modal/modal.component'; // <-- Aggiunto
 
 @Component({
   selector: 'app-project-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent], // <-- Aggiunto ModalComponent
   templateUrl: './project-form.component.html',
   styleUrls: ['./project-form.component.scss']
 })
@@ -24,6 +25,9 @@ export class ProjectFormComponent implements OnInit {
   protected readonly projectId = signal<number | null>(null);
   protected readonly isSubmitting = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
+  
+  // --- STATO DEL MODALE DI AVVISO ---
+  protected readonly isModalOpen = signal<boolean>(false);
 
   projectForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(150)]),
@@ -80,6 +84,15 @@ export class ProjectFormComponent implements OnInit {
   }
 
   navigateBack(): void {
+    // Intercetta se l'utente ha scritto qualcosa
+    if (this.projectForm.dirty) {
+      this.isModalOpen.set(true);
+    } else {
+      this.forceNavigateBack();
+    }
+  }
+
+  forceNavigateBack(): void {
     this.location.back();
   }
 }
