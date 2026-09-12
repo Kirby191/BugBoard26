@@ -48,8 +48,8 @@
               <tr>
                 <td>#{{ issue.id }}</td>
                 <td class="fw-bold">{{ issue.title }}</td>
-                <td><span class="badge type-{{issue.type | lowercase}}">{{ issue.type }}</span></td>
-                <td><span class="badge status-{{issue.status | lowercase}}">{{ issue.status }}</span></td>
+                <td><app-status-badge category="type" [value]="issue.type"></app-status-badge></td>
+                <td><app-status-badge category="status" [value]="issue.status"></app-status-badge></td>
                 <td>{{ issue.assigneeEmail || 'Non assegnato' }}</td>
                 <td>
                   <button class="btn btn-sm btn-info" (click)="goToIssueDetail(issue.id)">Vedi Issue</button>

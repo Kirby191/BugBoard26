@@ -8,6 +8,36 @@
     </button>
   </div>
 
+  <div class="filter-bar card" style="padding: 15px; margin-bottom: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+    <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+      
+      <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+        <label for="status" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Stato</label>
+        <select id="status" formControlName="status" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+          <option [ngValue]="null">Tutti gli stati</option>
+          @for (status of issueStatuses; track status) {
+            <option [value]="status">{{ status }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+        <label for="type" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Tipo</label>
+        <select id="type" formControlName="type" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+          <option [ngValue]="null">Tutti i tipi</option>
+          @for (type of issueTypes; track type) {
+            <option [value]="type">{{ type }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-actions" style="display: flex; gap: 10px;">
+        <button type="submit" class="btn btn-primary" style="padding: 8px 15px;">Applica Filtri</button>
+        <button type="button" class="btn btn-secondary" (click)="resetFilters()" style="padding: 8px 15px;">Reset</button>
+      </div>
+    </form>
+  </div>
+
   <!-- Gestione Stato: Errore -->
   @if (errorMessage()) {
     <div class="alert alert-danger">
@@ -44,10 +74,15 @@
             <td class="fw-bold">{{ issue.title }}</td>
             <td>{{ issue.projectName }}</td>
             
-            <!-- Qui andranno integrati gli StatusBadgeComponent dallo SharedModule -->
-            <td><span class="badge type-{{issue.type | lowercase}}">{{ issue.type }}</span></td>
-            <td><span class="badge status-{{issue.status | lowercase}}">{{ issue.status }}</span></td>
-            <td>{{ issue.priority || 'N/A' }}</td>
+            <td><app-status-badge category="type" [value]="issue.type"></app-status-badge></td>
+            <td><app-status-badge category="status" [value]="issue.status"></app-status-badge></td>
+            <td>
+            @if (issue.priority) {
+              <app-status-badge category="priority" [value]="issue.priority"></app-status-badge>
+            } @else {
+              N/A
+            }
+            </td>
             
             <td>{{ issue.assigneeEmail || 'Non Assegnato' }}</td>
             

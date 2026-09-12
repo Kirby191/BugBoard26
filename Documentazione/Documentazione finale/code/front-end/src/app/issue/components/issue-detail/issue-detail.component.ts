@@ -1,20 +1,20 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormsModule } from '@angular/forms'; // Necessario per l'ngModel del modale
+import { FormsModule } from '@angular/forms'; 
 
-// Servizi
 import { DashboardService } from '../../../dashboard-query/services/dashboard.service';
-import { IssueService } from '../../services/issue.service'; // Necessario per assegnare
-
-// DTOs e Modale Condiviso
+import { IssueService } from '../../services/issue.service'; 
 import { IssueDetailed, BugHistory, UserReference } from '../../../dashboard-query/models/query-dtos';
+
+// IMPORTIAMO I COMPONENTI CONDIVISI
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 
 @Component({
   selector: 'app-issue-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent], // <-- Aggiunti
+  imports: [CommonModule, FormsModule, ModalComponent, StatusBadgeComponent], 
   templateUrl: './issue-detail.component.html',
   styleUrl: './issue-detail.component.scss'
 })

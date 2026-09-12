@@ -26,15 +26,20 @@
       <div class="card-header">
         <h2>#{{ i.id }} - {{ i.title }}</h2>
         <div class="badges">
-          <span class="badge type-{{i.type | lowercase}}">{{ i.type }}</span>
-          <span class="badge status-{{i.status | lowercase}}">{{ i.status }}</span>
+          <app-status-badge category="type" [value]="i.type"></app-status-badge>
+          <app-status-badge category="status" [value]="i.status"></app-status-badge>
         </div>
       </div>
 
       <div class="card-body">
         <div class="metadata-grid">
           <div class="meta-item"><strong>Progetto:</strong> {{ i.projectName }}</div>
-          <div class="meta-item"><strong>Priorità:</strong> {{ i.priority || 'Non assegnata' }}</div>
+          <strong>Priorità:</strong> 
+            @if (i.priority) {
+              <app-status-badge category="priority" [value]="i.priority"></app-status-badge>
+            } @else {
+              Non assegnata
+            }
           <div class="meta-item"><strong>Scadenza:</strong> {{ i.dueDate ? (i.dueDate | date:'dd/MM/yyyy') : 'Nessuna' }}</div>
           <div class="meta-item"><strong>Creato da:</strong> {{ i.creatorEmail }} (il {{ i.createdAt | date:'dd/MM/yyyy HH:mm' }})</div>
           <div class="meta-item">

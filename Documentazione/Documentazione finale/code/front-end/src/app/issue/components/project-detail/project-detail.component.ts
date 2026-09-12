@@ -10,10 +10,12 @@ import { DashboardService } from '../../../dashboard-query/services/dashboard.se
 import { IssueSummary } from '../../../dashboard-query/models/query-dtos';
 import { ProjectState } from '../../../shared/models/shared-dtos';
 
+import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, StatusBadgeComponent],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
