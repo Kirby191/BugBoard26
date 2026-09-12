@@ -12,6 +12,9 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 export class NavbarComponent {
   // Input: Riceve lo stato di autenticazione dall'esterno (Smart Component)
   isLoggedIn = input<boolean>(false);
+  
+  // NUOVO INPUT: Riceve il ruolo di amministratore per abilitare la pagina di registrazione (Funzionalità 1 e 9)
+  isAdmin = input<boolean>(false);
 
   // Output: Emette un evento quando l'utente clicca su "Logout"
   logoutAction = output<void>();
