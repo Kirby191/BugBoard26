@@ -18,24 +18,41 @@ export class RegisterComponent {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
   protected readonly isSubmitting = signal<boolean>(false);
+  protected readonly isPasswordFocused = signal<boolean>(false);
   
-  // Opzioni di ruolo per la Funzionalità 1
   protected readonly roles: UserRole[] = ['UTENTE', 'ADMIN'];
 
-  // Form con validatori identici al DTO UserRegistration del backend[cite: 5]
   registerForm = new FormGroup({
-    email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [Validators.required, Validators.minLength(8)]),
+    // Regex per forzare il formato "testo@testo.testo"
+    email: new FormControl('', [
+      Validators.required, 
+      Validators.pattern(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
+    ]),
+    // Regex globale che assicura che il form sia valido solo se tutte le regole sono rispettate
+    password: new FormControl('', [
+      Validators.required, 
+      Validators.pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/)
+    ]),
     username: new FormControl('', [Validators.required, Validators.maxLength(50)]),
     role: new FormControl<UserRole | null>(null, [Validators.required])
   });
+
+  // --- GETTERS PER LA CHECKLIST DINAMICA NELL'HTML ---
+  get pwdValue(): string {
+    return this.registerForm.get('password')?.value || '';
+  }
+
+  get hasMinLength(): boolean { return this.pwdValue.length >= 8; }
+  get hasUpper(): boolean { return /[A-Z]/.test(this.pwdValue); }
+  get hasNumber(): boolean { return /[0-9]/.test(this.pwdValue); }
+  get hasSpecial(): boolean { return /[\W_]/.test(this.pwdValue); }
 
   register() {
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
     if (this.registerForm.invalid) {
-      this.errorMessage.set('Compila tutti i campi correttamente rispettando i vincoli di sicurezza.');
+      this.errorMessage.set('Compila correttamente tutti i campi richiesti.');
       this.registerForm.markAllAsTouched();
       return;
     }
@@ -51,12 +68,12 @@ export class RegisterComponent {
 
     this.authService.register(request).subscribe({
       next: (response) => {
-        this.successMessage.set(`Utente ${response.username} creato con successo come ${response.role}!`);
-        this.registerForm.reset(); // Svuota il form dopo il successo
+        this.successMessage.set(`Utente ${response.username} creato con successo.`);
+        this.registerForm.reset();
         this.isSubmitting.set(false);
       },
       error: (err) => {
-        this.errorMessage.set(err.error?.message || 'Errore durante la registrazione.');
+        this.errorMessage.set(err.error?.message || 'Errore durante la creazione utenza.');
         this.isSubmitting.set(false);
       }
     });

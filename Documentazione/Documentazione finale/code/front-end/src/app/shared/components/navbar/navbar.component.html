@@ -11,7 +11,7 @@
       <a routerLink="/issues" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Segnalazioni</a>
         @if (isAdmin()) {
           <a routerLink="/admin/register" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link" style="color: #ffc107;">Nuova Utenza</a>
-      }
+    }
       <!-- Content Projection: Qui verrà iniettata la campanellina delle notifiche -->
       <div class="nav-widget">
         <ng-content></ng-content>

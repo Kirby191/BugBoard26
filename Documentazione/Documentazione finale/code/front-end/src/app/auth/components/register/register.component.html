@@ -1,57 +1,80 @@
-<div class="register-container">
-  <h1>Nuova Utenza</h1>
-  <p class="subtitle">Creazione riservata agli Amministratori</p>
+<div class="register-container card">
+  <div class="card-header">
+    <h2>Nuova Utenza</h2>
+  </div>
 
-  @if (errorMessage()) {
-    <div class="error-banner">{{ errorMessage() }}</div>
-  }
-  @if (successMessage()) {
-    <div class="success-banner">{{ successMessage() }}</div>
-  }
+  <div class="card-body">
+    @if (errorMessage()) {
+      <div class="alert alert-danger">{{ errorMessage() }}</div>
+    }
+    @if (successMessage()) {
+      <div class="alert alert-success">{{ successMessage() }}</div>
+    }
 
-  <form [formGroup]="registerForm" (ngSubmit)="register()">
-    
-    <div class="form-group">
-      <label for="email">Email *</label>
-      <input id="email" type="email" formControlName="email" placeholder="es. dev@bugboard26.com" />
-      @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
-        <small class="error-text">Inserisci un'email valida.</small>
-      }
-    </div>
-
-    <div class="form-group">
-      <label for="username">Username *</label>
-      <input id="username" type="text" formControlName="username" placeholder="Scegli un nome utente" maxlength="50" />
-      @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
-        <small class="error-text">Lo username è obbligatorio.</small>
-      }
-    </div>
-
-    <div class="form-row">
-      <div class="form-group half-width">
-        <label for="password">Password *</label>
-        <input id="password" type="password" formControlName="password" placeholder="Min. 8 caratteri" />
-        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
-          <small class="error-text">La password deve avere almeno 8 caratteri.</small>
+    <form [formGroup]="registerForm" (ngSubmit)="register()">
+      
+      <div class="form-group">
+        <label for="email">Email aziendale *</label>
+        <input id="email" type="email" formControlName="email" class="form-control" placeholder="es. mario.rossi@bugboard26.com" />
+        @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+          <small class="error-text">Inserisci un'email valida (es. utente&#64;dominio.com).</small>
         }
       </div>
 
-      <div class="form-group half-width">
-        <label for="role">Ruolo *</label>
-        <select id="role" formControlName="role">
-          <option [ngValue]="null" disabled>-- Seleziona --</option>
-          @for (role of roles; track role) {
-            <option [value]="role">{{ role === 'ADMIN' ? 'Amministrazione' : 'Normale' }}</option>
+      <div class="form-group">
+        <label for="username">Nome Utente *</label>
+        <input id="username" type="text" formControlName="username" class="form-control" placeholder="Scegli un nome utente" maxlength="50" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label for="password">Password *</label>
+          <input 
+            id="password" 
+            type="password" 
+            formControlName="password" 
+            class="form-control" 
+            placeholder="Digita la password" 
+            (focus)="isPasswordFocused.set(true)"
+            (blur)="isPasswordFocused.set(false)"
+          />
+          
+          <!-- La checklist appare SOLO se l'input è selezionato (focus) 
+               OPPURE se l'utente ha scritto qualcosa ma ha un errore -->
+          @if (isPasswordFocused() || (pwdValue.length > 0 && registerForm.get('password')?.invalid)) {
+            <ul class="pwd-checklist">
+              <li [class.valid]="hasMinLength">
+                <span class="icon">{{ hasMinLength ? '✓' : '✗' }}</span> Almeno 8 caratteri
+              </li>
+              <li [class.valid]="hasUpper">
+                <span class="icon">{{ hasUpper ? '✓' : '✗' }}</span> Almeno 1 Lettera Maiuscola
+              </li>
+              <li [class.valid]="hasSpecial">
+                <span class="icon">{{ hasSpecial ? '✓' : '✗' }}</span> Almeno 1 carattere speciale
+              </li>
+              <li [class.valid]="hasNumber">
+                <span class="icon">{{ hasNumber ? '✓' : '✗' }}</span> Almeno 1 numero [0-9]
+              </li>
+            </ul>
           }
-        </select>
-        @if (registerForm.get('role')?.invalid && registerForm.get('role')?.touched) {
-          <small class="error-text">Seleziona un ruolo.</small>
-        }
-      </div>
-    </div>
+        </div>
 
-    <button type="submit" class="btn-submit" [disabled]="isSubmitting()">
-      {{ isSubmitting() ? 'Creazione in corso...' : 'Crea Utente' }}
-    </button>
-  </form>
+        <div class="form-group half-width">
+          <label for="role">Livello di Accesso *</label>
+          <select id="role" formControlName="role" class="form-control">
+            <option [ngValue]="null" disabled>-- Seleziona --</option>
+            @for (role of roles; track role) {
+              <option [value]="role">{{ role === 'ADMIN' ? 'Amministrazione' : 'Normale' }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? 'Creazione in corso...' : 'Crea Utente' }}
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

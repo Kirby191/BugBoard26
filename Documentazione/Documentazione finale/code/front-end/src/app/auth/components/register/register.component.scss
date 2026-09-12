@@ -52,4 +52,32 @@
     &:hover:not(:disabled) { background-color: #0d165c; }
     &:disabled { opacity: 0.65; cursor: not-allowed; }
   }
+
+  .pwd-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+    font-size: 0.85rem;
+    color: #6c757d; // Grigio di default
+    
+    li {
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      transition: color 0.2s;
+      
+      .icon {
+        display: inline-block;
+        width: 16px;
+        font-weight: bold;
+        margin-right: 5px;
+      }
+
+      // Quando la regola è rispettata (classe applicata da Angular dinamicamente)
+      &.valid {
+        color: #198754; // Verde successo
+      }
+      &:not(.valid) .icon { color: #dc3545; } // Rosso errore
+    }
+    }
 }
