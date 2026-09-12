@@ -25,6 +25,7 @@ CREATE TABLE users (
 
 -- Permessi su users
 GRANT ALL PRIVILEGES ON TABLE users TO auth_service_user;
+GRANT USAGE, SELECT ON SEQUENCE users_id_seq TO auth_service_user;
 
 -- Vista Read-Only per il Core Service
 CREATE VIEW user_reference AS SELECT id, email, username, role FROM users;
@@ -89,6 +90,13 @@ CREATE TABLE notifications (
 
 -- Permessi su dominio applicativo al Core Service
 GRANT ALL PRIVILEGES ON TABLE projects, issues, attachments, bug_history, notifications TO core_service_user;
+GRANT USAGE, SELECT ON SEQUENCE
+    projects_id_seq,
+    issues_id_seq,
+    attachments_id_seq,
+    bug_history_id_seq,
+    notifications_id_seq
+TO core_service_user;
 
 -- 8. Indici per Performance
 CREATE INDEX idx_issues_project_status ON issues(project_id, status);
