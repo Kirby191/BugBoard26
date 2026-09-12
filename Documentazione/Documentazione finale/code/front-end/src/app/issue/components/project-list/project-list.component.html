@@ -28,7 +28,9 @@
             <td>{{ project.lastModified | date:'dd/MM/yyyy' }}</td>
             <td class="actions-cell">
               <button class="btn btn-sm btn-warning" (click)="navigateToEdit(project.id)">Modifica</button>
-              <button class="btn btn-sm btn-danger" (click)="deleteProject(project.id)">Elimina</button>
+              
+              <!-- Invece di chiamare direttamente il DB, apre il modale -->
+              <button class="btn btn-sm btn-danger" (click)="openDeleteModal(project.id)">Elimina</button>
             </td>
           </tr>
         } @empty {
@@ -40,3 +42,17 @@
     </table>
   }
 </div>
+
+<!-- ========================================== -->
+<!-- ELIMINAZIONE PROGETTO          -->
+<!-- ========================================== -->
+<app-modal 
+  [isOpen]="isModalOpen()" 
+  title="Conferma Eliminazione" 
+  message="Sei sicuro di voler eliminare questo progetto? Tutte le issue collegate verranno eliminate in modo irreversibile." 
+  type="danger"
+  confirmText="Sì, Elimina"
+  cancelText="Annulla"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()">
+</app-modal>

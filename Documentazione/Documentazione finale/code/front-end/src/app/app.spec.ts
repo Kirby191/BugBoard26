@@ -3,13 +3,34 @@ import { AppComponent } from './app.component';
 import { provideRouter } from '@angular/router';
 import { By } from '@angular/platform-browser';
 import { RouterOutlet } from '@angular/router';
+import { AuthService } from './auth/services/auth.service';
+import { NotificationService } from './dashboard-query/services/notification.service';
+import { of } from 'rxjs';
 
 describe('AppComponent', () => {
+  // 1. Creiamo i mock dei servizi per proteggere l'Isolation Testing
+  let authServiceMock: any;
+  let notificationServiceMock: any;
+
   beforeEach(async () => {
+    // Simuliamo un utente loggato di default per poter testare tutti i link della Navbar
+    authServiceMock = {
+      isLoggedIn: vi.fn().mockReturnValue(true),
+      logout: vi.fn()
+    };
+
+    // Simuliamo il servizio notifiche (ritorna un array vuoto per evitare undefined)
+    notificationServiceMock = {
+      getUnreadNotifications: vi.fn().mockReturnValue(of([]))
+    };
+
     await TestBed.configureTestingModule({
       imports: [AppComponent],
-      // Forniamo un router fittizio per isolare il componente ed evitare l'errore NG0201
-      providers: [provideRouter([])] 
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: authServiceMock },
+        { provide: NotificationService, useValue: notificationServiceMock }
+      ]
     }).compileComponents();
   });
 
@@ -19,39 +40,52 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should display the correct brand name', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges(); // Triggera il ciclo di rendering del DOM HTML
-
-    const compiled = fixture.nativeElement as HTMLElement;
-
-    expect(compiled.querySelector('strong')?.textContent).toContain('BugBoard26');
-  });
-
-  it('should render the navigation bar with brand and ALL correct router links', () => {
+  it('should render the navigation bar with brand and ALL correct router links when logged in', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges(); // Triggera il ciclo di rendering del DOM HTML
     
     const compiled = fixture.nativeElement as HTMLElement;
     
-    // 1. Verifichiamo la presenza del Brand Name
-    const brand = compiled.querySelector('strong');
+    // 1. Verifichiamo la presenza del Brand Name nella Navbar
+    const brand = compiled.querySelector('.brand-text');
     expect(brand?.textContent).toContain('BugBoard26');
 
-    // 2. Estraiamo la NodeList di TUTTI i link usando querySelectorAll
-    const links = compiled.querySelectorAll('a');
-    expect(links.length).toBe(3);
+    // 2. Estraiamo TUTTI i link di navigazione
+    const links = compiled.querySelectorAll('.nav-link');
+    expect(links.length).toBe(2);
     
-    // Verifichiamo la corretta renderizzazione della branch 1 (Login)
+    // Verifichiamo la corretta renderizzazione della branch (Projects)
+    expect(links[0].textContent).toContain('Progetti');
+    expect(links[0].getAttribute('routerLink')).toBe('/projects');
+
+    // Verifichiamo la corretta renderizzazione della branch (Issues)
+    expect(links[1].textContent).toContain('Segnalazioni');
+    expect(links[1].getAttribute('routerLink')).toBe('/issues');
+  });
+
+  it('should only render Login link when user is NOT logged in', () => {
+    // Forziamo il mock a restituire false
+    authServiceMock.isLoggedIn.mockReturnValue(false);
+    
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    
+    const compiled = fixture.nativeElement as HTMLElement;
+    const links = compiled.querySelectorAll('.nav-link');
+    
+    expect(links.length).toBe(1);
     expect(links[0].textContent).toContain('Login');
     expect(links[0].getAttribute('routerLink')).toBe('/login');
+  });
 
-    // Verifichiamo la corretta renderizzazione della branch 2 (Issues)
-    expect(links[1].textContent).toContain('Issues');
-    expect(links[1].getAttribute('routerLink')).toBe('/issues');
-    // Verifichiamo la corretta renderizzazione della branch 3 (Projects)
-    expect(links[2].textContent).toContain('Projects');
-    expect(links[2].getAttribute('routerLink')).toBe('/projects');
+  it('should call authService.logout() when logout button is clicked', () => {
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
+    
+    const logoutBtn = fixture.nativeElement.querySelector('.btn-logout');
+    logoutBtn.click();
+    
+    expect(authServiceMock.logout).toHaveBeenCalled();
   });
 
   it('should contain a router-outlet for SPA navigation', () => {

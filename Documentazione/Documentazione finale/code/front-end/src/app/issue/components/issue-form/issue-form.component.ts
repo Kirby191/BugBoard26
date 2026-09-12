@@ -3,12 +3,15 @@ import { CommonModule, Location } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-// Servizi per il Command (Scrittura) e Query (Lettura) 1]
+// Servizi
 import { IssueService } from '../../services/issue.service';
 import { DashboardService } from '../../../dashboard-query/services/dashboard.service';
-import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service'; // NUOVO: Servizio isolato per la lettura progetti
+import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service';
 
-// DTO e Types 1]
+// Componente Condiviso (Modale)
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
+
+// DTO e Types
 import { CreateIssue, UpdateIssue } from '../../models/issue-dtos';
 import { IssueType, IssuePriority, IssueStatus } from '../../../shared/models/enums';
 import { ProjectState } from '../../../shared/models/shared-dtos';
@@ -16,13 +19,12 @@ import { ProjectState } from '../../../shared/models/shared-dtos';
 @Component({
   selector: 'app-issue-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent], // <-- Aggiunto ModalComponent
   templateUrl: './issue-form.component.html',
   styleUrl: './issue-form.component.scss'
 })
 export class IssueFormComponent implements OnInit {
 
-  // Iniezione delle dipendenze native e dei servizi 1]
   private readonly issueService = inject(IssueService);
   private readonly dashboardService = inject(DashboardService);
   private readonly projectQueryService = inject(ProjectQueryService);
@@ -30,20 +32,20 @@ export class IssueFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
 
-  // Enum esposte al template HTML per i menu a tendina 1]
   protected readonly issueTypes: IssueType[] = ['BUG', 'FEATURE', 'QUESTION', 'DOCUMENTATION'];
   protected readonly issuePriorities: IssuePriority[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
   protected readonly issueStatuses: IssueStatus[] = ['TODO', 'IN_PROGRESS', 'DONE'];
 
-  // State Signals per la UI 1]
   protected readonly isEditMode = signal<boolean>(false);
   protected readonly issueId = signal<number | null>(null);
   protected readonly isSubmitting = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly projects = signal<ProjectState[]>([]);
   protected readonly selectedFile = signal<File | null>(null);
+  
+  // STATO DEL MODALE DI AVVISO
+  protected readonly isModalOpen = signal<boolean>(false);
 
-  // Definizione del Form Reattivo con applicazione stringente dei vincoli di Dominio 1]
   issueForm = new FormGroup({
     projectId: new FormControl<number | null>(null, [Validators.required]),
     title: new FormControl('', [Validators.required, Validators.maxLength(32)]),
@@ -55,24 +57,17 @@ export class IssueFormComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    // 1. Carica i progetti disponibili in sola lettura per la select (Query Layer) 1]
     this.loadProjects();
-
-    // 2. Determina se siamo in Creazione o Modifica analizzando la rotta 1]
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.isEditMode.set(true);
       this.issueId.set(Number(idParam));
       this.prepareEditMode(this.issueId()!);
     } else {
-      // In creazione lo status non serve, è TODO di default nel back-end 1]
       this.issueForm.controls.status.disable();
     }
   }
 
-  /**
-   * Carica la lista dei progetti interrogando il Query Layer tramite il nuovo ProjectQueryService.
-   */
   private loadProjects(): void {
     this.projectQueryService.getProjects().subscribe({
       next: (projs) => this.projects.set(projs),
@@ -80,16 +75,11 @@ export class IssueFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Prepara il form per la modifica, bloccando i campi di contesto immutabili.
-   */
   private prepareEditMode(id: number): void {
-    // In edit mode disabilitiamo progetto e tipo 1]
     this.issueForm.controls.projectId.disable();
     this.issueForm.controls.type.disable();
-    this.issueForm.controls.status.setValidators([Validators.required]); // Lo stato diviene obbligatorio
+    this.issueForm.controls.status.setValidators([Validators.required]);
     
-    // Leggiamo dal Query Layer i dati attuali della Issue (Questo richiede ancora DashboardService) 1]
     this.dashboardService.getIssueDetailed(id).subscribe({
       next: (data) => {
         this.issueForm.patchValue({
@@ -106,9 +96,6 @@ export class IssueFormComponent implements OnInit {
     });
   }
 
-  /**
-   * Gestisce la selezione di un file multimediale dal form HTML.
-   */
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -116,20 +103,14 @@ export class IssueFormComponent implements OnInit {
     }
   }
 
-  /**
-   * Esegue l'invio del form smistando verso creazione o modifica nel Command Layer.
-   */
   onSubmit(): void {
     this.errorMessage.set(null);
-
     if (this.issueForm.invalid) {
       this.issueForm.markAllAsTouched();
       this.errorMessage.set('Compila correttamente i campi obbligatori rispettando le lunghezze massime.');
       return;
     }
-
     this.isSubmitting.set(true);
-
     if (this.isEditMode()) {
       this.handleUpdate();
     } else {
@@ -139,26 +120,27 @@ export class IssueFormComponent implements OnInit {
 
   private handleCreate(): void {
     const formValues = this.issueForm.getRawValue();
-    
     const request: CreateIssue = {
       projectId: Number(formValues.projectId),
       title: formValues.title!,
       description: formValues.description!,
       type: formValues.type as IssueType,
       priority: formValues.priority as IssuePriority || undefined,
+      // La data di scadenza (opzionale) in creazione
     };
+    if (formValues.dueDate) {
+        (request as any).dueDate = formValues.dueDate; // Aggiunta per retrocompatibilità
+    }
 
     const file = this.selectedFile() || undefined;
-
-    // Delegazione all'IssueService passando DTO e opzionalmente l'allegato 1]
     this.issueService.createIssue(request, file).subscribe({
       next: () => {
         this.isSubmitting.set(false);
-        this.router.navigate(['/issues']); // Ritorna alla lista
+        this.router.navigate(['/issues']);
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        this.errorMessage.set(err.error?.message || 'Errore durante la creazione della segnalazione.');
+        this.errorMessage.set(err.error?.message || 'Errore durante la creazione.');
       }
     });
   }
@@ -166,7 +148,6 @@ export class IssueFormComponent implements OnInit {
   private handleUpdate(): void {
     const formValues = this.issueForm.getRawValue();
     const id = this.issueId()!;
-
     const request: UpdateIssue = {
       title: formValues.title!,
       description: formValues.description!,
@@ -174,27 +155,37 @@ export class IssueFormComponent implements OnInit {
       priority: formValues.priority as IssuePriority || undefined
     };
 
-    // Chiama l'aggiornamento generale 1]
     this.issueService.updateIssue(id, request).subscribe({
       next: () => {
-        // Se c'è una data di scadenza, la aggiorniamo con una seconda chiamata (Funzionalità 18)
         if (formValues.dueDate) {
            this.issueService.setDueDate(id, formValues.dueDate).subscribe({
-             next: () => this.navigateBack(),
+             next: () => this.forceNavigateBack(),
              error: () => this.errorMessage.set('Errore durante l\'aggiornamento della data di scadenza.')
            });
         } else {
-           this.navigateBack();
+           this.forceNavigateBack();
         }
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        this.errorMessage.set(err.error?.message || 'Errore durante l\'aggiornamento della segnalazione.');
+        this.errorMessage.set(err.error?.message || 'Errore durante l\'aggiornamento.');
       }
     });
   }
 
+  /**
+   * Intercetta il tasto "Annulla". Se il form ha modifiche non salvate (dirty),
+   * mostra l'avviso. Altrimenti esce subito.
+   */
   navigateBack(): void {
+    if (this.issueForm.dirty) {
+      this.isModalOpen.set(true);
+    } else {
+      this.forceNavigateBack();
+    }
+  }
+
+  forceNavigateBack(): void {
     this.location.back();
   }
 }

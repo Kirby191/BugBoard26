@@ -1,31 +1,47 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms'; // Necessario per l'ngModel del modale
+
+// Servizi
 import { DashboardService } from '../../../dashboard-query/services/dashboard.service';
-import { IssueDetailed, BugHistory } from '../../../dashboard-query/models/query-dtos';
+import { IssueService } from '../../services/issue.service'; // Necessario per assegnare
+
+// DTOs e Modale Condiviso
+import { IssueDetailed, BugHistory, UserReference } from '../../../dashboard-query/models/query-dtos';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-issue-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, ModalComponent], // <-- Aggiunti
   templateUrl: './issue-detail.component.html',
   styleUrl: './issue-detail.component.scss'
 })
 export class IssueDetailComponent implements OnInit {
 
   private readonly dashboardService = inject(DashboardService);
+  private readonly issueService = inject(IssueService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly location = inject(Location); // Per il tasto "Indietro"
+  private readonly location = inject(Location);
 
-  // Signals per gestire lo stato della UI in modo reattivo
   protected readonly issue = signal<IssueDetailed | null>(null);
   protected readonly history = signal<BugHistory[]>([]);
   protected readonly isLoading = signal<boolean>(true);
   protected readonly errorMessage = signal<string | null>(null);
 
+  // --- STATO MODALE ASSEGNAZIONE E RBAC ---
+  protected readonly isAdmin = signal<boolean>(false);
+  protected readonly isAssignModalOpen = signal<boolean>(false);
+  protected readonly usersList = signal<UserReference[]>([]);
+  protected readonly selectedUserId = signal<number | null>(null);
+
   ngOnInit(): void {
-    // Estrae l'ID dalla barra degli indirizzi (es. /issues/1)
+    // Controllo RBAC: legge il ruolo in sessione
+    const role = localStorage.getItem('user_role');
+    this.isAdmin.set(role === 'ADMIN');
+
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.loadIssueDetail(Number(idParam));
@@ -37,19 +53,16 @@ export class IssueDetailComponent implements OnInit {
 
   private loadIssueDetail(id: number): void {
     this.isLoading.set(true);
-    
     this.dashboardService.getIssueDetailed(id).subscribe({
       next: (data) => {
         this.issue.set(data);
-        
-        // REQUISITO 12: Se è un BUG, scarica anche la cronologia storica
         if (data.type === 'BUG') {
           this.loadHistory(id);
         } else {
           this.isLoading.set(false);
         }
       },
-      error: (err) => {
+      error: () => {
         this.errorMessage.set('Impossibile caricare i dettagli della segnalazione.');
         this.isLoading.set(false);
       }
@@ -63,15 +76,44 @@ export class IssueDetailComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        console.warn('Impossibile caricare lo storico del bug');
-        this.isLoading.set(false); // Non blocchiamo la UI se la history fallisce
+        console.warn('Impossibile caricare lo storico');
+        this.isLoading.set(false); 
       }
     });
   }
 
   // ==========================================================================
-  // AZIONI DI NAVIGAZIONE
+  // ASSEGNAZIONE
   // ==========================================================================
+  
+  openAssignModal(): void {
+    this.isAssignModalOpen.set(true);
+    // Scarichiamo la lista utenti solo la prima volta che apre il modale (Ottimizzazione)
+    if (this.usersList().length === 0) {
+      this.dashboardService.getUsersReference().subscribe({
+        next: (users) => this.usersList.set(users),
+        error: () => this.errorMessage.set('Impossibile scaricare la lista sviluppatori.')
+      });
+    }
+  }
+
+  executeAssignment(): void {
+    const userId = this.selectedUserId();
+    const currentIssue = this.issue();
+
+    if (userId && currentIssue) {
+      this.issueService.assignBug(currentIssue.id, { assigneeId: Number(userId) }).subscribe({
+        next: () => {
+          this.isAssignModalOpen.set(false);
+          this.loadIssueDetail(currentIssue.id); // Ricarica la vista per mostrare il nuovo assegnatario
+        },
+        error: (err) => {
+          this.isAssignModalOpen.set(false);
+          this.errorMessage.set(err.error?.message || 'Errore durante l\'assegnazione.');
+        }
+      });
+    }
+  }
 
   goBack(): void {
     this.location.back();

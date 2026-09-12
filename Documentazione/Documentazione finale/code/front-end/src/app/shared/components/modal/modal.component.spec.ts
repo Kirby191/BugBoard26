@@ -44,7 +44,7 @@ describe('ModalComponent (Shared UI)', () => {
     fixture.componentRef.setInput('isOpen', true);
     fixture.detectChanges();
 
-    // Creiamo una "Spia" (Spy) sull'Output event emitter usando Vitest[cite: 3]
+    // Creiamo una "Spia" (Spy) sull'Output event emitter usando Vitest
     vi.spyOn(component.cancel, 'emit');
 
     const cancelBtn = fixture.nativeElement.querySelector('.btn-secondary');

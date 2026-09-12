@@ -15,7 +15,7 @@ describe('StatusBadgeComponent (Shared UI)', () => {
   });
 
   it('should create the component', () => {
-    // Inizializza l'input obbligatorio prima di chiamare detectChanges()[cite: 2]
+    // Inizializza l'input obbligatorio prima di chiamare detectChanges()
     fixture.componentRef.setInput('value', 'TODO');
     fixture.detectChanges();
     expect(component).toBeTruthy();

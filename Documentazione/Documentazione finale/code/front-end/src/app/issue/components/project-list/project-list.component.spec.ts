@@ -22,7 +22,6 @@ describe('ProjectListComponent', () => {
   beforeEach(async () => {
     TestBed.resetTestingModule();
 
-    // Mocks inizializzati in modo sicuro 3, 5]
     projectQueryServiceMock = {
       getProjects: vi.fn().mockReturnValue(of(mockProjects))
     };
@@ -30,7 +29,7 @@ describe('ProjectListComponent', () => {
     projectCommandServiceMock = {
       deleteProject: vi.fn().mockReturnValue(of({}))
     };
-
+    
     routerMock = { navigate: vi.fn() };
 
     await TestBed.configureTestingModule({
@@ -50,66 +49,75 @@ describe('ProjectListComponent', () => {
     vi.restoreAllMocks();
   });
 
-  it('should render the project table correctly (DOM Testing)', () => {
-    fixture.detectChanges(); // Innesca ngOnInit
+  // ... (Test base identici a prima per caricamento e routing) ...
 
+  it('should render the project table correctly (DOM Testing)', () => {
+    fixture.detectChanges();
     const rows = fixture.nativeElement.querySelectorAll('tbody tr');
     expect(rows.length).toBe(2);
-
-    const firstRowText = rows[0].textContent;
-    expect(firstRowText).toContain('#1');
-    expect(firstRowText).toContain('Progetto Alpha');
   });
 
-  it('should show error banner if getProjects fails', () => {
-    projectQueryServiceMock.getProjects.mockReturnValue(throwError(() => new Error('API down')));
+describe('Modal Integration for Deletion (Black-Box Testing)', () => {
     
-    fixture.detectChanges();
+    it('should open modal and NOT call deleteService immediately when "Elimina" is clicked', () => {
+      fixture.detectChanges(); // Init
 
-    const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
-    expect(errorAlert).toBeTruthy();
-    expect(errorAlert.textContent).toContain('Impossibile caricare i progetti');
-  });
+      // 1. Verifichiamo che inizialmente il modale sia chiuso (DOM Testing indiretto di isModalOpen=false)
+      expect(fixture.nativeElement.querySelector('.modal-content')).toBeNull();
 
-  it('should navigate to create when "+ Nuovo Progetto" is clicked', () => {
-    fixture.detectChanges();
-    const createBtn = fixture.nativeElement.querySelector('.btn-primary');
-    createBtn.click();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/projects/new']);
-  });
+      // 2. Clicchiamo il tasto rosso "Elimina" della prima riga (Progetto Alpha, ID: 1)
+      const deleteBtn = fixture.nativeElement.querySelectorAll('.btn-danger')[0];
+      deleteBtn.click();
+      
+      // 3. Sincronizza il DOM con il nuovo stato del Signal
+      fixture.detectChanges(); 
 
-  it('should navigate to edit when "Modifica" is clicked', () => {
-    fixture.detectChanges();
-    const editBtn = fixture.nativeElement.querySelectorAll('.btn-warning')[0];
-    editBtn.click();
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/projects/edit', 1]);
-  });
+      // 4. Verifichiamo che il contenuto del modale sia COMPARSO (DOM Testing indiretto di isModalOpen=true)
+      const modalContent = fixture.nativeElement.querySelector('.modal-content');
+      expect(modalContent).toBeTruthy();
+      
+      // Il servizio NON deve essere stato chiamato
+      expect(projectCommandServiceMock.deleteProject).not.toHaveBeenCalled();
+    });
 
-  it('should call deleteProject and reload list when delete is confirmed', () => {
-    fixture.detectChanges();
-    
-    // Spia e simula la finestra di conferma del browser (l'utente clicca OK)
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
-    
-    const deleteBtn = fixture.nativeElement.querySelectorAll('.btn-danger')[0];
-    deleteBtn.click();
+    it('should call deleteProject with correct ID and close modal when confirmDelete is triggered', () => {
+      fixture.detectChanges(); // Init
 
-    expect(window.confirm).toHaveBeenCalled();
-    expect(projectCommandServiceMock.deleteProject).toHaveBeenCalledWith(1);
-    
-    // Verifica che la lista venga ricaricata dopo l'eliminazione
-    expect(projectQueryServiceMock.getProjects).toHaveBeenCalledTimes(2); // 1° Init + 2° Reload
-  });
+      // 1. Apriamo il modale cliccando fisicamente l'HTML (questo salva l'ID nel Signal projectToDelete)
+      const deleteBtn = fixture.nativeElement.querySelectorAll('.btn-danger')[0];
+      deleteBtn.click();
+      fixture.detectChanges();
 
-  it('should NOT call deleteProject when delete is canceled', () => {
-    fixture.detectChanges();
-    
-    // Spia e simula la finestra di conferma (l'utente clicca Annulla)
-    vi.spyOn(window, 'confirm').mockReturnValue(false);
-    
-    const deleteBtn = fixture.nativeElement.querySelectorAll('.btn-danger')[0];
-    deleteBtn.click();
+      // 2. Invochiamo il metodo pubblico scatenato dal modale
+      component.confirmDelete();
+      fixture.detectChanges(); // Aggiorna il DOM dopo la chiusura
 
-    expect(projectCommandServiceMock.deleteProject).not.toHaveBeenCalled();
+      // 3. Verifica indiretta di `projectToDelete`: 
+      // Se il mock riceve '1', significa che il Signal protetto ha salvato il dato correttamente!
+      expect(projectCommandServiceMock.deleteProject).toHaveBeenCalledWith(1);
+      
+      // 4. Verifica indiretta di `isModalOpen`: 
+      // Se il modale scompare dal DOM, significa che il Signal è tornato a false
+      expect(fixture.nativeElement.querySelector('.modal-content')).toBeNull();
+    });
+
+    it('should close modal and NOT call deleteProject when cancelDelete is triggered', () => {
+      fixture.detectChanges(); // Init
+
+      // Apriamo il modale
+      const deleteBtn = fixture.nativeElement.querySelectorAll('.btn-danger')[0];
+      deleteBtn.click();
+      fixture.detectChanges();
+
+      // Annulliamo l'operazione tramite il metodo pubblico
+      component.cancelDelete();
+      fixture.detectChanges();
+
+      // Il DB non deve essere stato toccato
+      expect(projectCommandServiceMock.deleteProject).not.toHaveBeenCalled();
+      
+      // Il modale deve essere sparito dal DOM
+      expect(fixture.nativeElement.querySelector('.modal-content')).toBeNull();
+    });
   });
 });

@@ -118,3 +118,14 @@
     </form>
   </div>
 </div>
+
+<app-modal 
+  [isOpen]="isModalOpen()" 
+  title="Attenzione: Dati non salvati" 
+  message="Hai effettuato delle modifiche. Se esci ora, tutte le tue variazioni andranno perse. Sei sicuro di voler annullare?" 
+  type="warning"
+  confirmText="Sì, esci"
+  cancelText="Rimani qui"
+  (confirm)="forceNavigateBack()"
+  (cancel)="isModalOpen.set(false)">
+</app-modal>

@@ -3,9 +3,14 @@
   <div class="header-actions">
     <button class="btn btn-secondary" (click)="goBack()">← Torna all'elenco</button>
     
-    <!-- Mostriamo il tasto modifica solo se i dati sono stati caricati -->
     @if (issue()) {
-      <button class="btn btn-warning" (click)="goToEdit()">Modifica Segnalazione</button>
+      <div style="display: flex; gap: 15px;">
+        <!-- Pulsante Assegnazione (Funzionalità 9: Solo ADMIN) -->
+        @if (isAdmin()) {
+          <button class="btn btn-info" (click)="openAssignModal()">Assegna Task</button>
+        }
+        <button class="btn btn-warning" (click)="goToEdit()">Modifica</button>
+      </div>
     }
   </div>
 
@@ -15,7 +20,7 @@
   @else if (errorMessage()) {
     <div class="alert alert-danger">{{ errorMessage() }}</div>
   } 
-  @else if (issue(); as i) { <!-- Sintassi 'as' per creare un alias della variabile -->
+  @else if (issue(); as i) { 
     
     <div class="card main-info-card">
       <div class="card-header">
@@ -32,34 +37,32 @@
           <div class="meta-item"><strong>Priorità:</strong> {{ i.priority || 'Non assegnata' }}</div>
           <div class="meta-item"><strong>Scadenza:</strong> {{ i.dueDate ? (i.dueDate | date:'dd/MM/yyyy') : 'Nessuna' }}</div>
           <div class="meta-item"><strong>Creato da:</strong> {{ i.creatorEmail }} (il {{ i.createdAt | date:'dd/MM/yyyy HH:mm' }})</div>
-          <div class="meta-item"><strong>Assegnato a:</strong> {{ i.assigneeEmail || 'Non assegnato' }}</div>
+          <div class="meta-item">
+            <strong>Assegnato a:</strong> 
+            {{ i.assigneeEmail || 'Non assegnato' }}
+          </div>
         </div>
 
         <hr>
         
         <div class="description-section">
           <h3>Descrizione</h3>
-          <!-- 'pre-wrap' preserva gli a capo inseriti dall'utente -->
           <p style="white-space: pre-wrap;">{{ i.description || 'Nessuna descrizione fornita.' }}</p>
         </div>
 
-        <!-- Sezione Allegati (Funzionalità 2) -->
         @if (i.attachmentUrl) {
           <hr>
           <div class="attachment-section">
             <h3>Allegato</h3>
-            <!-- Il proxy del back-end esporrà fisicamente i file caricati in /api/attachments -->
             <img [src]="'http://localhost:8080' + i.attachmentUrl" alt="Allegato issue" class="issue-attachment" />
           </div>
         }
       </div>
     </div>
 
-    <!-- SEZIONE HISTORY: Visibile SOLO se la issue è un BUG (Requisito 12) -->
     @if (i.type === 'BUG') {
       <div class="card history-card">
         <h3>Cronologia Eventi (Audit Log)</h3>
-        
         @if (history().length === 0) {
           <p>Nessun evento registrato.</p>
         } @else {
@@ -76,6 +79,30 @@
         }
       </div>
     }
-
   }
 </div>
+
+<!-- ========================================== -->
+<!-- MODALE ASSEGNAZIONE BUG TRAMITE CONTENT INJECTION -->
+<!-- ========================================== -->
+<app-modal 
+  [isOpen]="isAssignModalOpen()" 
+  title="Assegna Segnalazione" 
+  type="info"
+  confirmText="Assegna"
+  (confirm)="executeAssignment()"
+  (cancel)="isAssignModalOpen.set(false)">
+  
+  <!-- Injection tramite ng-content del ModalComponent -->
+  <div style="margin-top: 15px;">
+    <label for="assigneeSelect" style="display:block; margin-bottom: 5px; font-weight: bold; color: #495057;">
+      Seleziona lo sviluppatore dal menu:
+    </label>
+    <select id="assigneeSelect" class="form-control" [(ngModel)]="selectedUserId" style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ced4da;">
+      <option [ngValue]="null" disabled>-- Seleziona Utente --</option>
+      @for (user of usersList(); track user.id) {
+        <option [value]="user.id">{{ user.email }} ({{ user.role }})</option>
+      }
+    </select>
+  </div>
+</app-modal>
