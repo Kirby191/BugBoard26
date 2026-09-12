@@ -1,0 +1,57 @@
+<div class="register-container">
+  <h1>Nuova Utenza</h1>
+  <p class="subtitle">Creazione riservata agli Amministratori</p>
+
+  @if (errorMessage()) {
+    <div class="error-banner">{{ errorMessage() }}</div>
+  }
+  @if (successMessage()) {
+    <div class="success-banner">{{ successMessage() }}</div>
+  }
+
+  <form [formGroup]="registerForm" (ngSubmit)="register()">
+    
+    <div class="form-group">
+      <label for="email">Email *</label>
+      <input id="email" type="email" formControlName="email" placeholder="es. dev@bugboard26.com" />
+      @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+        <small class="error-text">Inserisci un'email valida.</small>
+      }
+    </div>
+
+    <div class="form-group">
+      <label for="username">Username *</label>
+      <input id="username" type="text" formControlName="username" placeholder="Scegli un nome utente" maxlength="50" />
+      @if (registerForm.get('username')?.invalid && registerForm.get('username')?.touched) {
+        <small class="error-text">Lo username è obbligatorio.</small>
+      }
+    </div>
+
+    <div class="form-row">
+      <div class="form-group half-width">
+        <label for="password">Password *</label>
+        <input id="password" type="password" formControlName="password" placeholder="Min. 8 caratteri" />
+        @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+          <small class="error-text">La password deve avere almeno 8 caratteri.</small>
+        }
+      </div>
+
+      <div class="form-group half-width">
+        <label for="role">Ruolo *</label>
+        <select id="role" formControlName="role">
+          <option [ngValue]="null" disabled>-- Seleziona --</option>
+          @for (role of roles; track role) {
+            <option [value]="role">{{ role === 'ADMIN' ? 'Amministrazione' : 'Normale' }}</option>
+          }
+        </select>
+        @if (registerForm.get('role')?.invalid && registerForm.get('role')?.touched) {
+          <small class="error-text">Seleziona un ruolo.</small>
+        }
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit" [disabled]="isSubmitting()">
+      {{ isSubmitting() ? 'Creazione in corso...' : 'Crea Utente' }}
+    </button>
+  </form>
+</div>

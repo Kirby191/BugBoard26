@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute, RouterLink } from '@angular/router'; // RouterLink aggiunto per consistenza
+import { Router, ActivatedRoute } from '@angular/router'; // RouterLink aggiunto per consistenza
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms'; 
 
 import { DashboardService } from '../../../dashboard-query/services/dashboard.service';
@@ -13,7 +13,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 @Component({
   selector: 'app-issue-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, StatusBadgeComponent], 
+  imports: [CommonModule, ReactiveFormsModule, StatusBadgeComponent], 
   templateUrl: './issue-list.component.html',
   styleUrl: './issue-list.component.scss'
 })

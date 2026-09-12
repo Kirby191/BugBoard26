@@ -2,11 +2,9 @@
 <!-- Il componente è 'dumb': riceve lo stato e notifica l'azione -->
 <app-navbar 
   [isLoggedIn]="authService.isLoggedIn()" 
+  [isAdmin]="isAdmin()" 
   (logoutAction)="handleLogout()">
-  
-  <!-- La campanellina viene iniettata dinamicamente nello slot <ng-content> della navbar -->
   <app-notification-list></app-notification-list>
-
 </app-navbar>
 
 <!-- Container principale dove il router inietterà dinamicamente le viste -->

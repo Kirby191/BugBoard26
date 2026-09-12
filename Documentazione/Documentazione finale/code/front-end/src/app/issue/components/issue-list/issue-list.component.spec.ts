@@ -23,16 +23,18 @@ describe('IssueListComponent', () => {
   beforeEach(async () => {
     TestBed.resetTestingModule();
 
-    // Mock base
+    // Mock aggiornato con TUTTE le chiamate usate nell'ngOnInit[cite: 4]
     dashboardServiceMock = {
-      searchIssues: vi.fn().mockReturnValue(of(mockIssues))
+      searchIssues: vi.fn().mockReturnValue(of(mockIssues)),
+      getUsersReference: vi.fn().mockReturnValue(of([])) // <-- Mock mancante aggiunto!
     };
     
     routerMock = { navigate: vi.fn() };
 
     // Creiamo il mock di base per la rotta con query parameters vuoti
     activatedRouteMock = {
-      queryParams: of({})
+      queryParams: of({}),
+      snapshot: { queryParams: {} } // Utile per il metodo applyFilters
     };
 
     await TestBed.configureTestingModule({
@@ -40,7 +42,7 @@ describe('IssueListComponent', () => {
       providers: [
         { provide: DashboardService, useValue: dashboardServiceMock },
         { provide: Router, useValue: routerMock },
-        { provide: ActivatedRoute, useValue: activatedRouteMock } // Iniettiamo la finta rotta
+        { provide: ActivatedRoute, useValue: activatedRouteMock }
       ]
     }).compileComponents();
 
@@ -53,10 +55,11 @@ describe('IssueListComponent', () => {
   });
 
   it('should create and load all issues if no query params are present', () => {
-    fixture.detectChanges(); // Innesca ngOnInit e la sottoscrizione alla route
+    fixture.detectChanges(); // Innesca ngOnInit
     
-    // Verifica che abbia chiamato l'API con un filtro vuoto
     expect(dashboardServiceMock.searchIssues).toHaveBeenCalledWith({});
+    // Verifichiamo che anche il nuovo metodo venga chiamato
+    expect(dashboardServiceMock.getUsersReference).toHaveBeenCalled(); 
     
     const rows = fixture.nativeElement.querySelectorAll('tbody tr');
     expect(rows.length).toBe(1);
@@ -64,19 +67,16 @@ describe('IssueListComponent', () => {
   });
 
   it('should parse URL query parameters and build a valid IssueFilter for the backend', () => {
-    // Simuliamo un arrivo in questa pagina tramite un link filtrato dalla Dashboard (es. /issues?status=TODO&priority=CRITICAL)
     activatedRouteMock.queryParams = of({ status: 'TODO', priority: 'CRITICAL', projectId: '5' });
     
-    // Dobbiamo ricreare il fixture per applicare il nuovo mock di rotta PRIMA di ngOnInit
     fixture = TestBed.createComponent(IssueListComponent);
     component = fixture.componentInstance;
     fixture.detectChanges(); 
 
-    // Verifichiamo la trasformazione dei parametri URL nel DTO tipizzato 2]
     expect(dashboardServiceMock.searchIssues).toHaveBeenCalledWith({
       status: 'TODO',
       priority: 'CRITICAL',
-      projectId: 5 // Si assicura che abbia fatto il cast a Number come scritto nel TS 2]
+      projectId: 5 
     });
   });
 

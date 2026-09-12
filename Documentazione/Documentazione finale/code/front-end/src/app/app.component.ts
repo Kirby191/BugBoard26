@@ -20,6 +20,14 @@ export class AppComponent {
   protected readonly authService = inject(AuthService);
 
   /**
+   * Metodo per verificare se l'utente loggato è un Admin.
+   * Questo metodo può essere utilizzato per mostrare/nascondere elementi dell'interfaccia utente basati sul ruolo.
+   */
+  isAdmin(): boolean {
+  return localStorage.getItem('user_role') === 'ADMIN';
+  }
+
+  /**
    * Metodo invocato quando la Navbar emette l'evento di logout.
    */
   handleLogout(): void {

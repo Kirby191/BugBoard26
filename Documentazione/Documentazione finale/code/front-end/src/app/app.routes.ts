@@ -10,6 +10,13 @@ export const routes: Routes = [
   // Rotta pubblica per l'autenticazione
   { path: 'login', title: 'Login', component: Login },
 
+  {
+    path: 'admin/register',
+    title: 'Creazione Utenze',
+    loadComponent: () => import('./auth/components/register/register.component').then(c => c.RegisterComponent),
+    canActivate: [authGuard, adminGuard] 
+  },
+
   // ==========================================================
   // MODULO PROJECT (Lazy Loaded e Protette da Guards)
   // ==========================================================

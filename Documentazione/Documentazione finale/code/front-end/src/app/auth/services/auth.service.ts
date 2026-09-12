@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { LoginRequest, JwtResponse } from '../models/auth-dtos';
+import { LoginRequest, JwtResponse, UserRegistration, UserResponse } from '../models/auth-dtos'; // Importiamo i DTO[cite: 4]
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -11,16 +11,11 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   
-  // L'endpoint punta alla porta 8081
   private readonly AUTH_URL = 'http://localhost:8081/api/auth';
 
-  /**
-   * Effettua il login e salva il token nel localStorage
-   */
   login(request: LoginRequest): Observable<JwtResponse> {
     return this.http.post<JwtResponse>(`${this.AUTH_URL}/login`, request).pipe(
       tap(response => {
-        // Salvataggio sessione in localStorage
         localStorage.setItem('jwt_token', response.token);
         localStorage.setItem('user_role', response.role);
         localStorage.setItem('user_id', response.id.toString());
@@ -28,9 +23,11 @@ export class AuthService {
     );
   }
 
-  /**
-   * Effettua il logout rimuovendo i dati dal localStorage
-   */
+  // NUOVO METODO: Registrazione Utente (Funzionalità 1)
+  register(request: UserRegistration): Observable<UserResponse> {
+    return this.http.post<UserResponse>(`${this.AUTH_URL}/register`, request);
+  }
+
   logout(): void {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user_role');
