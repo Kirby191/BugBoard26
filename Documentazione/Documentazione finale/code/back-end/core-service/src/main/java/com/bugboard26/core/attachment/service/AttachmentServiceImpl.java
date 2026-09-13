@@ -39,7 +39,7 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
      */
     @Override
     @Transactional
-    public String storeFile(MultipartFile file) {
+    public String storeFile(Long issueId, MultipartFile file) {
 
         // 1. Validazione di sicurezza
         fileValidator.validate(file);
@@ -52,6 +52,7 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
 
         // 4. Creazione dell'entità TRACCIANDO L'ISSUE ID
         AttachmentMetadata metadata = AttachmentMetadata.builder()
+                .issueId(issueId)
                 .originalFileName(file.getOriginalFilename())
                 .mimeType(file.getContentType())
                 .fileSize(file.getSize())

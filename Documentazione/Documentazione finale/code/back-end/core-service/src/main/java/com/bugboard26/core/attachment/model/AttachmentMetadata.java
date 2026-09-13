@@ -24,6 +24,9 @@ public class AttachmentMetadata {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "issue_id", nullable = false, updatable = false)
+    private Long issueId;
+
     @Column(name = "filename", nullable = false, updatable = false)
     private String originalFileName;
 

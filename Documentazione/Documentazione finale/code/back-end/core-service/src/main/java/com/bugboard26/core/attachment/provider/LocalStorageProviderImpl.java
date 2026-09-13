@@ -25,7 +25,7 @@ import java.nio.file.StandardCopyOption;
 public class LocalStorageProviderImpl implements StorageProvider {
 
     private final Path rootLocation;
-    private static final String URI_PREFIX = "/api/uploads/";
+    private static final String URI_PREFIX = "/api/attachments/";
 
     // Inietta la configurazione (es. "./core_uploads") dal file application.properties
     public LocalStorageProviderImpl(AppStorageProperties properties) {
