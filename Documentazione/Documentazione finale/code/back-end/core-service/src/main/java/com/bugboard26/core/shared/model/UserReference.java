@@ -1,10 +1,7 @@
 package com.bugboard26.core.shared.model;
 
 import com.bugboard26.core.issue_management.model.enums.Role;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,6 +31,7 @@ public class UserReference {
     @Column(name = "username", updatable = false, insertable = false)
     private String username;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "role", updatable = false, insertable = false)
     private Role role;
 
