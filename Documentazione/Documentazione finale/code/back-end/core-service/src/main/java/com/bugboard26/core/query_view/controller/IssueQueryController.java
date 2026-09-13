@@ -1,6 +1,6 @@
 package com.bugboard26.core.query_view.controller;
 
-import com.bugboard26.core.history.dto.BugHistory;
+//import com.bugboard26.core.history.dto.BugHistory;
 import com.bugboard26.core.query_view.dto.IssueDetailed;
 import com.bugboard26.core.query_view.dto.IssueFilter;
 import com.bugboard26.core.query_view.dto.IssueSummary;
@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 /**
  * Controller REST per il Query Layer delle Segnalazioni.
@@ -47,15 +46,5 @@ public class IssueQueryController {
     public ResponseEntity<IssueDetailed> getIssueById(@PathVariable Long id) {
         IssueDetailed issue = issueQueryService.getIssueById(id);
         return ResponseEntity.ok(issue);
-    }
-
-    /**
-     * Recupera lo storico delle modifiche per un bug specifico (Funzionalità 12).
-     * Risponde a GET /api/issues/{issueId}/history
-     */
-    @GetMapping("/{issueId}/history")
-    public ResponseEntity<List<BugHistory>> getBugHistory(@PathVariable Long issueId) {
-        List<BugHistory> history = issueQueryService.getBugHistory(issueId);
-        return ResponseEntity.ok(history);
     }
 }

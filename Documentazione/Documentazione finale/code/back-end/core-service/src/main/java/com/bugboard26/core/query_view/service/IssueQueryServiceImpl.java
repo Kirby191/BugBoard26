@@ -92,13 +92,6 @@ public class IssueQueryServiceImpl implements IssueQueryService {
         );
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<BugHistory> getBugHistory(Long issueId) {
-        // Pass-through verso il sottosistema History (UML Requirement)
-        return historyService.getHistoryForBug(issueId);
-    }
-
     // =========================================================================
     // UTILITY METHODS (Risoluzione Loose Coupling & Filtri Dinamici)
     // =========================================================================

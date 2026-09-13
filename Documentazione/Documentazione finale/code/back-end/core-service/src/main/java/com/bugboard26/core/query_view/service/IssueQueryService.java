@@ -15,7 +15,6 @@ public interface IssueQueryService {
 
     IssueDetailed getIssueById(Long id);
 
-    //TODO: Notato che nell'UML di query_view è segnato List<IssueHistory> che è da modificare.
-    //  In realtà, il tipo corretto è List<BugHistory>.
-    List<BugHistory> getBugHistory(Long issueId);
+    //TODO: RIMOZIONE TOTALE DEL METODO PER CONFLITTO DI ROTTA
+    //List<BugHistory> getBugHistory(Long issueId);
 }
