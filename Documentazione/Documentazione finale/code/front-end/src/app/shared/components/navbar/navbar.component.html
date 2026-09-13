@@ -9,6 +9,7 @@
     @if (isLoggedIn()) {
       <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Progetti</a>
       <a routerLink="/issues" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Segnalazioni</a>
+      <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Dashboard</a>
         @if (isAdmin()) {
           <a routerLink="/admin/register" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link" style="color: #ffc107;">Nuova Utenza</a>
     }

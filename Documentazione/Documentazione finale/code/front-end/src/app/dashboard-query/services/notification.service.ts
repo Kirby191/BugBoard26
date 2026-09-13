@@ -10,7 +10,7 @@ export class NotificationService {
   private readonly http = inject(HttpClient);
   
   // Endpoint base verso il Core API sulla porta 8080
-  private readonly API_NOTIFICATIONS = 'http://localhost:8080/api/notifications';
+  private readonly API_NOTIFICATIONS = '/api/notifications';
 
   /**
    * Recupera le notifiche non lette per l'utente loggato.

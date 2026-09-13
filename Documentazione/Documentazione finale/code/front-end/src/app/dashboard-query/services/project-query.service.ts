@@ -8,7 +8,7 @@ import { ProjectState } from '../../shared/models/shared-dtos';
 })
 export class ProjectQueryService {
   private readonly http = inject(HttpClient);
-  private readonly API_PROJECTS = 'http://localhost:8080/api/projects';
+  private readonly API_PROJECTS = '/api/projects';
 
   getProjects(): Observable<ProjectState[]> {
     return this.http.get<ProjectState[]>(this.API_PROJECTS);

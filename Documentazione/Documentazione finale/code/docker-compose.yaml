@@ -55,13 +55,28 @@ services:
       - SPRING_DATASOURCE_PASSWORD=core_sec_pwd
     volumes:
       # Evitiamo la perdita di allegati e file caricati dagli utenti, montando la cartella core_uploads del container in una cartella locale
-      - ./core_uploads:/app/core_uploads 
+      - ./back-end/core-service/core_uploads:/app/core_uploads
     depends_on:
       postgresql:
         condition: service_healthy
     networks:
       - bugboard_network
     restart: on-failure
+
+  # 4. FRONT-END (NGINX)
+  front-end:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    container_name: bugboard_frontend
+    ports:
+      - "80:80" 
+    depends_on:
+      - auth-service
+      - core-service
+    networks:
+      - bugboard_network
+    restart: unless-stopped
 
 networks:
   bugboard_network:

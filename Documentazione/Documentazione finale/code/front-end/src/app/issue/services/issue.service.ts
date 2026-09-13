@@ -17,9 +17,9 @@ export class IssueService {
 
   private readonly http = inject(HttpClient);
   
-  // Endpoint base del Core Service esposto sulla porta 8080
-  private readonly API_ISSUES = 'http://localhost:8080/api/issues';
-  private readonly API_PROJECTS = 'http://localhost:8080/api/projects';
+  // Endpoint base del Core Service
+  private readonly API_ISSUES = '/api/issues';
+  private readonly API_PROJECTS = '/api/projects';
 
   // ==========================================================================
   // ISSUE COMMANDS (Scrittura e Mutazione Stato)

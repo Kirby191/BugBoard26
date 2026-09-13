@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from '../../services/notification.service';
 import { NotificationDTO } from '../../models/query-dtos';
@@ -12,24 +12,24 @@ import { Router } from '@angular/router';
   styleUrl: './notification-list.component.scss'
 })
 export class NotificationListComponent implements OnInit {
-  // Iniezione dei servizi (Smart Component)
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
+  
+  // Iniettiamo ElementRef per capire se l'utente clicca fuori dal componente
+  private readonly elementRef = inject(ElementRef);
 
-  // Gestione dello stato reattivo tramite Signals
   protected readonly notifications = signal<NotificationDTO[]>([]);
   protected readonly isLoading = signal<boolean>(true);
   
-  // Derivazione automatica del contatore per il badge (campanellina)
+  // NUOVO SIGNAL: Controlla se la tendina è aperta o chiusa
+  protected readonly isPanelOpen = signal<boolean>(false);
+  
   protected readonly unreadCount = computed(() => this.notifications().length);
 
   ngOnInit(): void {
     this.loadNotifications();
   }
 
-  /**
-   * Richiede al Query Layer l'elenco delle notifiche non lette dell'utente loggato.
-   */
   private loadNotifications(): void {
     this.isLoading.set(true);
     this.notificationService.getUnreadNotifications().subscribe({
@@ -44,19 +44,31 @@ export class NotificationListComponent implements OnInit {
     });
   }
 
-  /**
-   * Contrassegna la notifica come letta e la rimuove reattivamente dall'interfaccia.
-   */
-  markAsRead(notificationId: number, event: Event): void {
-    // Evita che il click si propaghi se la notifica è cliccabile interamente
-    event.stopPropagation(); 
+  // NUOVO METODO: Apre o chiude il pannello
+  togglePanel(event: Event): void {
+    event.stopPropagation();
+    this.isPanelOpen.update(v => !v);
+  }
 
+  // NUOVO METODO: Chiude il pannello se si clicca in un punto qualsiasi dello schermo
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event): void {
+    if (!this.elementRef.nativeElement.contains(event.target)) {
+      this.isPanelOpen.set(false);
+    }
+  }
+
+  markAsRead(notificationId: number, event: Event): void {
+    event.stopPropagation(); 
     this.notificationService.markAsRead(notificationId).subscribe({
       next: () => {
-        // Aggiornamento ottimistico: rimuove la notifica dall'array locale
-        // senza dover rifare una chiamata GET al server.
         const updatedList = this.notifications().filter(n => n.id !== notificationId);
         this.notifications.set(updatedList);
+        
+        // Se non ci sono più notifiche, chiudiamo automaticamente il pannello per UX pulita
+        if (updatedList.length === 0) {
+          this.isPanelOpen.set(false);
+        }
       },
       error: (err) => {
         console.error('Errore durante la marcatura della notifica', err);
@@ -64,15 +76,10 @@ export class NotificationListComponent implements OnInit {
     });
   }
 
-  /**
-   * Naviga verso la vista di dettaglio del bug associato alla notifica.
-   * Esempio: se il messaggio contiene "Bug #42", naviga verso /issues/42.
-   * 
-   * @param message Il messaggio della notifica contenente l'ID del bug
-   */
   goToIssue(message: string): void {
     const match = message.match(/#(\d+)/);
     if (match && match[1]) {
+      this.isPanelOpen.set(false); // Chiude il pannello prima di navigare
       this.router.navigate(['/issues', match[1]]);
     }
   }

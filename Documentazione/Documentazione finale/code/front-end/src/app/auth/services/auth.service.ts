@@ -11,7 +11,7 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   
-  private readonly AUTH_URL = 'http://localhost:8081/api/auth';
+  private readonly AUTH_URL = '/api/auth';
 
   login(request: LoginRequest): Observable<JwtResponse> {
     return this.http.post<JwtResponse>(`${this.AUTH_URL}/login`, request).pipe(

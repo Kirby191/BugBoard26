@@ -12,8 +12,6 @@ import {
   BugHistory
 } from '../models/query-dtos';
 
-import { ProjectState } from '../../shared/models/shared-dtos';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -22,10 +20,9 @@ export class DashboardService {
   private readonly http = inject(HttpClient);
   
   // Endpoint base verso il Core API 
-  private readonly API_ISSUES = 'http://localhost:8080/api/issues';
-  private readonly API_DASHBOARD = 'http://localhost:8080/api/dashboard';
-  private readonly API_USERS = 'http://localhost:8080/api/users';
-  private readonly API_PROJECTS = 'http://localhost:8080/api/projects';
+  private readonly API_ISSUES = '/api/issues';
+  private readonly API_DASHBOARD = '/api/dashboard';
+  private readonly API_USERS = '/api/users';
 
   // ==========================================================================
   // QUERY DELLE ISSUE E DASHBOARD

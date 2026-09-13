@@ -8,7 +8,7 @@ import { CreateProject, UpdateProject } from '../models/project-dtos';
 })
 export class ProjectService {
   private readonly http = inject(HttpClient);
-  private readonly API_PROJECTS = 'http://localhost:8080/api/projects';
+  private readonly API_PROJECTS = '/api/projects';
 
   createProject(request: CreateProject): Observable<any> {
     return this.http.post(this.API_PROJECTS, request);
