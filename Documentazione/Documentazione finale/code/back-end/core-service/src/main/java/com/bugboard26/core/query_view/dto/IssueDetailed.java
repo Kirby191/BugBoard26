@@ -24,5 +24,7 @@ public record IssueDetailed(
         String attachmentUrl,
         String creatorEmail,
         String assigneeEmail,
+        Long reporterId,
+        Long assigneeId,
         LocalDateTime createdAt
 ) {}

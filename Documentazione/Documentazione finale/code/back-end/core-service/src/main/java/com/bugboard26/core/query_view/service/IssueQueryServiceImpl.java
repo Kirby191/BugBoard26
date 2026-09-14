@@ -58,7 +58,9 @@ public class IssueQueryServiceImpl implements IssueQueryService {
                     issue.getPriority(),
                     issue.getDueDate(),
                     projectName,
-                    assigneeEmail
+                    assigneeEmail,
+                    issue.getAssigneeId(),
+                    issue.getReporterId()
             );
         });
     }
@@ -88,6 +90,8 @@ public class IssueQueryServiceImpl implements IssueQueryService {
                 attachmentUrl,
                 creatorEmail,
                 assigneeEmail,
+                issue.getReporterId(),
+                issue.getAssigneeId(),
                 issue.getCreatedAt()
         );
     }

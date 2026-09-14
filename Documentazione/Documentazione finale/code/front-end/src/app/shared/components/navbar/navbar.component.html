@@ -1,7 +1,10 @@
 <nav class="navbar">
-  <!-- Brand Logo -->
+  <!-- Brand Logo Cliccabile -->
   <div class="navbar-brand">
-    <strong class="brand-text">BugBoard26</strong>
+    <a routerLink="/welcome" class="brand-link" title="Torna alla pagina di presentazione">
+      <span class="brand-icon">🚀</span>
+      <strong class="brand-text">BugBoard26</strong>
+    </a>
   </div>
 
   <!-- Menu Links -->
@@ -10,9 +13,21 @@
       <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Progetti</a>
       <a routerLink="/issues" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Segnalazioni</a>
       <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Dashboard</a>
-        @if (isAdmin()) {
-          <a routerLink="/admin/register" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link" style="color: #ffc107;">Nuova Utenza</a>
-    }
+     <!-- MENU A TENDINA ADMIN -->
+      @if (isAdmin()) {
+        <div class="dropdown-container">
+          <button class="nav-link dropdown-toggle" (click)="toggleAdminMenu()" [class.active]="isAdminMenuOpen()">
+            Azioni admin ▼
+          </button>
+          
+          @if (isAdminMenuOpen()) {
+            <div class="dropdown-menu">
+              <a routerLink="/admin/register" class="dropdown-item" (click)="isAdminMenuOpen.set(false)">Gestione Utenti</a>
+              <!-- Qui in futuro aggiungerai: <a routerLink="..." class="dropdown-item">Log Sistema</a>, ecc. -->
+            </div>
+          }
+        </div>
+      }
       <!-- Content Projection: Qui verrà iniettata la campanellina delle notifiche -->
       <div class="nav-widget">
         <ng-content></ng-content>

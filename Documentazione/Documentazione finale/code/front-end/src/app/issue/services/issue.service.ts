@@ -74,4 +74,14 @@ export class IssueService {
     // Essendo una PUT che usa parametri in query string, il body può essere null
     return this.http.put<IssueResponse>(`${this.API_ISSUES}/${id}/due-date`, null, { params });
   }
+
+  /**
+   * Elimina una issue.
+   * Mappato su DELETE /api/issues/{id}.
+   * @param id 
+   * @returns void
+   */
+  deleteIssue(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.API_ISSUES}/${id}`);
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, signal, HostListener, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -10,18 +10,26 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
-  // Input: Riceve lo stato di autenticazione dall'esterno (Smart Component)
   isLoggedIn = input<boolean>(false);
-  
-  // NUOVO INPUT: Riceve il ruolo di amministratore per abilitare la pagina di registrazione (Funzionalità 1 e 9)
   isAdmin = input<boolean>(false);
-
-  // Output: Emette un evento quando l'utente clicca su "Logout"
   logoutAction = output<void>();
 
-  /**
-   * Gestisce il click sul pulsante di disconnessione delegando la logica al componente padre.
-   */
+  private readonly elementRef = inject(ElementRef);
+  isAdminMenuOpen = signal<boolean>(false);
+
+  toggleAdminMenu(): void {
+    this.isAdminMenuOpen.update(v => !v);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event): void {
+    // Chiude il menu admin SOLO se il click avviene al di fuori del suo specifico contenitore
+    const adminDropdown = this.elementRef.nativeElement.querySelector('.dropdown-container');
+    if (adminDropdown && !adminDropdown.contains(event.target as Node)) {
+      this.isAdminMenuOpen.set(false);
+    }
+  }
+
   onLogout(): void {
     this.logoutAction.emit();
   }

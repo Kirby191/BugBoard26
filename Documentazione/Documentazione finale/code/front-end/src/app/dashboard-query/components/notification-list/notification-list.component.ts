@@ -1,30 +1,31 @@
 import { Component, OnInit, inject, signal, computed, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+
 import { NotificationService } from '../../services/notification.service';
 import { NotificationDTO } from '../../models/query-dtos';
-import { Router } from '@angular/router';
+import { ModalComponent } from '../../../shared/components/modal/modal.component'; // <-- Import Modale aggiunto
 
 @Component({
   selector: 'app-notification-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ModalComponent],
   templateUrl: './notification-list.component.html',
   styleUrl: './notification-list.component.scss'
 })
 export class NotificationListComponent implements OnInit {
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
-  
-  // Iniettiamo ElementRef per capire se l'utente clicca fuori dal componente
   private readonly elementRef = inject(ElementRef);
 
   protected readonly notifications = signal<NotificationDTO[]>([]);
   protected readonly isLoading = signal<boolean>(true);
-  
-  // NUOVO SIGNAL: Controlla se la tendina è aperta o chiusa
   protected readonly isPanelOpen = signal<boolean>(false);
-  
   protected readonly unreadCount = computed(() => this.notifications().length);
+
+  // --- STATO DEL MODALE NOTIFICA ---
+  protected readonly isModalOpen = signal<boolean>(false);
+  protected readonly selectedNotification = signal<NotificationDTO | null>(null);
 
   ngOnInit(): void {
     this.loadNotifications();
@@ -44,43 +45,68 @@ export class NotificationListComponent implements OnInit {
     });
   }
 
-  // NUOVO METODO: Apre o chiude il pannello
-  togglePanel(event: Event): void {
-    event.stopPropagation();
+  togglePanel(): void {
+    // RIMOSSO event.stopPropagation() per risolvere il conflitto visivo con le Azioni Admin
     this.isPanelOpen.update(v => !v);
   }
 
-  // NUOVO METODO: Chiude il pannello se si clicca in un punto qualsiasi dello schermo
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event): void {
-    if (!this.elementRef.nativeElement.contains(event.target)) {
+    // Controlliamo in modo granulare l'area del click
+    const bellContainer = this.elementRef.nativeElement.querySelector('.notification-wrapper');
+    if (bellContainer && !bellContainer.contains(event.target as Node)) {
       this.isPanelOpen.set(false);
     }
   }
 
-  markAsRead(notificationId: number, event: Event): void {
-    event.stopPropagation(); 
+  // Azione rapida: Click sulla spunta (V)
+  markAsReadQuick(notificationId: number, event: Event): void {
+    event.stopPropagation(); // Qui serve per non far scattare il click sulla riga intera
+    this.executeMarkAsRead(notificationId);
+  }
+
+  // Apre il modale di interazione cliccando in un punto qualsiasi della notifica
+  openNotificationModal(notif: NotificationDTO): void {
+    this.selectedNotification.set(notif);
+    this.isModalOpen.set(true);
+    this.isPanelOpen.set(false); // Chiude la tendina per pulizia visiva
+  }
+
+  // Gestisce la scelta dal modale
+  handleModalChoice(action: 'detail' | 'readOnly'): void {
+    const notif = this.selectedNotification();
+    if (!notif) return;
+
+    // In entrambi i casi segniamo la notifica come letta
+    this.notificationService.markAsRead(notif.id).subscribe({
+      next: () => {
+        const updatedList = this.notifications().filter(n => n.id !== notif.id);
+        this.notifications.set(updatedList);
+        this.isModalOpen.set(false);
+
+        // Se l'utente ha scelto "Vai al dettaglio", effettuiamo il routing
+        if (action === 'detail') {
+          const match = notif.message.match(/#(\d+)/);
+          if (match && match[1]) {
+            this.router.navigate(['/issues', match[1]]);
+          }
+        }
+      },
+      error: (err) => console.error('Errore durante la marcatura della notifica', err)
+    });
+  }
+
+  // Metodo DRY per marcare come letta
+  private executeMarkAsRead(notificationId: number): void {
     this.notificationService.markAsRead(notificationId).subscribe({
       next: () => {
         const updatedList = this.notifications().filter(n => n.id !== notificationId);
         this.notifications.set(updatedList);
-        
-        // Se non ci sono più notifiche, chiudiamo automaticamente il pannello per UX pulita
         if (updatedList.length === 0) {
           this.isPanelOpen.set(false);
         }
       },
-      error: (err) => {
-        console.error('Errore durante la marcatura della notifica', err);
-      }
+      error: (err) => console.error('Errore', err)
     });
-  }
-
-  goToIssue(message: string): void {
-    const match = message.match(/#(\d+)/);
-    if (match && match[1]) {
-      this.isPanelOpen.set(false); // Chiude il pannello prima di navigare
-      this.router.navigate(['/issues', match[1]]);
-    }
   }
 }

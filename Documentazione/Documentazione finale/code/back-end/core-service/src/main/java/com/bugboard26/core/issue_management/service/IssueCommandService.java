@@ -19,4 +19,5 @@ public interface IssueCommandService {
 
     IssueResponse setDueDate(Long id, LocalDate dueDate);
 
+    void deleteIssue(Long id);
 }

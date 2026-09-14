@@ -1,0 +1,59 @@
+<div class="welcome-container">
+  
+  <!-- INTESTAZIONE FISSA: Presentazione e Relatori -->
+  <header class="academic-hero card">
+    <span class="uni-name">Università degli Studi di Napoli Federico II</span>
+    <h3 class="course-name">Ingegneria del Software (A.A. 2025/2026)</h3>
+    
+    <h1 class="brand-title"><span class="highlight">BugBoard26</span></h1>
+    
+    <div class="authors-box">
+      <div class="author">
+        <span class="role">Sviluppatore Software</span>
+        <strong class="name">Vittorio Emanuele Testa</strong>
+      </div>
+      <div class="divider"></div>
+      <div class="author">
+        <span class="role">Coordinatori di Progetto</span>
+        <strong class="name">Prof. Porfirio Tramontana<br>Prof. Bernardo Breve</strong>
+      </div>
+    </div>
+
+    <!-- Pulsante Dinamico di Sessione -->
+    <div class="cta-section">
+      @if (authService.isLoggedIn()) {
+        <a routerLink="/dashboard" class="btn btn-success btn-lg">Ritorna alla tua Dashboard ➔</a>
+      } @else {
+        <a routerLink="/login" class="btn btn-primary btn-lg">Accedi alla Piattaforma</a>
+      }
+    </div>
+  </header>
+
+  <!-- ACCORDION: Il "Dietro le Quinte" del progetto -->
+  <section class="presentation-accordion">
+    <h2 class="section-heading">Dietro le quinte del progetto</h2>
+    
+    <div class="accordion-wrapper">
+      @for (section of sections; track $index) {
+        <div class="accordion-item card" [class.open]="openSectionIndex() === $index">
+          
+          <!-- Testata cliccabile -->
+          <button class="accordion-header" (click)="toggleSection($index)">
+            <div class="header-title">
+              <span class="icon">{{ section.icon }}</span>
+              <h3>{{ section.title }}</h3>
+            </div>
+            <span class="chevron">{{ openSectionIndex() === $index ? '▲' : '▼' }}</span>
+          </button>
+          
+          <!-- Contenuto a scomparsa -->
+          <div class="accordion-body-wrapper">
+            <div class="accordion-body" [innerHTML]="section.contentHtml"></div>
+          </div>
+
+        </div>
+      }
+    </div>
+  </section>
+
+</div>

@@ -81,4 +81,10 @@ public class IssueController {
         IssueResponse response = issueCommandService.setDueDate(id, dueDate);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteIssue(@PathVariable Long id) {
+        issueCommandService.deleteIssue(id);
+        return ResponseEntity.noContent().build();
+    }
 }

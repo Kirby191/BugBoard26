@@ -1,42 +1,85 @@
 <div class="issue-list-container">
   
-  <div class="header-actions">
-    <h2>Elenco Segnalazioni</h2>
-    <!-- Pulsante che innesca l'intenzione di Comando (Creazione) -->
-    <button class="btn btn-primary" (click)="navigateToCreate()">
+  <!-- INTESTAZIONE E RICERCA RAPIDA SULLO STESSO LIVELLO -->
+  <div class="header-actions" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
+    <h2 style="margin: 0; white-space: nowrap;">Elenco Segnalazioni</h2>
+    
+    <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" style="display: flex; flex: 1; align-items: center; justify-content: center; gap: 15px; max-width: 750px;">
+      <!-- Padding e margin risolti tramite Flexbox gap -->
+      <input id="titleQuery" type="text" formControlName="titleQuery" class="form-control" placeholder="🔍 Cerca una segnalazione scrivendo il titolo..." style="flex: 1; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1rem;">
+      
+      <div style="display: flex; gap: 10px;">
+        <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Cerca</button>
+        <button type="button" class="btn btn-outline-secondary" (click)="toggleAdvancedSearch()" style="padding: 10px 15px; background: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px; cursor: pointer; color: #495057; font-weight: bold;">
+          {{ isAdvancedSearchOpen() ? 'Nascondi Avanzate ▲' : 'Ricerca Avanzata ▼' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="resetFilters()" style="padding: 10px 15px;">Reset</button>
+      </div>
+    </form>
+
+    <button class="btn btn-primary" (click)="navigateToCreate()" style="white-space: nowrap;">
       + Nuova Segnalazione
     </button>
   </div>
 
-  <div class="filter-bar card" style="padding: 15px; margin-bottom: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-    <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
-      
-      <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
-        <label for="status" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Stato</label>
-        <select id="status" formControlName="status" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
-          <option [ngValue]="null">Tutti gli stati</option>
-          @for (status of issueStatuses; track status) {
-            <option [value]="status">{{ status }}</option>
-          }
-        </select>
-      </div>
+  <!-- RIGA AVANZATA (Scompare/Compare) -->
+  @if (isAdvancedSearchOpen()) {
+    <div class="advanced-filters card" style="padding: 15px; margin-bottom: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+      <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" style="display: flex; gap: 15px; flex-wrap: wrap;">
+        
+        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+          <label for="projectId" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Progetto</label>
+          <select id="projectId" formControlName="projectId" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+            <option [ngValue]="null">Tutti i progetti</option>
+            @for (proj of projects(); track proj.id) {
+              <option [value]="proj.id">{{ proj.name }}</option>
+            }
+          </select>
+        </div>
 
-      <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
-        <label for="type" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Tipo</label>
-        <select id="type" formControlName="type" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
-          <option [ngValue]="null">Tutti i tipi</option>
-          @for (type of issueTypes; track type) {
-            <option [value]="type">{{ type }}</option>
-          }
-        </select>
-      </div>
+        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+          <label for="type" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Tipo</label>
+          <select id="type" formControlName="type" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+            <option [ngValue]="null">Tutti i tipi</option>
+            @for (type of issueTypes; track type) {
+              <option [value]="type">{{ type }}</option>
+            }
+          </select>
+        </div>
 
-      <div class="filter-actions" style="display: flex; gap: 10px;">
-        <button type="submit" class="btn btn-primary" style="padding: 8px 15px;">Applica Filtri</button>
-        <button type="button" class="btn btn-secondary" (click)="resetFilters()" style="padding: 8px 15px;">Reset</button>
-      </div>
-    </form>
-  </div>
+        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+          <label for="status" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Stato</label>
+          <select id="status" formControlName="status" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+            <option [ngValue]="null">Tutti gli stati</option>
+            @for (status of issueStatuses; track status) {
+              <option [value]="status">{{ status }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+          <label for="priority" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Priorità</label>
+          <select id="priority" formControlName="priority" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+            <option [ngValue]="null">Tutte le priorità</option>
+            @for (priority of issuePriorities; track priority) {
+              <option [value]="priority">{{ priority }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+          <label for="assigneeId" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Assegnato a</label>
+          <select id="assigneeId" formControlName="assigneeId" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+            <option [ngValue]="null">Tutti gli sviluppatori</option>
+            @for (user of usersList(); track user.id) {
+              <option [value]="user.id">{{ user.email }}</option>
+            }
+          </select>
+        </div>
+
+      </form>
+    </div>
+  }
 
   <!-- Gestione Stato: Errore -->
   @if (errorMessage()) {
@@ -67,30 +110,34 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Sintassi @for nativa di Angular 24 -->
         @for (issue of issues(); track issue.id) {
-          <tr>
+          <!-- Applicazione dinamica dello stile se l'utente ha creato la issue -->
+          <tr [ngClass]="{'my-issue-row': issue.reporterId === currentUserId()}">
             <td>#{{ issue.id }}</td>
-            <td class="fw-bold">{{ issue.title }}</td>
+            <td class="fw-bold">
+              {{ issue.title }}
+              @if (issue.reporterId === currentUserId()) {
+                <span class="badge" style="background-color: #28a745; margin-left: 8px;">Creata da te</span>
+              }
+            </td>
             <td>{{ issue.projectName }}</td>
-            
             <td><app-status-badge category="type" [value]="issue.type"></app-status-badge></td>
             <td><app-status-badge category="status" [value]="issue.status"></app-status-badge></td>
             <td>
             @if (issue.priority) {
               <app-status-badge category="priority" [value]="issue.priority"></app-status-badge>
-            } @else {
-              N/A
-            }
+            } @else { N/A }
             </td>
-            
             <td>{{ issue.assigneeEmail || 'Non Assegnato' }}</td>
-            
             <td class="actions-cell">
-              <!-- Azione di Lettura -->
               <button class="btn btn-sm btn-info" (click)="navigateToDetail(issue.id)">Dettagli</button>
-              <!-- Azione di Comando -->
-              <button class="btn btn-sm btn-warning" (click)="navigateToEdit(issue.id)">Modifica</button>
+              
+              @if (canModify(issue)) {
+                <button class="btn btn-sm btn-warning" (click)="navigateToEdit(issue.id)">Modifica</button>
+              }
+              @if (canDelete(issue)) {
+                <button class="btn btn-sm btn-danger" style="background-color: #dc3545; color: white;" (click)="openDeleteModal(issue.id)">Elimina</button>
+              }
             </td>
           </tr>
         } @empty {
@@ -102,3 +149,14 @@
     </table>
   }
 </div>
+
+<app-modal 
+  [isOpen]="isDeleteModalOpen()" 
+  title="Conferma Eliminazione" 
+  message="Sei sicuro di voler eliminare questa segnalazione? Tutte le informazioni storiche e i file allegati verranno persi. L'azione è irreversibile." 
+  type="danger"
+  confirmText="Sì, Elimina"
+  cancelText="Annulla"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()">
+</app-modal>

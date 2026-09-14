@@ -3,13 +3,24 @@
   <div class="header-actions">
     <button class="btn btn-secondary" (click)="goBack()">← Torna all'elenco</button>
     
-    @if (issue()) {
+      @if (issue(); as i) {
       <div style="display: flex; gap: 15px;">
-        <!-- Pulsante Assegnazione (Funzionalità 9: Solo ADMIN) -->
-        @if (isAdmin()) {
-          <button class="btn btn-info" (click)="openAssignModal()">Assegna Task</button>
+        
+        <!-- Pulsante Assegnazione (Solo ADMIN e solo per i BUG) -->
+        @if (isAdmin() && i.type === 'BUG') {
+          <button class="btn" 
+                  [ngClass]="i.assigneeId ? 'btn-secondary' : 'btn-info'" 
+                  (click)="openAssignModal()" 
+                  [title]="i.assigneeId ? 'Riassegna Task' : 'Assegna Task'">
+            {{ i.assigneeId ? 'Riassegna Task' : 'Assegna Task' }}
+          </button>
         }
-        <button class="btn btn-warning" (click)="goToEdit()">Modifica</button>
+        @if (canModify()) {
+          <button class="btn btn-warning" (click)="goToEdit()">Modifica</button>
+        }
+        @if (canDelete()) {
+          <button class="btn btn-danger" style="background-color: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-weight: bold; cursor: pointer;" (click)="openDeleteModal()">Elimina</button>
+        }
       </div>
     }
   </div>
@@ -67,7 +78,7 @@
 
     @if (i.type === 'BUG') {
       <div class="card history-card">
-        <h3>Cronologia Eventi (Audit Log)</h3>
+        <h3>Cronologia Eventi</h3>
         @if (history().length === 0) {
           <p>Nessun evento registrato.</p>
         } @else {
@@ -88,7 +99,7 @@
 </div>
 
 <!-- ========================================== -->
-<!-- MODALE ASSEGNAZIONE BUG TRAMITE CONTENT INJECTION -->
+<!-- 1. MODALE ASSEGNAZIONE BUG (Selezione User)-->
 <!-- ========================================== -->
 <app-modal 
   [isOpen]="isAssignModalOpen()" 
@@ -98,7 +109,6 @@
   (confirm)="executeAssignment()"
   (cancel)="isAssignModalOpen.set(false)">
   
-  <!-- Injection tramite ng-content del ModalComponent -->
   <div style="margin-top: 15px;">
     <label for="assigneeSelect" style="display:block; margin-bottom: 5px; font-weight: bold; color: #495057;">
       Seleziona lo sviluppatore dal menu:
@@ -110,4 +120,46 @@
       }
     </select>
   </div>
+</app-modal>
+
+<!-- ========================================== -->
+<!-- 2. MODALE DI AVVISO RIASSEGNAZIONE  -->
+<!-- ========================================== -->
+<app-modal 
+  [isOpen]="isWarningAssignModalOpen()" 
+  title="Attenzione: Bug già assegnato" 
+  message="Questo bug è già attualmente assegnato a {{ issue()?.assigneeEmail }}. Sei sicuro di voler annullare la sua assegnazione per darla a un altro sviluppatore?" 
+  type="warning"
+  confirmText="Sì, procedi"
+  cancelText="Annulla"
+  (confirm)="proceedToAssign()"
+  (cancel)="isWarningAssignModalOpen.set(false)">
+</app-modal>
+
+<!-- ========================================== -->
+<!-- 3. MODALE DI FEEDBACK ESITO (V) / (X) -->
+<!-- ========================================== -->
+<app-modal 
+  [isOpen]="isResultModalOpen()" 
+  [title]="resultModalTitle()" 
+  [message]="resultModalMessage()" 
+  [type]="resultModalType()"
+  confirmText="Ok"
+  cancelText="Chiudi"
+  (confirm)="isResultModalOpen.set(false)"
+  (cancel)="isResultModalOpen.set(false)">
+</app-modal>
+
+<!-- ========================================== -->
+<!-- 4. MODALE DI CONFERMA ELIMINAZIONE -->
+<!-- ========================================== -->
+ <app-modal 
+  [isOpen]="isDeleteModalOpen()" 
+  title="Conferma Eliminazione" 
+  message="Sei sicuro di voler eliminare questa segnalazione? Tutte le informazioni storiche e i file allegati verranno persi. L'azione è irreversibile." 
+  type="danger"
+  confirmText="Sì, Elimina"
+  cancelText="Annulla"
+  (confirm)="confirmDelete()"
+  (cancel)="cancelDelete()">
 </app-modal>

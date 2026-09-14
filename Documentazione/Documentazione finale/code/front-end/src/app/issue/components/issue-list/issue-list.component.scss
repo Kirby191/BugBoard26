@@ -33,8 +33,18 @@
       font-weight: 600;
     }
 
-    tbody tr:hover {
-      background-color: #f8f9fa;
+    tbody tr {
+      transition: background-color 0.2s ease;
+      &.my-issue-row {
+        background-color: #f4fdf6; 
+        border-left: 4px solid #28a745; 
+      }
+      &:hover {
+        background-color: #f8f9fa;
+        &.my-issue-row {
+            background-color: #e8f9ed;
+        }
+      }
     }
 
     .actions-cell {

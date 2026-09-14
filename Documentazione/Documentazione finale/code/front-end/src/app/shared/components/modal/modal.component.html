@@ -22,13 +22,21 @@
 
       <!-- Pannello azioni -->
       <div class="modal-footer">
-        <button class="btn btn-secondary" (click)="onCancel()">
-          {{ cancelText() }}
-        </button>
-        <!-- Applica classi dinamiche in base al tipo (info, warning, danger) -->
-        <button class="btn btn-{{ type() }}" (click)="onConfirm()">
-          {{ confirmText() }}
-        </button>
+        
+        <!-- Il bottone secondario compare SOLO se cancelText non è vuoto -->
+        @if (cancelText()) {
+          <button class="btn btn-secondary" (click)="onCancel()">
+            {{ cancelText() }}
+          </button>
+        }
+
+        <!-- Il bottone primario compare SOLO se confirmText non è vuoto -->
+        @if (confirmText()) {
+          <button class="btn btn-{{ type() }}" (click)="onConfirm()">
+            {{ confirmText() }}
+          </button>
+        }
+        
       </div>
 
     </div>

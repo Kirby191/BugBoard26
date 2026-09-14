@@ -12,6 +12,8 @@ describe('IssueListComponent', () => {
   let dashboardServiceMock: any;
   let routerMock: any;
   let activatedRouteMock: any;
+  let projectQueryServiceMock: any;
+  let issueServiceMock: any;
 
   const mockIssues: IssueSummary[] = [
     {
@@ -23,10 +25,18 @@ describe('IssueListComponent', () => {
   beforeEach(async () => {
     TestBed.resetTestingModule();
 
-    // Mock aggiornato con TUTTE le chiamate usate nell'ngOnInit[cite: 4]
+    // Mock aggiornato con TUTTE le chiamate usate nell'ngOnInit
     dashboardServiceMock = {
       searchIssues: vi.fn().mockReturnValue(of(mockIssues)),
       getUsersReference: vi.fn().mockReturnValue(of([])) // <-- Mock mancante aggiunto!
+    };
+
+    projectQueryServiceMock = {
+      getProjects: vi.fn().mockReturnValue(of([]))
+    };
+
+    issueServiceMock = {
+      deleteIssue: vi.fn().mockReturnValue(of({}))
     };
     
     routerMock = { navigate: vi.fn() };

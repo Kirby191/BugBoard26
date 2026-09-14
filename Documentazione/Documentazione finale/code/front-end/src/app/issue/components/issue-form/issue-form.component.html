@@ -17,7 +17,7 @@
       
       <!-- 1. SELEZIONE PROGETTO (Dropdown popolato dal Query Layer) -->
       <div class="form-group">
-        <label for="projectId">Progetto di appartenenza *</label>
+        <label for="projectId">Progetto di appartenenza</label>
         <select id="projectId" formControlName="projectId" class="form-control">
           <option [ngValue]="null" disabled>-- Seleziona un progetto --</option>
           <!-- Iterazione sui progetti caricati dal DB -->
@@ -33,7 +33,7 @@
       <!-- 2. TITOLO E TIPO (Disabilitato in edit dal TS) -->
       <div class="form-row">
         <div class="form-group half-width">
-          <label for="title">Titolo *</label>
+          <label for="title">Titolo</label>
           <input id="title" type="text" formControlName="title" class="form-control" placeholder="Breve riassunto..." maxlength="32" />
           @if (issueForm.get('title')?.invalid && issueForm.get('title')?.touched) {
             <small class="error-text">Titolo obbligatorio (max 32 caratteri).</small>
@@ -41,7 +41,7 @@
         </div>
 
         <div class="form-group half-width">
-          <label for="type">Tipologia *</label>
+          <label for="type">Tipologia</label>
           <select id="type" formControlName="type" class="form-control">
             <option [ngValue]="null" disabled>-- Seleziona --</option>
             @for (type of issueTypes; track type) {
@@ -56,7 +56,7 @@
 
       <!-- 3. DESCRIZIONE -->
       <div class="form-group">
-        <label for="description">Descrizione dettagliata *</label>
+        <label for="description">Descrizione dettagliata</label>
         <textarea id="description" formControlName="description" class="form-control" rows="5" placeholder="Descrivi il problema o la richiesta..." maxlength="500"></textarea>
         <div class="char-counter">
           {{ issueForm.get('description')?.value?.length || 0 }} / 500

@@ -7,14 +7,11 @@
     @if (errorMessage()) {
       <div class="alert alert-danger">{{ errorMessage() }}</div>
     }
-    @if (successMessage()) {
-      <div class="alert alert-success">{{ successMessage() }}</div>
-    }
 
     <form [formGroup]="registerForm" (ngSubmit)="register()">
       
       <div class="form-group">
-        <label for="email">Email aziendale *</label>
+        <label for="email">Email aziendale</label>
         <input id="email" type="email" formControlName="email" class="form-control" placeholder="es. mario.rossi@bugboard26.com" />
         @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
           <small class="error-text">Inserisci un'email valida (es. utente&#64;dominio.com).</small>
@@ -22,13 +19,13 @@
       </div>
 
       <div class="form-group">
-        <label for="username">Nome Utente *</label>
+        <label for="username">Nome Utente</label>
         <input id="username" type="text" formControlName="username" class="form-control" placeholder="Scegli un nome utente" maxlength="50" />
       </div>
 
       <div class="form-row">
         <div class="form-group half-width">
-          <label for="password">Password *</label>
+          <label for="password">Password</label>
           <input 
             id="password" 
             type="password" 
@@ -60,7 +57,7 @@
         </div>
 
         <div class="form-group half-width">
-          <label for="role">Livello di Accesso *</label>
+          <label for="role">Livello di Accesso</label>
           <select id="role" formControlName="role" class="form-control">
             <option [ngValue]="null" disabled>-- Seleziona --</option>
             @for (role of roles; track role) {
@@ -70,11 +67,26 @@
         </div>
       </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary" [disabled]="isSubmitting()">
-          {{ isSubmitting() ? 'Creazione in corso...' : 'Crea Utente' }}
+        <div class="form-actions">
+          <button type="submit" class="btn-submit modern-btn" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+             <span class="spinner"></span> Registrazione in corso...
+           } @else {
+             Crea Nuovo Utente
+          }
         </button>
       </div>
     </form>
   </div>
 </div>
+
+<app-modal 
+  [isOpen]="isResultModalOpen()" 
+  [title]="resultModalTitle()" 
+  [message]="resultModalMessage()" 
+  [type]="resultModalType()"
+  confirmText="Ho capito"
+  cancelText=""
+  (confirm)="isResultModalOpen.set(false)">
+  </app-modal>
+

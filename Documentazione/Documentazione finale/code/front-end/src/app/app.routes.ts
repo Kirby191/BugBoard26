@@ -15,8 +15,17 @@ export const routes: Routes = [
     pathMatch: 'full',
     redirectTo: () => {
       const authService = inject(AuthService);
-      return authService.isLoggedIn() ? '/dashboard' : '/login';
+      return authService.isLoggedIn() ? '/dashboard' : '/welcome';
     }
+  },
+
+  // ==========================================================
+  // ROTTA PUBBLICA (Welcome)
+  // ==========================================================
+  { 
+    path: 'welcome', 
+    title: 'Benvenuto - BugBoard26', 
+    loadComponent: () => import('./welcome/welcome.component').then(c => c.WelcomeComponent) 
   },
   
   // 2. ROTTA PUBBLICA PROTETTA

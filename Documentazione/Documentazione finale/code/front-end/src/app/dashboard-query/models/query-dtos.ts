@@ -47,6 +47,8 @@ export interface IssueSummary {
   dueDate?: string;
   projectName: string;     
   assigneeEmail?: string;
+  reporterId?: number; 
+  assigneeId?: number;
 }
 
 /**
@@ -65,6 +67,8 @@ export interface IssueDetailed {
   attachmentUrl?: string; // Se presente un allegato
   creatorEmail: string;
   assigneeEmail?: string;
+  assigneeId?: number;
+  reporterId?: number;
   createdAt: string;
 }
 

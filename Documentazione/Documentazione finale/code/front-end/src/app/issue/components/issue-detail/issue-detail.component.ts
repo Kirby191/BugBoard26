@@ -5,10 +5,10 @@ import { FormsModule } from '@angular/forms';
 
 import { DashboardService } from '../../../dashboard-query/services/dashboard.service';
 import { IssueService } from '../../services/issue.service'; 
-import { IssueDetailed, BugHistory, UserReference } from '../../../dashboard-query/models/query-dtos';
 
-// IMPORTIAMO I COMPONENTI CONDIVISI
-import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { IssueDetailed, BugHistory, UserReference } from '../../../dashboard-query/models/query-dtos';
+// IMPORTIAMO I COMPONENTI CONDIVISI (Aggiunto ModalType)
+import { ModalComponent, ModalType } from '../../../shared/components/modal/modal.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 
 @Component({
@@ -30,6 +30,7 @@ export class IssueDetailComponent implements OnInit {
   protected readonly history = signal<BugHistory[]>([]);
   protected readonly isLoading = signal<boolean>(true);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly currentUserId = signal<number | null>(null);
 
   // --- STATO MODALE ASSEGNAZIONE E RBAC ---
   protected readonly isAdmin = signal<boolean>(false);
@@ -37,11 +38,23 @@ export class IssueDetailComponent implements OnInit {
   protected readonly usersList = signal<UserReference[]>([]);
   protected readonly selectedUserId = signal<number | null>(null);
 
+  // SIGNALS PER I FEEDBACK VISIVI
+  protected readonly isWarningAssignModalOpen = signal<boolean>(false);
+  protected readonly isResultModalOpen = signal<boolean>(false);
+  protected readonly isDeleteModalOpen = signal<boolean>(false);
+  protected readonly resultModalTitle = signal<string>('');
+  protected readonly resultModalMessage = signal<string>('');
+  protected readonly resultModalType = signal<ModalType>('info');
+
   ngOnInit(): void {
-    // Controllo RBAC: legge il ruolo in sessione
     const role = localStorage.getItem('user_role');
     this.isAdmin.set(role === 'ADMIN');
 
+    const userIdStr = localStorage.getItem('user_id');
+    if (userIdStr) {
+      this.currentUserId.set(Number(userIdStr));
+    }
+    
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.loadIssueDetail(Number(idParam));
@@ -51,7 +64,35 @@ export class IssueDetailComponent implements OnInit {
     }
   }
 
+// ==========================================================================
+// Controlli di autorizzazione per modificare o eliminare la segnalazione
+// ==========================================================================
+
+
+canModify(): boolean {
+    const i = this.issue();
+    if (!i) return false;
+    if (this.isAdmin()) return true;
+    const userId = this.currentUserId();
+    if (i.type === 'BUG') {
+      return i.assigneeId === userId;
+    }
+    return i.reporterId === userId;
+  }
+
+  canDelete(): boolean {
+    const i = this.issue();
+    if (!i) return false;
+    if (this.isAdmin()) return true;
+    return i.reporterId === this.currentUserId();
+  }
+
+// ==========================================================================
+// Caricamento dei dettagli della segnalazione
+// ==========================================================================
+
   private loadIssueDetail(id: number): void {
+    // Il metodo esistente rimane intatto
     this.isLoading.set(true);
     this.dashboardService.getIssueDetailed(id).subscribe({
       next: (data) => {
@@ -70,6 +111,7 @@ export class IssueDetailComponent implements OnInit {
   }
 
   private loadHistory(bugId: number): void {
+     // Il metodo esistente rimane intatto
     this.dashboardService.getBugHistory(bugId).subscribe({
       next: (histData) => {
         this.history.set(histData);
@@ -83,12 +125,31 @@ export class IssueDetailComponent implements OnInit {
   }
 
   // ==========================================================================
-  // ASSEGNAZIONE
+  // LOGICA DI ASSEGNAZIONE (Aggiornata con i Feedback)
   // ==========================================================================
-  
+
+  /**
+   * Scatta al click sul pulsante "Assegna/Riassegna".
+   * Se il bug ha già un assegnatario, intercetta e lancia l'avviso.
+   */
   openAssignModal(): void {
+    const currentIssue = this.issue();
+    if (currentIssue && currentIssue.assigneeId) {
+      // Blocca l'apertura del modale di assegnazione e lancia il Warning
+      this.isWarningAssignModalOpen.set(true);
+    } else {
+      // Procede normalmente se il bug è "libero"
+      this.proceedToAssign();
+    }
+  }
+
+  /**
+   * Apre effettivamente il modale con la tendina degli utenti.
+   */
+  proceedToAssign(): void {
+    this.isWarningAssignModalOpen.set(false); // Chiude l'avviso se era aperto
     this.isAssignModalOpen.set(true);
-    // Scarichiamo la lista utenti solo la prima volta che apre il modale (Ottimizzazione)
+    
     if (this.usersList().length === 0) {
       this.dashboardService.getUsersReference().subscribe({
         next: (users) => this.usersList.set(users),
@@ -97,6 +158,9 @@ export class IssueDetailComponent implements OnInit {
     }
   }
 
+  /**
+   * Invia il comando di assegnazione al Server ed elabora il Feedback Visivo.
+   */
   executeAssignment(): void {
     const userId = this.selectedUserId();
     const currentIssue = this.issue();
@@ -105,24 +169,74 @@ export class IssueDetailComponent implements OnInit {
       this.issueService.assignBug(currentIssue.id, { assigneeId: Number(userId) }).subscribe({
         next: () => {
           this.isAssignModalOpen.set(false);
-          this.loadIssueDetail(currentIssue.id); // Ricarica la vista per mostrare il nuovo assegnatario
+          this.selectedUserId.set(null); // Pulisce la selezione
+
+          // Recupera la mail per il messaggio di successo
+          const assignedUser = this.usersList().find(u => u.id === Number(userId));
+          const userEmail = assignedUser ? assignedUser.email : "lo sviluppatore";
+
+          // Prepara e mostra il feedback (V)
+          this.resultModalTitle.set('Operazione Completata');
+          this.resultModalMessage.set(`✅ Bug assegnato a ${userEmail} con successo!`);
+          this.resultModalType.set('info');
+          this.isResultModalOpen.set(true);
+
+          this.loadIssueDetail(currentIssue.id); // Aggiorna la UI sottostante
         },
         error: (err) => {
           this.isAssignModalOpen.set(false);
-          this.errorMessage.set(err.error?.message || 'Errore durante l\'assegnazione.');
+          
+          // Prepara e mostra il feedback (X)
+          this.resultModalTitle.set('Errore di Assegnazione');
+          this.resultModalMessage.set(`❌ C'è stato un problema durante l'assegnazione: ${err.error?.message || 'Errore imprevisto dal server.'}`);
+          this.resultModalType.set('danger');
+          this.isResultModalOpen.set(true);
         }
       });
     }
   }
 
+  // ==========================================================================
+  // ELIMINAZIONE
+  // ==========================================================================
+
+  openDeleteModal(): void {
+    this.isDeleteModalOpen.set(true);
+  }
+
+  cancelDelete(): void {
+    this.isDeleteModalOpen.set(false);
+  }
+
+  confirmDelete(): void {
+    const i = this.issue();
+    if (i) {
+      this.issueService.deleteIssue(i.id).subscribe({
+        next: () => {
+          this.isDeleteModalOpen.set(false);
+          this.router.navigate(['/issues']);
+        },
+        error: (err) => {
+          this.isDeleteModalOpen.set(false);
+          this.errorMessage.set(err.error?.message || 'Errore durante l\'eliminazione.');
+        }
+      });
+    }
+  }
+
+  // ==========================================================================
+  // NAVIGAZIONE
+  // ==========================================================================
+
   goBack(): void {
-    this.location.back();
+   this.location.back();
   }
 
   goToEdit(): void {
-    const currentIssue = this.issue();
-    if (currentIssue) {
-      this.router.navigate(['/issues/edit', currentIssue.id]);
-    }
+   const currentIssue = this.issue();
+  
+   if (currentIssue) {
+     this.router.navigate(['/issues/edit', currentIssue.id]);
+     }
   }
 }

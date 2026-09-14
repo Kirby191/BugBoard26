@@ -1,17 +1,15 @@
 <div class="notification-wrapper">
-  <!-- Trigger: Campanellina - Ora ha l'evento click! -->
-  <div class="bell-icon-container" (click)="togglePanel($event)">
+  <!-- Trigger: Campanellina senza $event param -->
+  <div class="bell-icon-container" (click)="togglePanel()">
     <span class="bell-icon">🔔</span>
-    
-    <!-- Red Dot / Badge: appare solo se ci sono notifiche -->
     @if (unreadCount() > 0) {
       <span class="badge">{{ unreadCount() }}</span>
     }
   </div>
 
-  <!-- Pannello Notifiche: appare SOLO se l'utente ha cliccato la campanella -->
+  <!-- Pannello Notifiche -->
   @if (isPanelOpen()) {
-    <div class="notification-panel" (click)="$event.stopPropagation()">
+    <div class="notification-panel">
       <div class="panel-header">
         <h4>Notifiche</h4>
       </div>
@@ -26,13 +24,15 @@
         } @else {
           <ul class="notification-list">
             @for (notif of notifications(); track notif.id) {
-              <li class="notification-item" (click)="goToIssue(notif.message)">
+              <!-- Click intera riga: Apre il modale -->
+              <li class="notification-item" (click)="openNotificationModal(notif)">
                 <div class="notif-content">
                   <p class="notif-message">{{ notif.message }}</p>
                   <span class="notif-time">{{ notif.timestamp | date:'dd/MM/yy HH:mm' }}</span>
                 </div>
                 <div class="notif-actions">
-                  <button class="btn-read" title="Segna come letta" (click)="markAsRead(notif.id, $event)">
+                  <!-- Spunta V veloce: Segna come letta al volo -->
+                  <button class="btn-read" title="Segna come letta" (click)="markAsReadQuick(notif.id, $event)">
                     ✔
                   </button>
                 </div>
@@ -44,3 +44,17 @@
     </div>
   }
 </div>
+
+<!-- ========================================== -->
+<!-- MODALE DI INTERAZIONE NOTIFICA             -->
+<!-- ========================================== -->
+<app-modal 
+  [isOpen]="isModalOpen()" 
+  title="Nuovo Task Assegnato" 
+  [message]="selectedNotification()?.message || ''" 
+  type="info"
+  confirmText="Vai al Dettaglio"
+  cancelText="Segna solo come letta"
+  (confirm)="handleModalChoice('detail')"
+  (cancel)="handleModalChoice('readOnly')">
+</app-modal>

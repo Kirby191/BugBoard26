@@ -20,5 +20,7 @@ public record IssueSummary(
         LocalDate dueDate,
         // Dati aggregati pronti per la UI (evitano chiamate addizionali da Angular)
         String projectName,
-        String assigneeEmail
+        String assigneeEmail,
+        Long assigneeId,
+        Long reporterId
 ) {}

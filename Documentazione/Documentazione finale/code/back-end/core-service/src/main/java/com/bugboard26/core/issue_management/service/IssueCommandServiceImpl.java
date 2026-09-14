@@ -140,6 +140,16 @@ public class IssueCommandServiceImpl implements IssueCommandService {
         return mapToResponse(savedIssue);
     }
 
+    @Override
+    @Transactional
+    public void deleteIssue(Long id) {
+        Issue issue = issueRepository.findById(id)
+                .orElseThrow(() -> new IssueNotFoundException("Segnalazione inesistente con ID: " + id));
+
+        accessControlValidator.canDeleteIssue(issue);
+        issueRepository.delete(issue);
+    }
+
     // Metodo di utility privato per generare la IssueResponse
     private IssueResponse mapToResponse(Issue issue) {
         return new IssueResponse(
