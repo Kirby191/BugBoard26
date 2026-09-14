@@ -20,6 +20,7 @@ export class RegisterComponent {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isSubmitting = signal<boolean>(false);
   protected readonly isPasswordFocused = signal<boolean>(false);
+  protected readonly isPasswordVisible = signal<boolean>(false);
   protected readonly roles: UserRole[] = ['UTENTE', 'ADMIN'];
 
   // --- STATO DEL MODALE DI FEEDBACK ---
@@ -87,5 +88,9 @@ export class RegisterComponent {
         this.isSubmitting.set(false);
       }
     });
+  }
+
+  togglePasswordVisibility(): void {
+    this.isPasswordVisible.update(v => !v);
   }
 }

@@ -17,9 +17,11 @@
       </div>
     </form>
 
-    <button class="btn btn-primary" (click)="navigateToCreate()" style="white-space: nowrap;">
-      + Nuova Segnalazione
-    </button>
+    @if (issues().length > 0) {
+      <button class="btn btn-primary" (click)="navigateToCreate()" style="white-space: nowrap;">
+        + Nuova Segnalazione
+      </button>
+    }
   </div>
 
   <!-- RIGA AVANZATA (Scompare/Compare) -->
@@ -95,58 +97,74 @@
     </div>
   } 
   @else {
-    <!-- Tabella dati popolata con i DTO di lettura (IssueSummary) -->
-    <table class="issue-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Titolo</th>
-          <th>Progetto</th>
-          <th>Tipo</th>
-          <th>Stato</th>
-          <th>Priorità</th>
-          <th>Assegnato a</th>
-          <th>Azioni</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (issue of issues(); track issue.id) {
-          <!-- Applicazione dinamica dello stile se l'utente ha creato la issue -->
-          <tr [ngClass]="{'my-issue-row': issue.reporterId === currentUserId()}">
-            <td>#{{ issue.id }}</td>
-            <td class="fw-bold">
-              {{ issue.title }}
-              @if (issue.reporterId === currentUserId()) {
-                <span class="badge" style="background-color: #28a745; margin-left: 8px;">Creata da te</span>
-              }
-            </td>
-            <td>{{ issue.projectName }}</td>
-            <td><app-status-badge category="type" [value]="issue.type"></app-status-badge></td>
-            <td><app-status-badge category="status" [value]="issue.status"></app-status-badge></td>
-            <td>
-            @if (issue.priority) {
-              <app-status-badge category="priority" [value]="issue.priority"></app-status-badge>
-            } @else { N/A }
-            </td>
-            <td>{{ issue.assigneeEmail || 'Non Assegnato' }}</td>
-            <td class="actions-cell">
-              <button class="btn btn-sm btn-info" (click)="navigateToDetail(issue.id)">Dettagli</button>
-              
-              @if (canModify(issue)) {
-                <button class="btn btn-sm btn-warning" (click)="navigateToEdit(issue.id)">Modifica</button>
-              }
-              @if (canDelete(issue)) {
-                <button class="btn btn-sm btn-danger" style="background-color: #dc3545; color: white;" (click)="openDeleteModal(issue.id)">Elimina</button>
-              }
-            </td>
-          </tr>
-        } @empty {
+<!-- CONTROLLO: Se ci sono issue, mostra la tabella -->
+    @if (issues().length > 0) {
+      <table class="issue-table">
+        <thead>
           <tr>
-            <td colspan="8" class="text-center">Nessuna segnalazione trovata.</td>
+            <th>ID</th>
+            <th>Titolo</th>
+            <th>Progetto</th>
+            <th>Tipo</th>
+            <th>Stato</th>
+            <th>Priorità</th>
+            <th>Assegnato a</th>
+            <th>Azioni</th>
           </tr>
-        }
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          @for (issue of issues(); track issue.id) {
+            <tr [ngClass]="{'my-issue-row': issue.reporterId === currentUserId()}">
+              <td>#{{ issue.id }}</td>
+              <td class="fw-bold">
+                {{ issue.title }}
+                @if (issue.reporterId === currentUserId()) {
+                  <span class="badge" style="background-color: #28a745; margin-left: 8px;">Creata da te</span>
+                }
+              </td>
+              <td>{{ issue.projectName }}</td>
+              <td><app-status-badge category="type" [value]="issue.type"></app-status-badge></td>
+              <td><app-status-badge category="status" [value]="issue.status"></app-status-badge></td>
+              <td>
+              @if (issue.priority) {
+                <app-status-badge category="priority" [value]="issue.priority"></app-status-badge>
+              } @else { N/A }
+              </td>
+              <td>{{ issue.assigneeEmail || 'Non Assegnato' }}</td>
+              <td class="actions-cell">
+                <button class="btn btn-sm btn-info" (click)="navigateToDetail(issue.id)">Dettagli</button>
+                
+                @if (canModify(issue)) {
+                  <button class="btn btn-sm btn-warning" (click)="navigateToEdit(issue.id)">Modifica</button>
+                }
+                @if (canDelete(issue)) {
+                  <button class="btn btn-sm btn-danger" style="background-color: #dc3545; color: white;" (click)="openDeleteModal(issue.id)">Elimina</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    } 
+    <!-- CONTROLLO: Se NON ci sono issue, mostra il Modern Empty State -->
+    @else {
+      <div class="empty-state-container card">
+        <div class="empty-illustration">
+          <!-- SVG Pulito e Moderno (Stile cartella vuota) -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            <line x1="9" y1="14" x2="15" y2="14"></line>
+          </svg>
+        </div>
+        <h3 class="empty-title">Ancora nessuna segnalazione</h3>
+        <p class="empty-subtitle">
+          Non sono state trovate segnalazioni. Potresti non averne ancora create, oppure nessuna corrisponde ai filtri di ricerca impostati.
+        </p>
+        <button class="btn btn-primary btn-lg" (click)="navigateToCreate()">
+          <span style="font-size: 1.2rem; margin-right: 5px;">+</span> Crea Nuova Segnalazione
+        </button>
+      </div>
+    }
   }
 </div>
 

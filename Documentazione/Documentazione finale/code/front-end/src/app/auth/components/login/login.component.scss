@@ -34,6 +34,32 @@
       font-weight: 600;
       color: #495057;
     }
+    .password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    
+    .toggle-eye {
+      position: absolute;
+      right: 12px;
+      cursor: pointer;
+      user-select: none; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      // Stili specifici per l'icona SVG
+      svg {
+        color: #6c757d; // Grigio di default
+        transition: color 0.2s ease, transform 0.2s ease;
+      }
+
+      &:hover svg {
+        color: #1A237E;
+        transform: scale(1.1); // Leggero ingrandimento
+      }
+    }
+  }
 
     input {
       width: 100%;

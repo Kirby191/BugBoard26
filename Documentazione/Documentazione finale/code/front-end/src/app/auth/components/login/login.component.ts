@@ -15,6 +15,8 @@ export class Login {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  protected readonly isPasswordVisible = signal<boolean>(false);
+
   readonly errorMessage = signal<string | null>(null);
   readonly isSubmitting = signal<boolean>(false);
 
@@ -50,4 +52,8 @@ export class Login {
       }
     });
   }
+
+  togglePasswordVisibility(): void {
+      this.isPasswordVisible.update(v => !v);
+    }
 }
