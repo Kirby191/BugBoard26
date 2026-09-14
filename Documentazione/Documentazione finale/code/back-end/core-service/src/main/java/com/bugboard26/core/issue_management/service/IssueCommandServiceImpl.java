@@ -81,9 +81,9 @@ public class IssueCommandServiceImpl implements IssueCommandService {
         return mapToResponse(savedIssue);
     }
 
-    @Override
+   @Override
     @Transactional
-    public IssueResponse updateIssue(Long id, UpdateIssue request) {
+    public IssueResponse updateIssue(Long id, UpdateIssue request, MultipartFile file) {
         Issue issue = issueRepository.findById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Segnalazione inesistente con ID: " + id));
 
@@ -94,7 +94,14 @@ public class IssueCommandServiceImpl implements IssueCommandService {
         boolean isStatusChanged = request.status() != null && request.status() != issue.getStatus();
         IssueStatus oldStatus = issue.getStatus();
 
-        // 3. Mutazione dei campi
+        // 3. Gestione del nuovo Allegato (se presente)
+        if (file != null && !file.isEmpty()) {
+            // Deleghiamo il salvataggio al modulo Attachment e otteniamo il nuovo URL
+            String newFileUrl = fileStorage.storeFile(issue.getId(), file);
+            issue.setAttachmentUrl(newFileUrl);
+        }
+
+        // 4. Mutazione dei campi testuali
         if (request.title() != null) issue.setTitle(request.title());
         if (request.description() != null) issue.setDescription(request.description());
         if (request.priority() != null) issue.setPriority(request.priority());
@@ -102,7 +109,7 @@ public class IssueCommandServiceImpl implements IssueCommandService {
 
         Issue savedIssue = issueRepository.save(issue);
 
-        // 4. Registrazione History
+        // 5. Registrazione History
         if (savedIssue.getType() == IssueType.BUG) {
             Long authorId = userProvider.getCurrentUserId();
             if (isStatusChanged) {

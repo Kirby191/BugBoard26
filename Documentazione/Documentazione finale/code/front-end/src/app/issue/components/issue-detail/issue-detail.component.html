@@ -36,6 +36,8 @@
     <div class="card main-info-card">
       <div class="card-header">
         <h2>#{{ i.id }} - {{ i.title }}</h2>
+        
+        <!-- Contenitore dedicato per i badge (risolve il problema dello spazio mancante) -->
         <div class="badges">
           <app-status-badge category="type" [value]="i.type"></app-status-badge>
           <app-status-badge category="status" [value]="i.status"></app-status-badge>
@@ -44,19 +46,43 @@
 
       <div class="card-body">
         <div class="metadata-grid">
-          <div class="meta-item"><strong>Progetto:</strong> {{ i.projectName }}</div>
-          <strong>Priorità:</strong> 
-            @if (i.priority) {
-              <app-status-badge category="priority" [value]="i.priority"></app-status-badge>
-            } @else {
-              Non assegnata
-            }
-          <div class="meta-item"><strong>Scadenza:</strong> {{ i.dueDate ? (i.dueDate | date:'dd/MM/yyyy') : 'Nessuna' }}</div>
-          <div class="meta-item"><strong>Creato da:</strong> {{ i.creatorEmail }} (il {{ i.createdAt | date:'dd/MM/yyyy HH:mm' }})</div>
+          
           <div class="meta-item">
-            <strong>Assegnato a:</strong> 
-            {{ i.assigneeEmail || 'Non assegnato' }}
+            <strong class="meta-label">Progetto:</strong> 
+            <div class="meta-content">{{ i.projectName }}</div>
           </div>
+          
+          <div class="meta-item">
+            <strong class="meta-label">Priorità:</strong> 
+            <div class="meta-content">
+              @if (i.priority) {
+                <!-- L'avvolgimento in meta-content evita che il badge si spalmi o si allontani -->
+                <app-status-badge category="priority" [value]="i.priority"></app-status-badge>
+              } @else {
+                <span class="text-muted">Non assegnata</span>
+              }
+            </div>
+          </div>
+
+          <div class="meta-item">
+            <strong class="meta-label">Scadenza:</strong> 
+            <div class="meta-content">{{ i.dueDate ? (i.dueDate | date:'dd/MM/yyyy') : 'Nessuna' }}</div>
+          </div>
+
+          <div class="meta-item">
+            <strong class="meta-label">Creato da:</strong> 
+            <!-- La struttura a colonna permette alla data di stare comodamente sotto l'email -->
+            <div class="meta-content">
+              <span class="email-text">{{ i.creatorEmail }}</span>
+              <span class="date-text">il {{ i.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+
+          <div class="meta-item">
+            <strong class="meta-label">Assegnato a:</strong> 
+            <div class="meta-content">{{ i.assigneeEmail || 'Non assegnato' }}</div>
+          </div>
+          
         </div>
 
         <hr>

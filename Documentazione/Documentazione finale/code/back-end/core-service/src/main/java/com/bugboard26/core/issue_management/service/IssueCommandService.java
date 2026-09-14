@@ -15,7 +15,7 @@ public interface IssueCommandService {
 
     IssueResponse createIssue(CreateIssue request, MultipartFile file);
 
-    IssueResponse updateIssue(Long id, UpdateIssue request);
+    IssueResponse updateIssue(Long id, UpdateIssue request, MultipartFile file);
 
     IssueResponse setDueDate(Long id, LocalDate dueDate);
 

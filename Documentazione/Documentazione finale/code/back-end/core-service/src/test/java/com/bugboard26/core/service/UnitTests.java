@@ -164,7 +164,7 @@ class UnitTests {
         when(issueRepository.save(any(Issue.class))).thenReturn(testBug);
         when(userProvider.getCurrentUserId()).thenReturn(100L);
 
-        issueCommandService.updateIssue(1L, request);
+        issueCommandService.updateIssue(1L, request, null);
 
         assertEquals(IssueStatus.IN_PROGRESS, testBug.getStatus());
         verify(historyService, times(1)).recordEvent(eq(1L), eq(100L), eq(AuditAction.STATUS_CHANGED), anyString());
@@ -179,7 +179,7 @@ class UnitTests {
         when(issueRepository.save(any(Issue.class))).thenReturn(testBug);
         when(userProvider.getCurrentUserId()).thenReturn(100L);
 
-        issueCommandService.updateIssue(1L, request);
+        issueCommandService.updateIssue(1L, request, null);
 
         assertEquals("Nuovo Titolo", testBug.getTitle());
         verify(historyService, times(1)).recordEvent(eq(1L), eq(100L), eq(AuditAction.UPDATED), anyString());
@@ -192,7 +192,7 @@ class UnitTests {
         when(issueRepository.findById(1L)).thenReturn(Optional.of(testBug));
         doThrow(new UnauthorizedActionException("Accesso Negato")).when(accessControlValidator).canModifyIssue(testBug);
 
-        assertThrows(UnauthorizedActionException.class, () -> issueCommandService.updateIssue(1L, request));
+        assertThrows(UnauthorizedActionException.class, () -> issueCommandService.updateIssue(1L, request, null));
         verify(issueRepository, never()).save(any());
     }
 
@@ -202,7 +202,7 @@ class UnitTests {
         UpdateIssue request = new UpdateIssue("Titolo", "Desc", IssueStatus.IN_PROGRESS, IssuePriority.HIGH);
         when(issueRepository.findById(999L)).thenReturn(Optional.empty());
 
-        assertThrows(IssueNotFoundException.class, () -> issueCommandService.updateIssue(999L, request));
+        assertThrows(IssueNotFoundException.class, () -> issueCommandService.updateIssue(999L, request, null));
     }
 
     // ==========================================

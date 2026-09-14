@@ -46,6 +46,8 @@ export class IssueFormComponent implements OnInit {
   // STATO DEL MODALE DI AVVISO
   protected readonly isModalOpen = signal<boolean>(false);
 
+  protected readonly isAdmin = signal<boolean>(false);
+
   issueForm = new FormGroup({
     projectId: new FormControl<number | null>(null, [Validators.required]),
     title: new FormControl('', [Validators.required, Validators.maxLength(32)]),
@@ -57,6 +59,9 @@ export class IssueFormComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    const role = localStorage.getItem('user_role');
+    this.isAdmin.set(role === 'ADMIN');
+
     this.loadProjects();
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
@@ -145,9 +150,13 @@ export class IssueFormComponent implements OnInit {
     });
   }
 
+  /**
+   * Gestisce l'aggiornamento di una issue.
+   */
   private handleUpdate(): void {
     const formValues = this.issueForm.getRawValue();
     const id = this.issueId()!;
+
     const request: UpdateIssue = {
       title: formValues.title!,
       description: formValues.description!,
@@ -155,8 +164,13 @@ export class IssueFormComponent implements OnInit {
       priority: formValues.priority as IssuePriority || undefined
     };
 
-    this.issueService.updateIssue(id, request).subscribe({
+    // Estraiamo il file selezionato (se presente)
+    const file = this.selectedFile() || undefined;
+
+    // Passiamo anche il file alla nuova firma di updateIssue
+    this.issueService.updateIssue(id, request, file).subscribe({
       next: () => {
+        // Se c'è una data di scadenza, la aggiorniamo con una seconda chiamata (Funzionalità 18)
         if (formValues.dueDate) {
            this.issueService.setDueDate(id, formValues.dueDate).subscribe({
              next: () => this.forceNavigateBack(),
@@ -168,7 +182,7 @@ export class IssueFormComponent implements OnInit {
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        this.errorMessage.set(err.error?.message || 'Errore durante l\'aggiornamento.');
+        this.errorMessage.set(err.error?.message || 'Errore durante l\'aggiornamento della segnalazione.');
       }
     });
   }

@@ -91,19 +91,21 @@
         </div>
       </div>
 
-      <!-- 5. SCADENZA (Funzionalità 18) -->
-      <div class="form-group">
-        <label for="dueDate">Data di scadenza (Opzionale)</label>
-        <input id="dueDate" type="date" formControlName="dueDate" class="form-control" />
-      </div>
-
-      <!-- 6. ALLEGATO IMMAGINE (Funzionalità 2 - Visibile solo in creazione) -->
-      @if (!isEditMode()) {
-        <div class="form-group file-upload-section">
-          <label for="fileAttachment">Allega un'immagine (Opzionale)</label>
-          <input id="fileAttachment" type="file" (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/gif" class="form-control file-input" />
+      <!-- 5. SCADENZA -->
+      @if (isAdmin()) {
+        <div class="form-group">
+          <label for="dueDate">Data di scadenza (Opzionale)</label>
+          <input id="dueDate" type="date" formControlName="dueDate" class="form-control" />
         </div>
       }
+
+      <!-- 6. ALLEGATO IMMAGINE (Visibile solo in creazione) -->
+        <div class="form-group file-upload-section">
+        <label for="fileAttachment">
+          {{ isEditMode() ? "Aggiorna l'immagine (Opzionale - sovrascriverà l'esistente)" : "Allega un'immagine (Opzionale)" }}
+        </label>
+        <input id="fileAttachment" type="file" (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/gif" class="form-control file-input" />
+      </div>
 
       <hr>
 

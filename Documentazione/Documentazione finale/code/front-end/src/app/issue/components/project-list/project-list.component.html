@@ -1,8 +1,9 @@
 <div class="issue-list-container">
+  
   <div class="header-actions">
     <h2>Gestione Progetti</h2>
-    <!-- Il bottone in alto appare SOLO se ci sono già progetti -->
-    @if (projects().length > 0) {
+    <!-- Il bottone in alto appare SOLO se ci sono già progetti E l'utente è ADMIN -->
+    @if (projects().length > 0 && isAdmin()) {
       <button class="btn btn-primary" (click)="navigateToCreate()">+ Nuovo Progetto</button>
     }
   </div>
@@ -15,7 +16,7 @@
     <div class="loading-spinner"><p>Caricamento...</p></div>
   } @else {
     
-    <!-- Se ci sono progetti, mostra la tabella -->
+    <!-- CONTROLLO 1: Se ci sono progetti, mostra la tabella -->
     @if (projects().length > 0) {
       <table class="issue-table">
         <thead>
@@ -23,7 +24,8 @@
             <th>ID</th>
             <th>Nome Progetto</th>
             <th>Ultima Modifica</th>
-            <th>Azioni</th>
+            <!-- La colonna azioni esiste solo per l'Admin -->
+            @if (isAdmin()) { <th>Azioni</th> }
           </tr>
         </thead>
         <tbody>
@@ -32,33 +34,50 @@
               <td>#{{ project.id }}</td>
               <td class="fw-bold">{{ project.name }}</td>
               <td>{{ project.lastModified | date:'dd/MM/yyyy' }}</td>
-              <td class="actions-cell">
-                <button class="btn btn-sm btn-warning" (click)="navigateToEdit(project.id)">Modifica</button>
-                <button class="btn btn-sm btn-danger" (click)="openDeleteModal(project.id)">Elimina</button>
-              </td>
+              
+              <!-- I bottoni di modifica/eliminazione sono solo per l'Admin -->
+              @if (isAdmin()) {
+                <td class="actions-cell">
+                  <button class="btn btn-sm btn-warning" (click)="navigateToEdit(project.id)">Modifica</button>
+                  <button class="btn btn-sm btn-danger" (click)="openDeleteModal(project.id)">Elimina</button>
+                </td>
+              }
             </tr>
           }
         </tbody>
       </table>
     } 
-    <!-- Se NON ci sono progetti, mostra il Modern Empty State -->
+    <!-- CONTROLLO 2: Se NON ci sono progetti, mostra l'Empty State differenziato -->
     @else {
       <div class="empty-state-container card">
+        
+        <!-- Illustrazione condivisa -->
         <div class="empty-illustration">
-          <!-- SVG dedicato ai progetti (Un raccoglitore/folder) -->
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
             <line x1="12" y1="11" x2="12" y2="17"></line>
             <line x1="9" y1="14" x2="15" y2="14"></line>
           </svg>
         </div>
-        <h3 class="empty-title">Nessun progetto esistente</h3>
-        <p class="empty-subtitle">
-          Non hai ancora creato alcun progetto in BugBoard26. Inizia creando il tuo primo progetto per poter iniziare a tracciare le segnalazioni.
-        </p>
-        <button class="btn btn-primary btn-lg" (click)="navigateToCreate()">
-          <span style="font-size: 1.2rem; margin-right: 5px;">+</span> Crea Nuovo Progetto
-        </button>
+
+        @if (isAdmin()) {
+          <!-- VISTA AMMINISTRATORE -->
+          <h3 class="empty-title">Nessun progetto esistente</h3>
+          <p class="empty-subtitle">
+            Non hai ancora creato alcun progetto in BugBoard26. Inizia creando il tuo primo progetto per poter iniziare a tracciare le segnalazioni.
+          </p>
+          <button class="btn btn-primary btn-lg" (click)="navigateToCreate()">
+            <span style="font-size: 1.2rem; margin-right: 5px;">+</span> Crea Nuovo Progetto
+          </button>
+        } @else {
+          <!-- VISTA UTENTE NORMALE -->
+          <h3 class="empty-title">Nessun progetto disponibile</h3>
+          <p class="empty-subtitle">
+            Non esistono progetti al momento nel sistema. Si prega di attendere che un Amministratore crei un nuovo progetto per poter iniziare a collaborare e inserire segnalazioni.
+          </p>
+          <!-- Nessun bottone per l'utente normale -->
+        }
+
       </div>
     }
 
@@ -66,7 +85,7 @@
 </div>
 
 <!-- ========================================== -->
-<!-- ELIMINAZIONE PROGETTO          -->
+<!-- MODALE ELIMINAZIONE                        -->
 <!-- ========================================== -->
 <app-modal 
   [isOpen]="isModalOpen()" 

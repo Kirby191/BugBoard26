@@ -34,6 +34,7 @@ export class IssueListComponent implements OnInit {
 
   protected readonly issues = signal<IssueSummary[]>([]);
   protected readonly isLoading = signal<boolean>(true);
+  protected readonly isAdmin = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly currentUserId = signal<number | null>(null);
 
@@ -42,7 +43,15 @@ export class IssueListComponent implements OnInit {
   protected readonly usersList = signal<UserReference[]>([]);
   protected readonly issueStatuses: IssueStatus[] = ['TODO', 'IN_PROGRESS', 'DONE'];
   protected readonly issueTypes: IssueType[] = ['BUG', 'FEATURE', 'QUESTION', 'DOCUMENTATION'];
-  protected readonly issuePriorities: IssuePriority[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']; // <-- Aggiunto
+  protected readonly issuePriorities: IssuePriority[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+
+  // --- STATO DEL MODALE: ASSENZA PROGETTI ---
+  protected readonly isMissingProjectModalOpen = signal<boolean>(false);
+  protected readonly missingProjectTitle = signal<string>('');
+  protected readonly missingProjectMessage = signal<string>('');
+  protected readonly missingProjectType = signal<'info' | 'warning' | 'danger'>('info');
+  protected readonly missingProjectConfirmText = signal<string>('');
+  protected readonly missingProjectCancelText = signal<string>('');
 
   // Signal per la tendina della ricerca avanzata
   protected readonly isAdvancedSearchOpen = signal<boolean>(false);
@@ -59,6 +68,9 @@ export class IssueListComponent implements OnInit {
 
   ngOnInit(): void {
     const userIdStr = localStorage.getItem('user_id');
+    const role = localStorage.getItem('user_role');
+    this.isAdmin.set(role === 'ADMIN');
+
     if (userIdStr) {
       this.currentUserId.set(Number(userIdStr));
     }
@@ -199,9 +211,51 @@ export class IssueListComponent implements OnInit {
     }
   }
 
+  // ==========================================================================
+  // UTILITIES
+  // ==========================================================================
+   handleMissingProjectConfirm(): void {
+    this.isMissingProjectModalOpen.set(false);
+    // Se è un admin che ha confermato, lo portiamo alla pagina di creazione progetto
+    if (this.isAdmin() && this.projects().length === 0) {
+      this.router.navigate(['/projects/new']);
+    }
+  }
+
+  handleMissingProjectCancel(): void {
+    this.isMissingProjectModalOpen.set(false);
+  }
   
 
-  navigateToCreate(): void { this.router.navigate(['/issues/new']); }
+  // ==========================================================================
+  // CREAZIONE SEGNALAZIONE (Con Controllo Progetti)
+  // ==========================================================================
+  navigateToCreate(): void {
+    if (this.projects().length > 0) {
+      // Flusso Normale: ci sono progetti, vai al form
+      this.router.navigate(['/issues/new']);
+    } else {
+      // Flusso Interrotto: mancano i progetti
+      if (this.isAdmin()) {
+        // Vista Admin
+        this.missingProjectTitle.set('Nessun Progetto Trovato');
+        this.missingProjectMessage.set('Non esistono progetti al momento! Per poter creare una segnalazione, è necessario che esista almeno un progetto nel sistema. Desideri crearne uno adesso?');
+        this.missingProjectType.set('warning');
+        this.missingProjectConfirmText.set('Crea nuovo progetto');
+        this.missingProjectCancelText.set('Non ora');
+      } else {
+        // Vista Utente Base
+        this.missingProjectTitle.set('Impossibile Creare Segnalazione');
+        this.missingProjectMessage.set('Non esistono progetti al momento nel sistema a cui poter assegnare la segnalazione. Ti preghiamo di attendere che un Amministratore crei un nuovo progetto.');
+        this.missingProjectType.set('info');
+        this.missingProjectConfirmText.set('Ho capito');
+        this.missingProjectCancelText.set('');
+      }
+      // Apre il pop-up
+      this.isMissingProjectModalOpen.set(true);
+    }
+  }
+
   navigateToDetail(id: number): void { this.router.navigate(['/issues', id]); }
   navigateToEdit(id: number): void { this.router.navigate(['/issues/edit', id]); }
 }

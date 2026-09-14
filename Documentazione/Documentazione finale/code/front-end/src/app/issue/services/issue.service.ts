@@ -19,7 +19,6 @@ export class IssueService {
   
   // Endpoint base del Core Service
   private readonly API_ISSUES = '/api/issues';
-  private readonly API_PROJECTS = '/api/projects';
 
   // ==========================================================================
   // ISSUE COMMANDS (Scrittura e Mutazione Stato)
@@ -49,8 +48,21 @@ export class IssueService {
    * Aggiorna titolo, descrizione, stato e priorità di una issue.
    * Mappato su PUT /api/issues/{id}.
    */
-  updateIssue(id: number, request: UpdateIssue): Observable<IssueResponse> {
-    return this.http.put<IssueResponse>(`${this.API_ISSUES}/${id}`, request);
+  updateIssue(id: number, request: UpdateIssue, file?: File): Observable<IssueResponse> {
+    const formData = new FormData();
+    
+    // Serializza l'oggetto request (UpdateIssue) in un Blob JSON
+    formData.append('issue', new Blob([JSON.stringify(request)], {
+      type: 'application/json'
+    }));
+
+    // Se l'utente ha fornito una nuova immagine, la accodiamo
+    if (file) {
+      formData.append('file', file);
+    }
+
+    // Effettua la PUT multipart/form-data
+    return this.http.put<IssueResponse>(`${this.API_ISSUES}/${id}`, formData);
   }
 
   /**

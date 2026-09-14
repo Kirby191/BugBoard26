@@ -45,15 +45,16 @@ public class IssueController {
     }
 
     /**
-     * Aggiorna i dati generali di una segnalazione.
-     * Mappato su PUT /api/issues/{id} come da specifiche
+     * Aggiorna i dati generali di una segnalazione e opzionalmente l'allegato.
+     * Mappato su PUT /api/issues/{id}
      */
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<IssueResponse> updateIssue(
             @PathVariable Long id,
-            @RequestBody @Valid UpdateIssue request) {
-
-        IssueResponse response = issueCommandService.updateIssue(id, request);
+            @RequestPart("issue") @Valid UpdateIssue request,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+        
+        IssueResponse response = issueCommandService.updateIssue(id, request, file);
         return ResponseEntity.ok(response);
     }
 

@@ -1,21 +1,21 @@
 <div class="issue-list-container">
   
   <!-- INTESTAZIONE E RICERCA RAPIDA SULLO STESSO LIVELLO -->
-  <div class="header-actions" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
-    <h2 style="margin: 0; white-space: nowrap;">Elenco Segnalazioni</h2>
+ <div class="header-actions">
+  <h2>Elenco Segnalazioni</h2>
+  
+  <!-- Form di ricerca pulito dagli stili inline -->
+  <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="search-form">
+    <input id="titleQuery" type="text" formControlName="titleQuery" class="form-control" placeholder="🔍 Cerca una segnalazione scrivendo il titolo...">
     
-    <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" style="display: flex; flex: 1; align-items: center; justify-content: center; gap: 15px; max-width: 750px;">
-      <!-- Padding e margin risolti tramite Flexbox gap -->
-      <input id="titleQuery" type="text" formControlName="titleQuery" class="form-control" placeholder="🔍 Cerca una segnalazione scrivendo il titolo..." style="flex: 1; padding: 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 1rem;">
-      
-      <div style="display: flex; gap: 10px;">
-        <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Cerca</button>
-        <button type="button" class="btn btn-outline-secondary" (click)="toggleAdvancedSearch()" style="padding: 10px 15px; background: #f8f9fa; border: 1px solid #ced4da; border-radius: 4px; cursor: pointer; color: #495057; font-weight: bold;">
-          {{ isAdvancedSearchOpen() ? 'Nascondi Avanzate ▲' : 'Ricerca Avanzata ▼' }}
-        </button>
-        <button type="button" class="btn btn-secondary" (click)="resetFilters()" style="padding: 10px 15px;">Reset</button>
-      </div>
-    </form>
+    <div class="search-buttons">
+      <button type="submit" class="btn btn-primary">Cerca</button>
+      <button type="button" class="btn btn-outline-secondary" (click)="toggleAdvancedSearch()">
+        {{ isAdvancedSearchOpen() ? 'Nascondi Avanzate ▲' : 'Ricerca Avanzata ▼' }}
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="resetFilters()">Reset</button>
+    </div>
+  </form>
 
     @if (issues().length > 0) {
       <button class="btn btn-primary" (click)="navigateToCreate()" style="white-space: nowrap;">
@@ -167,7 +167,9 @@
     }
   }
 </div>
-
+<!-- ========================================== -->
+<!-- MODALE: ELIMINAZIONE SEGNALAZIONE          -->
+<!-- ========================================== -->
 <app-modal 
   [isOpen]="isDeleteModalOpen()" 
   title="Conferma Eliminazione" 
@@ -177,4 +179,18 @@
   cancelText="Annulla"
   (confirm)="confirmDelete()"
   (cancel)="cancelDelete()">
+</app-modal>
+
+<!-- ========================================== -->
+<!-- MODALE: ASSENZA PROGETTI                   -->
+<!-- ========================================== -->
+<app-modal 
+  [isOpen]="isMissingProjectModalOpen()" 
+  [title]="missingProjectTitle()" 
+  [message]="missingProjectMessage()" 
+  [type]="missingProjectType()"
+  [confirmText]="missingProjectConfirmText()"
+  [cancelText]="missingProjectCancelText()"
+  (confirm)="handleMissingProjectConfirm()"
+  (cancel)="handleMissingProjectCancel()">
 </app-modal>

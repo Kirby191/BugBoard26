@@ -1,15 +1,19 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+
+// Servizi
 import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service';
 import { ProjectService } from '../../services/project.service';
 import { ProjectState } from '../../../shared/models/shared-dtos';
-import { ModalComponent } from '../../../shared/components/modal/modal.component'; // <-- Aggiunto
+
+// Modale Condiviso
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-project-list',
   standalone: true,
-  imports: [CommonModule, ModalComponent], // <-- Aggiunto ModalComponent
+  imports: [CommonModule, ModalComponent], 
   templateUrl: './project-list.component.html',
   styleUrl: './project-list.component.scss'
 })
@@ -22,11 +26,19 @@ export class ProjectListComponent implements OnInit {
   protected readonly isLoading = signal<boolean>(true);
   protected readonly errorMessage = signal<string | null>(null);
 
-  // --- STATO DEL MODALE ---
+  // --- STATO DEL RUOLO (RBAC) ---
+  protected readonly isAdmin = signal<boolean>(false);
+
+  // --- STATO DEL MODALE DI ELIMINAZIONE ---
   protected readonly isModalOpen = signal<boolean>(false);
   protected readonly projectToDelete = signal<number | null>(null);
 
   ngOnInit(): void {
+    // 1. Legge il ruolo dell'utente loggato
+    const role = localStorage.getItem('user_role');
+    this.isAdmin.set(role === 'ADMIN');
+
+    // 2. Carica i progetti
     this.loadProjects();
   }
 
@@ -73,7 +85,7 @@ export class ProjectListComponent implements OnInit {
       this.projectCommandService.deleteProject(id).subscribe({
         next: () => {
           this.projectToDelete.set(null);
-          this.loadProjects(); // Ricarica la lista
+          this.loadProjects(); 
         },
         error: (err) => {
           this.projectToDelete.set(null);
