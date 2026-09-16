@@ -68,6 +68,9 @@ export class IssueFormComponent implements OnInit {
   protected readonly dateMonth = signal<string>('');
   protected readonly dateYear = signal<string>('');
 
+  // --- SIGNALS PER IL MODALE DI STATUS DONE ---
+  protected readonly isStatusDone = signal<boolean>(false);
+
   issueForm = new FormGroup({
     projectId: new FormControl<number | null>(null, [Validators.required]),
     title: new FormControl('', [Validators.required, Validators.maxLength(32)]),
@@ -81,6 +84,15 @@ export class IssueFormComponent implements OnInit {
   ngOnInit(): void {
     const role = localStorage.getItem('user_role');
     this.isAdmin.set(role === 'ADMIN');
+
+    this.issueForm.get('status')?.valueChanges.subscribe(status => {
+      this.isStatusDone.set(status === 'DONE');
+      if (status === 'DONE') {
+        this.issueForm.get('dueDate')?.disable();
+      } else {
+        this.issueForm.get('dueDate')?.enable();
+      }
+    });
 
     this.loadProjects();
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -131,7 +143,14 @@ export class IssueFormComponent implements OnInit {
           priority: data.priority || null,
           dueDate: data.dueDate || null
         });
-      // Popoliamo i campi visivi se c'è una data dal server
+
+        // Impostiamo il signal iniziale per la vista
+        if (data.status === 'DONE') {
+          this.isStatusDone.set(true);
+          this.issueForm.get('dueDate')?.disable();
+        }
+
+        // Popoliamo i campi visivi se c'è una data dal server
         if (data.dueDate) {
           this.syncToCustomDateInputs(data.dueDate);
         }

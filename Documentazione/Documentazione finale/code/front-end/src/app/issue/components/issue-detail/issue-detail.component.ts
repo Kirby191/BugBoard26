@@ -7,6 +7,7 @@ import { DashboardService } from '../../../dashboard-query/services/dashboard.se
 import { IssueService } from '../../services/issue.service'; 
 
 import { IssueDetailed, BugHistory, UserReference } from '../../../dashboard-query/models/query-dtos';
+import { IssuePriority } from '../../../shared/models/enums';
 // IMPORTIAMO I COMPONENTI CONDIVISI (Aggiunto ModalType)
 import { ModalComponent, ModalType } from '../../../shared/components/modal/modal.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
@@ -52,6 +53,20 @@ export class IssueDetailComponent implements OnInit {
     return this.usersList().filter(user => user.id !== currentAssignee);
   });
 
+  // Computed signal per capire se il bug è in scadenza (overdue)
+  protected readonly isOverdue = computed(() => {
+    const i = this.issue();
+    if (!i || !i.dueDate || i.status === 'DONE') return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const targetDate = new Date(today);
+    targetDate.setDate(today.getDate() + 7);
+    
+    const dueDate = new Date(i.dueDate);
+    return dueDate <= targetDate;
+  });
+
   ngOnInit(): void {
     const role = localStorage.getItem('user_role');
     this.isAdmin.set(role === 'ADMIN');
@@ -71,7 +86,7 @@ export class IssueDetailComponent implements OnInit {
   }
 
 // ==========================================================================
-// Controlli di autorizzazione per modificare o eliminare la segnalazione
+// CONTROLLI DI PERMESSO (RBAC) PER MODIFICARE/ELIMINARE
 // ==========================================================================
 
 
@@ -94,7 +109,7 @@ canModify(): boolean {
   }
 
 // ==========================================================================
-// Caricamento dei dettagli della segnalazione
+// CARICAMENTO DEI DETTAGLI DELLA SEGNALAZIONE E DELLO STORICO (BUG)
 // ==========================================================================
 
   private loadIssueDetail(id: number): void {
@@ -233,6 +248,54 @@ executeAssignment(): void {
       });
     }
   }
+
+  // ==========================================================================
+  // INNALZAMENTO PRIORITÀ (Admin UX)
+  // ==========================================================================
+  raisePriority(): void {
+    const currentIssue = this.issue();
+    if (!currentIssue) return;
+
+    // Definiamo la gerarchia dell'Enum
+    const priorityHierarchy: IssuePriority[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+    
+    let nextPriority: IssuePriority = 'LOW'; // Se era null/Non assegnata, parte da LOW
+    
+    if (currentIssue.priority) {
+      const currentIndex = priorityHierarchy.indexOf(currentIssue.priority);
+      // Evitiamo errori se è già CRITICAL
+      if (currentIndex >= priorityHierarchy.length - 1) return; 
+      nextPriority = priorityHierarchy[currentIndex + 1];
+    }
+
+    // Costruiamo il DTO di aggiornamento mantenendo i vecchi valori, ma alterando la priorità
+    const updatePayload = {
+      title: currentIssue.title,
+      description: currentIssue.description,
+      status: currentIssue.status,
+      priority: nextPriority
+    };
+
+    this.issueService.updateIssue(currentIssue.id, updatePayload).subscribe({
+      next: () => {
+        // Feedback visivo di Successo usando i modali già pronti
+        this.resultModalTitle.set('Priorità Aggiornata');
+        this.resultModalMessage.set(`La priorità è stata innalzata con successo a ${nextPriority}.`);
+        this.resultModalType.set('info');
+        this.isResultModalOpen.set(true);
+        
+        // Ricarichiamo i dettagli per far aggiornare l'UI (storico incluso)
+        this.loadIssueDetail(currentIssue.id);
+      },
+      error: (err: any) => {
+        this.resultModalTitle.set('Errore di Aggiornamento');
+        this.resultModalMessage.set(err.error?.message || 'Si è verificato un errore durante l\'innalzamento della priorità.');
+        this.resultModalType.set('danger');
+        this.isResultModalOpen.set(true);
+      }
+    });
+  }
+
 
   // ==========================================================================
   // NAVIGAZIONE

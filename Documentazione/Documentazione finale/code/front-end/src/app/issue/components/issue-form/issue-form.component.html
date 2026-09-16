@@ -99,39 +99,42 @@
         </div>
       </div>
 
-      <!-- 5. SCADENZA -->
+     <!-- 5. SCADENZA - VISIBILE SOLO AGLI ADMIN -->
       @if (isAdmin()) {
-        <div class="form-group">
-          <label>Data di scadenza (Opzionale)</label>
+        <div class="form-group" [style.opacity]="isStatusDone() ? '0.6' : '1'">
+          <label>
+            Data di scadenza (Opzionale) 
+            @if(isStatusDone()) { <span class="text-danger" style="font-size: 0.85rem; margin-left: 10px;">Non modificabile (Task Completato)</span> }
+          </label>
           
-          <div class="custom-date-picker-wrapper">
+          <div class="custom-date-picker-wrapper" [style.background-color]="isStatusDone() ? '#e9ecef' : '#fff'">
             <!-- 3 Campi manuali -->
             <div class="date-inputs-container">
-              <input type="text" maxlength="2" placeholder="gg" [value]="dateDay()" (input)="onCustomDateInput('day', $event)" class="date-part-input" />
+              <input type="text" maxlength="2" placeholder="gg" [value]="dateDay()" (input)="onCustomDateInput('day', $event)" class="date-part-input" [disabled]="isStatusDone()" />
               <span class="slash">/</span>
-              <input type="text" maxlength="2" placeholder="mm" [value]="dateMonth()" (input)="onCustomDateInput('month', $event)" class="date-part-input" />
+              <input type="text" maxlength="2" placeholder="mm" [value]="dateMonth()" (input)="onCustomDateInput('month', $event)" class="date-part-input" [disabled]="isStatusDone()" />
               <span class="slash">/</span>
-              <input type="text" maxlength="4" placeholder="aaaa" [value]="dateYear()" (input)="onCustomDateInput('year', $event)" class="date-part-input year-input" />
-              <span class="date-example">(es. 30 / 06 / 2003)</span>
+              <input type="text" maxlength="4" placeholder="aaaa" [value]="dateYear()" (input)="onCustomDateInput('year', $event)" class="date-part-input year-input" [disabled]="isStatusDone()" />
             </div>
 
-            <!-- Icona Calendario con input nativo invisibile -->
-            <div class="calendar-btn-container">
-              <input type="date" class="hidden-native-date" [value]="issueForm.get('dueDate')?.value || ''" (change)="onNativeDateSelect($event)" />
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="calendar-icon">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-            </div>
+            <!-- Icona Calendario (nascosta se DONE) -->
+            @if (!isStatusDone()) {
+              <div class="calendar-btn-container">
+                <input type="date" class="hidden-native-date" [value]="issueForm.get('dueDate')?.value || ''" (change)="onNativeDateSelect($event)" />
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="calendar-icon">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </div>
+            }
           </div>
-
         </div>
       }
 
       <!-- 6. ALLEGATO IMMAGINE -->
-<div class="form-group">
+      <div class="form-group">
         <label>
           {{ isEditMode() ? "Aggiorna l'immagine (Opzionale - sovrascriverà l'esistente)" : "Allega un'immagine (Opzionale)" }}
         </label>

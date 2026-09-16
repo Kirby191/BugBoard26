@@ -24,7 +24,7 @@ export class ModalComponent {
   
   // Testi dei bottoni personalizzabili
   confirmText = input<string>('Conferma');
-  cancelText = input<string>('Annulla');
+  cancelText = input<string>('');
   
   // Determina lo stile visivo del bottone di conferma (es. rosso per 'danger')
   type = input<ModalType>('info');
