@@ -153,13 +153,12 @@
 <!-- 1. MODALE ASSEGNAZIONE BUG (Selezione User)-->
 <!-- ========================================== -->
 <app-modal 
-  [isOpen]="isAssignModalOpen()" 
+  [(isOpen)]="isAssignModalOpen" 
   title="Assegna Segnalazione" 
   type="info"
   confirmText="Assegna"
   cancelText="Annulla" 
-  (confirm)="executeAssignment()"
-  (cancel)="isAssignModalOpen.set(false)">
+  (confirm)="executeAssignment()">
   
   <div style="margin-top: 15px;">
     <label for="assigneeSelect" style="display:block; margin-bottom: 5px; font-weight: bold; color: #495057;">
@@ -182,38 +181,34 @@
 </app-modal>
 
 <!-- ========================================== -->
-<!-- 2. MODALE DI AVVISO RIASSEGNAZIONE  -->
+<!-- 2. MODALE DI AVVISO RIASSEGNAZIONE         -->
 <!-- ========================================== -->
 <app-modal 
-  [isOpen]="isWarningAssignModalOpen()" 
+  [(isOpen)]="isWarningAssignModalOpen" 
   title="Attenzione: Bug già assegnato" 
-  message="Questo bug è già attualmente assegnato a {{ issue()?.assigneeEmail }}. Sei sicuro di voler annullare la sua assegnazione per darla a un altro sviluppatore?" 
+  message="Questo bug è attualmente assegnato a {{ issue()?.assigneeEmail }}. Sei sicuro di voler annullare la sua assegnazione per darla a un altro sviluppatore?" 
   type="warning"
   confirmText="Sì, procedi"
   cancelText="Annulla"
-  (confirm)="proceedToAssign()"
-  (cancel)="isWarningAssignModalOpen.set(false)">
+  (confirm)="proceedToAssign()">
 </app-modal>
 
 <!-- ========================================== -->
-<!-- 3. MODALE DI FEEDBACK ESITO (V) / (X) -->
+<!-- 3. MODALE DI FEEDBACK ESITO (V) / (X)      -->
 <!-- ========================================== -->
 <app-modal 
-  [isOpen]="isResultModalOpen()" 
+  [(isOpen)]="isResultModalOpen" 
   [title]="resultModalTitle()" 
   [message]="resultModalMessage()" 
   [type]="resultModalType()"
-  confirmText="Ok"
-  cancelText="Chiudi"
-  (confirm)="isResultModalOpen.set(false)"
-  (cancel)="isResultModalOpen.set(false)">
+  confirmText="Ho capito">
 </app-modal>
 
 <!-- ========================================== -->
-<!-- 4. MODALE DI CONFERMA ELIMINAZIONE -->
+<!-- 4. MODALE DI CONFERMA ELIMINAZIONE         -->
 <!-- ========================================== -->
- <app-modal 
-  [isOpen]="isDeleteModalOpen()" 
+<app-modal 
+  [(isOpen)]="isDeleteModalOpen" 
   title="Conferma Eliminazione" 
   message="Sei sicuro di voler eliminare questa segnalazione? Tutte le informazioni storiche e i file allegati verranno persi. L'azione è irreversibile." 
   type="danger"

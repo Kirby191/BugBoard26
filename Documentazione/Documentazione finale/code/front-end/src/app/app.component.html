@@ -13,11 +13,10 @@
 
 <!-- MODALE SCADENZA SESSIONE PER INATTIVITÀ (Global Scope) -->
 <app-modal 
-  [isOpen]="authService.isSessionExpired()" 
+  [(isOpen)]="authService.isSessionExpired" 
   title="Attenzione" 
   message="Sessione scaduta per inattività. Si prega di effettuare nuovamente il login." 
   type="info"
   confirmText="Ho Capito"
-  cancelText=""
   (confirm)="authService.confirmSessionExpiration()">
 </app-modal>

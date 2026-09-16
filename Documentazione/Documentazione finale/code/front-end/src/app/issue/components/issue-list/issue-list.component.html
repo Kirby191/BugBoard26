@@ -188,7 +188,7 @@
 <!-- MODALE: ELIMINAZIONE SEGNALAZIONE          -->
 <!-- ========================================== -->
 <app-modal 
-  [isOpen]="isDeleteModalOpen()" 
+  [(isOpen)]="isDeleteModalOpen" 
   title="Conferma Eliminazione" 
   message="Sei sicuro di voler eliminare questa segnalazione? Tutte le informazioni storiche e i file allegati verranno persi. L'azione è irreversibile." 
   type="danger"
@@ -202,7 +202,7 @@
 <!-- MODALE: ASSENZA PROGETTI                   -->
 <!-- ========================================== -->
 <app-modal 
-  [isOpen]="isMissingProjectModalOpen()" 
+  [(isOpen)]="isMissingProjectModalOpen" 
   [title]="missingProjectTitle()" 
   [message]="missingProjectMessage()" 
   [type]="missingProjectType()"

@@ -99,12 +99,10 @@
 </div>
 
 <app-modal 
-  [isOpen]="isResultModalOpen()" 
+  [(isOpen)]="isResultModalOpen" 
   [title]="resultModalTitle()" 
   [message]="resultModalMessage()" 
   [type]="resultModalType()"
-  confirmText="Ho capito"
-  cancelText=""
-  (confirm)="isResultModalOpen.set(false)">
-  </app-modal>
+  confirmText="Ho capito">
+</app-modal>
 

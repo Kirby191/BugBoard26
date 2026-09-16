@@ -49,7 +49,7 @@
 <!-- MODALE DI INTERAZIONE NOTIFICA             -->
 <!-- ========================================== -->
 <app-modal 
-  [isOpen]="isModalOpen()" 
+  [(isOpen)]="isModalOpen" 
   title="Nuovo Task Assegnato" 
   [message]="selectedNotification()?.message || ''" 
   type="info"

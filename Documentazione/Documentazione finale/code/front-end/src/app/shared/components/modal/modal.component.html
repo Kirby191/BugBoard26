@@ -23,14 +23,14 @@
       <!-- Pannello azioni -->
       <div class="modal-footer">
         
-        <!-- Il bottone secondario compare SOLO se cancelText non è vuoto -->
+        <!-- Il bottone secondario compare SOLO se cancelText compare nel template -->
         @if (cancelText()) {
           <button class="btn btn-secondary" (click)="onCancel()">
             {{ cancelText() }}
           </button>
         }
 
-        <!-- Il bottone primario compare SOLO se confirmText non è vuoto -->
+        <!-- Il bottone primario compare SOLO se confirmText compare nel template -->
         @if (confirmText()) {
           <button class="btn btn-{{ type() }}" (click)="onConfirm()">
             {{ confirmText() }}

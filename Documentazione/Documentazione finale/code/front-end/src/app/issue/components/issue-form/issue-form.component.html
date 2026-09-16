@@ -204,26 +204,27 @@
   </div>
 </div>
 
+<!-- ========================================================================= -->
 <!-- MODALE: Dati non salvati -->
+ <!-- ========================================================================= -->
 <app-modal 
-  [isOpen]="isModalOpen()" 
+  [(isOpen)]="isModalOpen" 
   title="Attenzione: Dati non salvati" 
   message="Hai effettuato delle modifiche. Se esci ora, tutte le tue variazioni andranno perse. Sei sicuro di voler annullare?" 
   type="warning"
   confirmText="Sì, esci"
   cancelText="Rimani qui"
-  (confirm)="forceNavigateBack()"
-  (cancel)="isModalOpen.set(false)">
+  (confirm)="forceNavigateBack()">
 </app-modal>
 
+<!-- ========================================================================= -->
 <!-- MODALE: VALIDAZIONE AGGREGATA (Testo Dinamico e Multi-Errore) -->
+ <!-- ========================================================================= -->
 <app-modal 
-  [isOpen]="isValidationModalOpen()" 
+  [(isOpen)]="isValidationModalOpen" 
   [title]="validationModalTitle()" 
   type="info"
-  confirmText="Ho capito"
-  cancelText=""
-  (confirm)="isValidationModalOpen.set(false)">
+  confirmText="Ho capito">
   <!-- Iniettiamo il messaggio qui per forzare i ritorni a capo -->
   <p style="white-space: pre-wrap; margin: 0; color: #495057; line-height: 1.5;">{{ validationModalMessage() }}</p>
 </app-modal>
@@ -232,11 +233,9 @@
 <!-- MODALE: ERRORE CARICAMENTO FILE -->
 <!-- ========================================================================= -->
 <app-modal 
-  [isOpen]="isFileErrorModalOpen()" 
+  [(isOpen)]="isFileErrorModalOpen" 
   title="Errore File" 
   [message]="fileErrorMessage()" 
   type="danger"
-  confirmText="Ho capito"
-  cancelText=""
-  (confirm)="isFileErrorModalOpen.set(false)">
+  confirmText="Ho capito">
 </app-modal>

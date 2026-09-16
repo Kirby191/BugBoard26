@@ -37,25 +37,26 @@
   </div>
 </div>
 
+<!-- ========================================================================= -->
 <!-- MODALE: MODIFICA NON SALVATA -->
+<!-- ========================================================================= -->
 <app-modal 
-  [isOpen]="isModalOpen()" 
+  [(isOpen)]="isModalOpen" 
   title="Attenzione: Dati non salvati" 
   message="Hai effettuato delle modifiche al progetto. Se esci ora, andranno perse. Vuoi annullare?" 
   type="warning"
   confirmText="Sì, esci"
   cancelText="Rimani qui"
-  (confirm)="forceNavigateBack()"
-  (cancel)="isModalOpen.set(false)">
+  (confirm)="forceNavigateBack()">
 </app-modal>
 
+<!-- ========================================================================= -->
 <!-- MODALE: LIMITE CARATTERI SUPERATO -->
+ <!-- ========================================================================= -->
 <app-modal 
-  [isOpen]="isLimitModalOpen()" 
+  [(isOpen)]="isLimitModalOpen" 
   title="Limite Superato" 
   message="La descrizione ha superato il limite massimo di 800 caratteri. Riduci il testo per poter continuare e salvare il progetto." 
   type="info"
-  confirmText="Ho capito"
-  cancelText=""
-  (confirm)="isLimitModalOpen.set(false)">
+  confirmText="Ho capito">
 </app-modal>
