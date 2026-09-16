@@ -1,7 +1,5 @@
 package com.bugboard26.core.query_view.service;
 
-import com.bugboard26.core.history.dto.BugHistory;
-import com.bugboard26.core.history.service.HistoryService;
 import com.bugboard26.core.issue_management.model.Issue;
 import com.bugboard26.core.query_view.dto.IssueDetailed;
 import com.bugboard26.core.query_view.dto.IssueFilter;
@@ -12,6 +10,7 @@ import com.bugboard26.core.shared.exception.IssueNotFoundException;
 import com.bugboard26.core.issue_management.model.Project;
 import com.bugboard26.core.shared.model.UserReference;
 import com.bugboard26.core.query_view.repository.UserReadRepository;
+import com.bugboard26.core.shared.security.AuthenticatedUserProvider;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,16 +27,16 @@ public class IssueQueryServiceImpl implements IssueQueryService {
     private final IssueReadRepository issueRepository;
     private final ProjectReadRepository projectRepository;
     private final UserReadRepository userRepository;
-    private final HistoryService historyService;
+    private final AuthenticatedUserProvider userProvider;
 
     public IssueQueryServiceImpl(IssueReadRepository issueRepository,
                                  ProjectReadRepository projectRepository,
                                  UserReadRepository userRepository,
-                                 HistoryService historyService) {
+                                 AuthenticatedUserProvider authenticatedUserProvider) {
         this.issueRepository = issueRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
-        this.historyService = historyService;
+        this.userProvider = authenticatedUserProvider;
     }
 
     @Override
@@ -114,9 +113,20 @@ public class IssueQueryServiceImpl implements IssueQueryService {
      * Trasforma l'IssueFilter in query SQL dinamica tramite Criteria API di Spring Data JPA.
      */
     private Specification<Issue> createSpecification(IssueFilter filter) {
+        Long currentUserId = userProvider.getCurrentUserId();
+        boolean isAdmin = userProvider.isCurrentAdmin();
+
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            // 1. FILTRO (Se non sei admin, vedi solo ciò che hai creato o che ti è assegnato)
+            if (!isAdmin) {
+                Predicate isReporter = criteriaBuilder.equal(root.get("reporterId"), currentUserId);
+                Predicate isAssignee = criteriaBuilder.equal(root.get("assigneeId"), currentUserId);
+                predicates.add(criteriaBuilder.or(isReporter, isAssignee));
+            }
+
+            // 2. FILTRI DINAMICI RICHIESTI DAL FRONTEND
             if (filter.projectId() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("projectId"), filter.projectId()));
             }
@@ -133,7 +143,6 @@ public class IssueQueryServiceImpl implements IssueQueryService {
                 predicates.add(criteriaBuilder.equal(root.get("assigneeId"), filter.assigneeId()));
             }
             if (filter.titleQuery() != null && !filter.titleQuery().isBlank()) {
-                // Ricerca case-insensitive
                 predicates.add(criteriaBuilder.like(
                         criteriaBuilder.lower(root.get("title")),
                         "%" + filter.titleQuery().toLowerCase() + "%"

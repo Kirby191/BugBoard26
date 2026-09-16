@@ -51,55 +51,70 @@ public class AssignBugServiceImpl implements AssignBugService {
         this.userProvider = userProvider;
     }
 
-    @Override
+@Override
     @Transactional
     public IssueResponse assignBug(Long id, AssignBug request) {
-
         // 1. Controllo di sicurezza: solo gli amministratori possono assegnare i bug
         accessControlValidator.canManageProjects();
 
-        // 2. Recupero l'entità Issue (se non esiste, il flusso si interrompe)
+        // 2. Recupero l'entità Issue
         Issue issue = issueRepository.findById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue non trovata con ID: " + id));
 
-        // 3. Verifica Invariante di Dominio: Posso assegnare solo segnalazioni di tipo BUG
+        // 3. Verifica Invariante di Dominio
         domainValidator.validateAssignable(issue);
 
-        // 4. Verifica Esistenza Assegnatario in Read-Only (Loose Coupling)
-        if (!userRepository.existsById(request.assigneeId())) {
-            throw new UserNotFoundException("Utente assegnatario inesistente con ID: " + request.assigneeId());
-        }
-
-        // 5. Mutazione di Stato
-        issue.setAssigneeId(request.assigneeId());
-        Issue savedIssue = issueRepository.save(issue);
-
+        Long newAssigneeId = request.assigneeId();
         Long currentAdminId = userProvider.getCurrentUserId();
 
-        // 6. Registrazione SINCRONA e transazionale nell'History Subsystem
+        // 4. EVITA LOG INUTILI: Se l'assegnatario è lo stesso, non fare nulla
+        if (java.util.Objects.equals(issue.getAssigneeId(), newAssigneeId)) {
+            return buildResponse(issue);
+        }
+
+        // 5. RIMOZIONE ASSEGNAZIONE
+        if (newAssigneeId == null) {
+            issue.setAssigneeId(null);
+            Issue savedIssue = issueRepository.save(issue);
+            historyService.recordEvent(savedIssue.getId(), currentAdminId, AuditAction.ASSIGNED, "L'amministratore ha rimosso l'assegnazione del task.");
+            return buildResponse(savedIssue);
+        }
+
+        // 6. NUOVA ASSEGNAZIONE / RIASSEGNAZIONE
+        if (!userRepository.existsById(newAssigneeId)) {
+            throw new UserNotFoundException("Utente assegnatario inesistente con ID: " + newAssigneeId);
+        }
+
+        issue.setAssigneeId(newAssigneeId);
+        Issue savedIssue = issueRepository.save(issue);
+
         historyService.recordEvent(
                 savedIssue.getId(),
                 currentAdminId,
                 AuditAction.ASSIGNED,
-                "Bug assegnato all'utente con ID: " + request.assigneeId()
+                "Bug assegnato all'utente con ID: " + newAssigneeId
         );
 
-        // 7. Pubblicazione ASINCRONA dell'evento per il modulo Query & View (Notifiche)
+        // Pubblicazione ASINCRONA dell'evento per le Notifiche (Solo se c'è un destinatario fisico)
         eventPublisher.publishEvent(new BugAssignedEvent(
                 savedIssue.getId(),
-                request.assigneeId(),
+                newAssigneeId,
                 LocalDateTime.now(ZoneId.systemDefault())
         ));
 
-        // 8. Ritorno il DTO
-        return new IssueResponse(
-                savedIssue.getId(),
-                savedIssue.getProjectId(),
-                savedIssue.getTitle(),
-                savedIssue.getStatus(),
-                savedIssue.getType(),
-                savedIssue.getPriority(),
-                savedIssue.getAssigneeId()
-        );
+        return buildResponse(savedIssue);
     }
+
+        // Metodo helper
+        private IssueResponse buildResponse(Issue savedIssue) {
+                return new IssueResponse(
+                        savedIssue.getId(),
+                        savedIssue.getProjectId(),
+                        savedIssue.getTitle(),
+                        savedIssue.getStatus(),
+                        savedIssue.getType(),
+                        savedIssue.getPriority(),
+                        savedIssue.getAssigneeId()
+                );
+        }
 }

@@ -33,6 +33,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 
+import com.bugboard26.core.attachment.service.FileStorage;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -55,6 +58,8 @@ class UnitTests {
     @Mock private AuthenticatedUserProvider userProvider;
     @Mock private AuditRepository auditRepository;
     @Mock private EntityManager entityManager;
+
+    @Mock private FileStorage fileStorage;
 
     @InjectMocks private AssignBugServiceImpl assignBugService;
     @InjectMocks private IssueCommandServiceImpl issueCommandService;
@@ -151,7 +156,7 @@ class UnitTests {
         assertThrows(IssueNotFoundException.class, () -> assignBugService.assignBug(999L, request));
     }
 
-    // ==========================================
+// ==========================================
     // METODO 2: updateIssue (TC-06 -> TC-09)
     // ==========================================
 
@@ -164,6 +169,7 @@ class UnitTests {
         when(issueRepository.save(any(Issue.class))).thenReturn(testBug);
         when(userProvider.getCurrentUserId()).thenReturn(100L);
 
+        // AGGIUNTO 'null' come terzo parametro
         issueCommandService.updateIssue(1L, request, null);
 
         assertEquals(IssueStatus.IN_PROGRESS, testBug.getStatus());
@@ -179,6 +185,7 @@ class UnitTests {
         when(issueRepository.save(any(Issue.class))).thenReturn(testBug);
         when(userProvider.getCurrentUserId()).thenReturn(100L);
 
+        // AGGIUNTO 'null' come terzo parametro
         issueCommandService.updateIssue(1L, request, null);
 
         assertEquals("Nuovo Titolo", testBug.getTitle());
@@ -192,6 +199,7 @@ class UnitTests {
         when(issueRepository.findById(1L)).thenReturn(Optional.of(testBug));
         doThrow(new UnauthorizedActionException("Accesso Negato")).when(accessControlValidator).canModifyIssue(testBug);
 
+        // AGGIUNTO 'null' come terzo parametro
         assertThrows(UnauthorizedActionException.class, () -> issueCommandService.updateIssue(1L, request, null));
         verify(issueRepository, never()).save(any());
     }
@@ -202,7 +210,36 @@ class UnitTests {
         UpdateIssue request = new UpdateIssue("Titolo", "Desc", IssueStatus.IN_PROGRESS, IssuePriority.HIGH);
         when(issueRepository.findById(999L)).thenReturn(Optional.empty());
 
+        // AGGIUNTO 'null' come terzo parametro
         assertThrows(IssueNotFoundException.class, () -> issueCommandService.updateIssue(999L, request, null));
+    }
+
+    @Test
+    @DisplayName("TC-09b: updateIssue - Successo con caricamento nuovo file Multipart")
+    public void testUpdateIssue_TC09b_WithFile() {
+        UpdateIssue request = new UpdateIssue("Titolo Modificato", null, null, null);
+        MultipartFile mockFile = mock(MultipartFile.class);
+
+        when(issueRepository.findById(1L)).thenReturn(Optional.of(testBug));
+        doNothing().when(accessControlValidator).canModifyIssue(testBug);
+        
+        // Simuliamo che il file NON sia vuoto per far scattare la logica di salvataggio
+        when(mockFile.isEmpty()).thenReturn(false);
+        // Simuliamo la risposta dell'Attachment Subsystem
+        when(fileStorage.storeFile(1L, mockFile)).thenReturn("/api/attachments/new_image.png");
+        
+        when(issueRepository.save(any(Issue.class))).thenReturn(testBug);
+        when(userProvider.getCurrentUserId()).thenReturn(100L);
+
+        // Invochiamo il service passando il file mockato
+        issueCommandService.updateIssue(1L, request, mockFile);
+
+        // Verifichiamo che l'URL dell'allegato sia stato aggiornato nell'entità
+        assertEquals("/api/attachments/new_image.png", testBug.getAttachmentUrl());
+        
+        // Verifichiamo che il FileStorage sia stato interpellato esattamente una volta
+        verify(fileStorage, times(1)).storeFile(1L, mockFile);
+        verify(historyService, times(1)).recordEvent(eq(1L), eq(100L), eq(AuditAction.UPDATED), anyString());
     }
 
     // ==========================================

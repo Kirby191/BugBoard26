@@ -83,6 +83,22 @@
     </div>
   }
 
+  @if (activeLocalFilter()) {
+    <div class="alert alert-warning" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 10px 15px; border-radius: 8px; background-color: #fff3cd; border: 1px solid #ffecb5; color: #664d03;">
+      <div style="font-weight: bold;">
+        <span style="margin-right: 8px;">🎯</span>
+        @if (activeLocalFilter() === 'unassigned') {
+          Stai visualizzando i <strong>Bug Non Assegnati</strong>.
+        } @else {
+          Stai visualizzando le segnalazioni <strong>Scadute o In Scadenza (entro 7 gg)</strong>.
+        }
+      </div>
+      <button class="btn btn-sm btn-outline-secondary" (click)="resetFilters()" style="background-color: transparent; border: 1px solid #664d03; color: #664d03;">
+        Rimuovi filtro speciale
+      </button>
+    </div>
+  }
+
   <!-- Gestione Stato: Errore -->
   @if (errorMessage()) {
     <div class="alert alert-danger">
@@ -146,7 +162,7 @@
         </tbody>
       </table>
     } 
-    <!-- CONTROLLO: Se NON ci sono issue, mostra il Modern Empty State -->
+    <!-- CONTROLLO: Se NON ci sono issue, mostra l'Empty State -->
     @else {
       <div class="empty-state-container card">
         <div class="empty-illustration">
@@ -167,6 +183,7 @@
     }
   }
 </div>
+
 <!-- ========================================== -->
 <!-- MODALE: ELIMINAZIONE SEGNALAZIONE          -->
 <!-- ========================================== -->

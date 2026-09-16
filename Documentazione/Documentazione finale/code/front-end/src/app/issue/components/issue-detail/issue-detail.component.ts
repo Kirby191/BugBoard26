@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms'; 
@@ -45,6 +45,12 @@ export class IssueDetailComponent implements OnInit {
   protected readonly resultModalTitle = signal<string>('');
   protected readonly resultModalMessage = signal<string>('');
   protected readonly resultModalType = signal<ModalType>('info');
+
+  // Computed signal che esclude dalla tendina lo sviluppatore a cui il bug è già assegnato
+  protected readonly availableDevelopers = computed(() => {
+    const currentAssignee = this.issue()?.assigneeId;
+    return this.usersList().filter(user => user.id !== currentAssignee);
+  });
 
   ngOnInit(): void {
     const role = localStorage.getItem('user_role');
@@ -161,34 +167,38 @@ canModify(): boolean {
   /**
    * Invia il comando di assegnazione al Server ed elabora il Feedback Visivo.
    */
-  executeAssignment(): void {
-    const userId = this.selectedUserId();
+executeAssignment(): void {
+    const selectedVal = this.selectedUserId();
     const currentIssue = this.issue();
+    
+    if (selectedVal !== null && currentIssue) {
+      // Se il valore è -1, lo trasformiamo in null per comunicare al back-end di rimuovere l'assegnazione
+      const assigneeIdToSubmit = Number(selectedVal) === -1 ? null : Number(selectedVal);
 
-    if (userId && currentIssue) {
-      this.issueService.assignBug(currentIssue.id, { assigneeId: Number(userId) }).subscribe({
+      this.issueService.assignBug(currentIssue.id, { assigneeId: assigneeIdToSubmit }).subscribe({
         next: () => {
           this.isAssignModalOpen.set(false);
-          this.selectedUserId.set(null); // Pulisce la selezione
+          this.selectedUserId.set(null); 
+          
+          let successMessage = "";
+          if (assigneeIdToSubmit === null) {
+             successMessage = "Assegnazione rimossa con successo!";
+          } else {
+             const assignedUser = this.usersList().find(u => u.id === assigneeIdToSubmit);
+             const userEmail = assignedUser ? assignedUser.email : "lo sviluppatore";
+             successMessage = `Bug assegnato a ${userEmail} con successo!`;
+          }
 
-          // Recupera la mail per il messaggio di successo
-          const assignedUser = this.usersList().find(u => u.id === Number(userId));
-          const userEmail = assignedUser ? assignedUser.email : "lo sviluppatore";
-
-          // Prepara e mostra il feedback (V)
           this.resultModalTitle.set('Operazione Completata');
-          this.resultModalMessage.set(`✅ Bug assegnato a ${userEmail} con successo!`);
+          this.resultModalMessage.set(successMessage);
           this.resultModalType.set('info');
           this.isResultModalOpen.set(true);
-
-          this.loadIssueDetail(currentIssue.id); // Aggiorna la UI sottostante
+          this.loadIssueDetail(currentIssue.id); 
         },
         error: (err) => {
           this.isAssignModalOpen.set(false);
-          
-          // Prepara e mostra il feedback (X)
           this.resultModalTitle.set('Errore di Assegnazione');
-          this.resultModalMessage.set(`❌ C'è stato un problema durante l'assegnazione: ${err.error?.message || 'Errore imprevisto dal server.'}`);
+          this.resultModalMessage.set(`C'è stato un problema durante l'assegnazione: ${err.error?.message || 'Errore imprevisto dal server.'}`);
           this.resultModalType.set('danger');
           this.isResultModalOpen.set(true);
         }

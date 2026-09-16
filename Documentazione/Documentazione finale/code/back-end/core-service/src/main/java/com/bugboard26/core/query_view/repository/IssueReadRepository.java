@@ -28,7 +28,7 @@ public interface IssueReadRepository extends ReadOnlyRepository<Issue, Long>, Jp
 
     int countByPriority(IssuePriority priority);
 
-    int countByDueDateBeforeAndStatusNot(LocalDate date, IssueStatus status);
+    int countByDueDateLessThanEqualAndStatusNot(LocalDate date, IssueStatus status);
 
     // Adattato al Loose Coupling: cerca se l'ID assegnatario è null anziché l'intero oggetto
     int countByTypeAndAssigneeIdIsNull(IssueType type);

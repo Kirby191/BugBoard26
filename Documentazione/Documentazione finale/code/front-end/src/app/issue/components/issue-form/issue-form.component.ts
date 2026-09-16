@@ -57,7 +57,11 @@ export class IssueFormComponent implements OnInit {
   // --- STATO DEL LIMITE CARATTERI ISSUE (RD-07: MAX 500) ---
   protected readonly MAX_DESC_LENGTH = 500;
   protected readonly DESC_THRESHOLD = 450; // 90% di 500
-  protected readonly isLimitModalOpen = signal<boolean>(false);
+
+  // Signals per il Modale di Validazione Aggregata
+  protected readonly isValidationModalOpen = signal<boolean>(false);
+  protected readonly validationModalTitle = signal<string>('Attenzione');
+  protected readonly validationModalMessage = signal<string>('');
 
   // --- SIGNALS PER CUSTOM DATE PICKER ---
   protected readonly dateDay = signal<string>('');
@@ -135,22 +139,76 @@ export class IssueFormComponent implements OnInit {
       error: () => this.errorMessage.set('Impossibile caricare i dati della segnalazione.')
     });
   }
+
+  /**
+   * Valida semanticamente la data inserita a mano.
+   * Controlla completezza, validità di calendario (es. no 30 Febbraio) e che non sia nel passato.
+   */
+  private validateCustomDate(): string | null {
+    const d = this.dateDay();
+    const m = this.dateMonth();
+    const y = this.dateYear();
+
+    // Se è tutto vuoto, va bene (la scadenza è opzionale)
+    if (!d && !m && !y) return null;
+
+    // Se è compilata a metà
+    if (!d || !m || y.length !== 4) {
+      return "La data è incompleta. Usa il formato 'gg / mm / aaaa' oppure selezionala comodamente dall'icona del calendario a destra.";
+    }
+
+    const day = parseInt(d, 10);
+    const month = parseInt(m, 10);
+    const year = parseInt(y, 10);
+
+    // Verifica logica del calendario (es. 31/02/2026 diventa automaticamente Marzo per JS. Se il mese cambia, la data era finta)
+    const dateObj = new Date(year, month - 1, day);
+    if (dateObj.getFullYear() !== year || dateObj.getMonth() !== month - 1 || dateObj.getDate() !== day) {
+      return "La data inserita non esiste sul calendario. Verifica i valori o utilizza l'icona del calendario.";
+    }
+
+    // Verifica invariante di dominio: non può essere nel passato
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (dateObj < today) {
+      return "La data di scadenza non può essere impostata nel passato.";
+    }
+
+    return null; // Nessun errore
+  }
   
   /**
    * Gestisce l'invio del form.
    */
   onSubmit(): void {
-    // 1. Controllo custom del limite di caratteri PRIMA di tutto
-    if (this.descriptionLength > this.MAX_DESC_LENGTH) {
-      this.isLimitModalOpen.set(true);
-      return; // Blocca l'invio
-    }
-
-    this.errorMessage.set(null);
     if (this.issueForm.invalid) {
       this.issueForm.markAllAsTouched();
-      this.errorMessage.set('Compila correttamente i campi obbligatori rispettando le lunghezze massime.');
       return;
+    }
+
+    const errors: string[] = [];
+    const formValues = this.issueForm.getRawValue();
+
+    // 1. Controllo Limite Descrizione (RD-07)
+    if (formValues.description && formValues.description.length > 500) {
+      errors.push("• La descrizione supera il limite massimo di 500 caratteri. Sintetizza il testo.");
+    }
+
+    // 2. Controllo Data (Solo per Admin)
+    if (this.isAdmin()) {
+      const dateError = this.validateCustomDate();
+      if (dateError) {
+        errors.push("• " + dateError);
+      }
+    }
+
+    // 3. UX CONCORRENZA: Se ci sono uno o più errori, mostriamo UN SOLO modale aggregato
+    if (errors.length > 0) {
+      this.validationModalTitle.set(errors.length > 1 ? 'Multipli Errori Rilevati' : 'Attenzione');
+      // Unisce l'array in una stringa formattata con ritorni a capo
+      this.validationModalMessage.set("Per procedere con il salvataggio, risolvi i seguenti problemi:\n\n" + errors.join('\n\n'));
+      this.isValidationModalOpen.set(true);
+      return; // Blocca l'invio HTTP!
     }
     
     this.isSubmitting.set(true);

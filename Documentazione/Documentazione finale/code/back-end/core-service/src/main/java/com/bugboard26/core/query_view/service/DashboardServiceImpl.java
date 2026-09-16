@@ -39,8 +39,11 @@ public class DashboardServiceImpl implements DashboardService {
 
         int criticalCount = issueRepository.countByPriority(IssuePriority.CRITICAL);
 
+        // Calcolo la data di scadenza target (7 giorni da oggi)
+        LocalDate targetDate = LocalDate.now(ZoneId.systemDefault()).plusDays(7);
+
         // Calcola quante segnalazioni sono scadute e non ancora completate
-        int overdueCount = issueRepository.countByDueDateBeforeAndStatusNot(LocalDate.now(ZoneId.systemDefault()), IssueStatus.DONE);
+        int overdueCount = issueRepository.countByDueDateLessThanEqualAndStatusNot(targetDate, IssueStatus.DONE);
 
         // 2. Metriche Sensibili al Contesto (RBAC & Identità)
         Long currentUserId = userProvider.getCurrentUserId();

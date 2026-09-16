@@ -55,6 +55,7 @@ export class IssueListComponent implements OnInit {
 
   // Signal per la tendina della ricerca avanzata
   protected readonly isAdvancedSearchOpen = signal<boolean>(false);
+  protected readonly activeLocalFilter = signal<'unassigned' | 'overdue' | null>(null);
 
   // Form espanso con TUTTI i parametri previsti dalla Funzionalità 3
   filterForm = new FormGroup({
@@ -77,7 +78,7 @@ export class IssueListComponent implements OnInit {
 
     this.loadFilterOptions();
 
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe(params => {  
       const filter: IssueFilter = {};
       
       if (params['projectId']) filter.projectId = Number(params['projectId']);
@@ -86,6 +87,14 @@ export class IssueListComponent implements OnInit {
       if (params['priority']) filter.priority = params['priority'] as IssuePriority;
       if (params['assigneeId']) filter.assigneeId = Number(params['assigneeId']);
       if (params['titleQuery']) filter.titleQuery = params['titleQuery'];
+
+      // ESTRAZIONE FILTRO LOCALE
+      const localParam = params['localFilter'];
+      if (localParam === 'unassigned' || localParam === 'overdue') {
+        this.activeLocalFilter.set(localParam);
+      } else {
+        this.activeLocalFilter.set(null);
+      }
 
       this.filterForm.patchValue({
         titleQuery: filter.titleQuery || null,
@@ -96,10 +105,13 @@ export class IssueListComponent implements OnInit {
         assigneeId: filter.assigneeId || null
       }, { emitEvent: false }); 
 
-      // UX: Se l'utente arriva tramite un link con filtri avanzati attivi (es. dalla Dashboard), 
-      // apriamo automaticamente il pannello per mostrare cosa sta filtrando.
-      if (filter.projectId || filter.status || filter.type || filter.priority || filter.assigneeId) {
+      // UX FIX: Se l'utente arriva tramite un link con filtri avanzati attivi,
+      // apriamo il pannello. TUTTAVIA, se c'è un 'localFilter' attivo (es. dalla Dashboard),
+      // lo teniamo chiuso per non ingombrare la vista, dato che c'è già il banner illustrativo!
+      if (!localParam && (filter.projectId || filter.status || filter.type || filter.priority || filter.assigneeId)) {
         this.isAdvancedSearchOpen.set(true);
+      } else {
+        this.isAdvancedSearchOpen.set(false);
       }
 
       this.loadIssues(filter);
@@ -112,13 +124,42 @@ export class IssueListComponent implements OnInit {
     this.projectQueryService.getProjects().subscribe(p => this.projects.set(p));
   }
 
-  private loadIssues(filter: IssueFilter): void {
+private loadIssues(filter: IssueFilter): void {
     this.isLoading.set(true);
     this.errorMessage.set(null); 
     
     this.dashboardService.searchIssues(filter).subscribe({
       next: (data) => {
-        this.issues.set(data);
+        let processedData = data;
+
+        // =======================================================
+        // APPLICAZIONE FILTRAGGIO LATO CLIENT
+        // =======================================================
+        const currentLocalFilter = this.activeLocalFilter();
+
+        if (currentLocalFilter === 'unassigned') {
+          // Mantieni solo i bug dove assigneeId non è definito (o nullo)
+          processedData = processedData.filter(issue => !issue.assigneeId && issue.type === 'BUG');
+        } 
+        else if (currentLocalFilter === 'overdue') {
+          // Calcolo target: Oggi + 7 giorni
+          const today = new Date();
+          today.setHours(0, 0, 0, 0); // Azzera ore per calcolo preciso del giorno
+          const targetDate = new Date(today);
+          targetDate.setDate(today.getDate() + 7);
+
+          processedData = processedData.filter(issue => {
+            // Escludi se è già completata o se non ha una scadenza
+            if (issue.status === 'DONE' || !issue.dueDate) return false;
+            
+            // Confronta la data della issue con il target
+            const issueDate = new Date(issue.dueDate);
+            return issueDate <= targetDate;
+          });
+        }
+
+        // Salva i dati filtrati nel Signal per aggiornare l'HTML
+        this.issues.set(processedData);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -143,6 +184,7 @@ export class IssueListComponent implements OnInit {
     currentParams['type'] = formValues.type || null;
     currentParams['priority'] = formValues.priority || null;
     currentParams['assigneeId'] = formValues.assigneeId || null;
+    delete currentParams['localFilter'];
 
     this.router.navigate([], {
       relativeTo: this.route,
@@ -153,7 +195,7 @@ export class IssueListComponent implements OnInit {
 
   resetFilters(): void {
     this.filterForm.reset();
-    this.isAdvancedSearchOpen.set(false);
+    this.toggleAdvancedSearch();
     this.router.navigate(['/issues']); 
   }
 

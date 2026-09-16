@@ -213,15 +213,16 @@
   (cancel)="isModalOpen.set(false)">
 </app-modal>
 
-<!-- MODALE: LIMITE CARATTERI ISSUE SUPERATO -->
+<!-- MODALE: VALIDAZIONE AGGREGATA (Testo Dinamico e Multi-Errore) -->
 <app-modal 
-  [isOpen]="isLimitModalOpen()" 
-  title="Limite Superato" 
-  message="Le specifiche di BugBoard26 limitano la descrizione della issue a un massimo di 500 caratteri. Sintetizza il testo per poter procedere." 
+  [isOpen]="isValidationModalOpen()" 
+  [title]="validationModalTitle()" 
   type="info"
   confirmText="Ho capito"
   cancelText=""
-  (confirm)="isLimitModalOpen.set(false)">
+  (confirm)="isValidationModalOpen.set(false)">
+  <!-- Iniettiamo il messaggio qui per forzare i ritorni a capo -->
+  <p style="white-space: pre-wrap; margin: 0; color: #495057; line-height: 1.5;">{{ validationModalMessage() }}</p>
 </app-modal>
 
 <!-- ========================================================================= -->

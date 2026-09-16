@@ -132,6 +132,7 @@
   title="Assegna Segnalazione" 
   type="info"
   confirmText="Assegna"
+  cancelText="Annulla" 
   (confirm)="executeAssignment()"
   (cancel)="isAssignModalOpen.set(false)">
   
@@ -141,7 +142,14 @@
     </label>
     <select id="assigneeSelect" class="form-control" [(ngModel)]="selectedUserId" style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ced4da;">
       <option [ngValue]="null" disabled>-- Seleziona Utente --</option>
-      @for (user of usersList(); track user.id) {
+      
+      <!-- Opzione visibile SOLO se il bug è già assegnato a qualcuno -->
+      @if (issue()?.assigneeId) {
+        <option [ngValue]="-1" style="color: #dc3545; font-weight: bold;">-- Rimuovi Assegnazione Corrente --</option>
+      }
+
+      <!-- Iterazione sulla lista filtrata -->
+      @for (user of availableDevelopers(); track user.id) {
         <option [value]="user.id">{{ user.email }} ({{ user.role }})</option>
       }
     </select>

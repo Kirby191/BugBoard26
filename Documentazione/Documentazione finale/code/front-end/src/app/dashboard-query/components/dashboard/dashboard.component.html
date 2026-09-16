@@ -23,8 +23,8 @@
         <div class="stat-desc">Task in carico al tuo utente</div>
       </div>
 
-      <!-- Scadute (Attualmente il filtro date non è nel DTO, reindirizza genericamente o potresti aggiungere il parametro) -->
-      <div class="stat-card warning-border" style="cursor: pointer;" (click)="goToFilteredList()">
+      <!-- Scadute  -->
+      <div class="stat-card warning-border" style="cursor: pointer;" (click)="goToFilteredList({ localFilter: 'overdue' })">
         <div class="stat-title">Scadute o In Scadenza</div>
         <div class="stat-value text-warning">{{ s.overdueCount }}</div>
         <div class="stat-desc">Richiedono intervento immediato</div>
@@ -37,8 +37,8 @@
         <div class="stat-desc">Bug che bloccano il sistema</div>
       </div>
 
-      <!-- Bug non assegnati (Filtro per tipo BUG) -->
-      <div class="stat-card info-border" style="cursor: pointer;" (click)="goToFilteredList({ type: 'BUG' })">
+     <!-- Bug non assegnati (Filtriamo 'BUG' da back-end, e i non assegnati da front-end) -->
+      <div class="stat-card info-border" style="cursor: pointer;" (click)="goToFilteredList({ type: 'BUG', localFilter: 'unassigned' })">
         <div class="stat-title">Bug Non Assegnati</div>
         <div class="stat-value text-info">{{ s.unassignedBugCount }}</div>
         <div class="stat-desc">Da smistare ai developer</div>

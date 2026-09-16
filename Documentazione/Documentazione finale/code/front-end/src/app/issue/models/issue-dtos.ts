@@ -21,7 +21,7 @@ export interface UpdateIssue {
  * DTO per l'assegnazione di un bug
  */
 export interface AssignBug {
-  assigneeId: number;
+  assigneeId: number | null; // null per rimuovere l'assegnatario
 }
 
 /**
