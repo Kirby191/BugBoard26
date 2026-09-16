@@ -10,7 +10,7 @@ RUN npm ci
 
 # Copia il resto del codice e compila l'app per la produzione
 COPY . .
-RUN npm run build --configuration=production
+RUN npm run build:prod
 
 # ==========================================
 # STAGE 2: RUNTIME (Nginx)

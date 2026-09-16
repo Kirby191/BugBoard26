@@ -34,12 +34,16 @@ export class ProjectDetailComponent implements OnInit {
   protected readonly isAdmin = signal<boolean>(false);
   protected readonly isDeleteModalOpen = signal<boolean>(false);
 
+  protected readonly isNotFound = signal<boolean>(false);
+  protected readonly requestedId = signal<number | null>(null);
+
   ngOnInit(): void {
     const role = localStorage.getItem('user_role');
     this.isAdmin.set(role === 'ADMIN');
 
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
+      this.requestedId.set(Number(idParam)); // Salviamo l'id cercato per stamparlo a schermo
       this.loadData(Number(idParam));
     } else {
       this.errorMessage.set('ID progetto non valido.');
@@ -57,8 +61,13 @@ export class ProjectDetailComponent implements OnInit {
         this.project.set(projectData);
         this.loadProjectIssues(projectId);
       },
-      error: () => {
-        this.errorMessage.set('Impossibile caricare i dettagli del progetto.');
+      error: (err) => {
+        // Se il back-end restituisce 404 (o l'errore contiene un messaggio specifico)
+        if (err.status === 404 || err.error?.message?.toLowerCase().includes('non trovat')) {
+          this.isNotFound.set(true);
+        } else {
+          this.errorMessage.set('Impossibile caricare i dettagli del progetto.');
+        }
         this.isLoading.set(false);
       }
     });
@@ -74,6 +83,11 @@ export class ProjectDetailComponent implements OnInit {
     });
   }
 
+  // ==========================
+  // NAVIGAZIONE
+  // ==========================
+
+  // Lasciamo il metodo goBack() per compatibilità, ma aggiungiamo navigateToList() per sicurezza
   goBack(): void {
     this.location.back();
   }
@@ -87,6 +101,29 @@ export class ProjectDetailComponent implements OnInit {
   goToIssueDetail(issueId: number): void {
     this.router.navigate(['/issues', issueId]);
   }
+  
+
+  navigateToCreateIssue(): void {
+    const currentProject = this.project();
+    if (currentProject) {
+      // Passa l'ID del progetto come parametro query nell'URL
+      this.router.navigate(['/issues/new'], { queryParams: { projectId: currentProject.id } });
+    } else {
+      this.router.navigate(['/issues/new']);
+    }
+  }
+
+  navigateToCreate(): void {
+    this.router.navigate(['/projects/new']);
+  }
+
+  navigateToList(): void {
+    this.router.navigate(['/projects']);
+  }
+
+  // ==========================
+  // MODALE DI CONFERMA ELIMINAZIONE
+  // ==========================
 
   openDeleteModal(): void {
     this.isDeleteModalOpen.set(true);

@@ -96,12 +96,19 @@ export class IssueFormComponent implements OnInit {
 
     this.loadProjects();
     const idParam = this.route.snapshot.paramMap.get('id');
-    if (idParam) {
+if (idParam) {
       this.isEditMode.set(true);
       this.issueId.set(Number(idParam));
       this.prepareEditMode(this.issueId()!);
     } else {
+      // In creazione lo status non serve, è TODO di default nel back-end
       this.issueForm.controls.status.disable();
+
+      // Leggiamo la query string per capire se l'utente proviene dalla pagina di un progetto
+      const preselectedProjectId = this.route.snapshot.queryParamMap.get('projectId');
+      if (preselectedProjectId) {
+        this.issueForm.patchValue({ projectId: Number(preselectedProjectId) });
+      }
     }
   }
 

@@ -1,6 +1,6 @@
 <div class="detail-container">
   <div class="header-actions">
-    <button class="btn btn-secondary" (click)="goBack()">⬅ Torna all'elenco</button>
+    <button class="btn btn-secondary" (click)="navigateToList()">⬅ Torna all'elenco</button>
     
     <!-- NUOVO: Raggruppiamo i bottoni di modifica e cancellazione e li proteggiamo con isAdmin -->
     @if (project() && isAdmin()) {
@@ -11,11 +11,44 @@
     }
   </div>
 
-  <!-- ... (Il resto delle CARD 1 e CARD 2 con i dettagli e la issue-table resta INVARIATO come lo avevi) ... -->
-  @if (isLoading()) {
+  <!-- LOADING... -->
+@if (isLoading()) {
     <div class="loading-spinner"><p>Caricamento dati del progetto...</p></div>
-  } @else if (errorMessage()) {
-    <div class="alert alert-danger">{{ errorMessage() }}</div>
+  } 
+  @else if (isNotFound()) {
+    <!-- 404 EMPTY STATE -->
+    <div class="empty-state-container card" style="margin-top: 20px;">
+      <div class="empty-illustration">
+        <!-- Icona "Cartella non trovata" -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+          <line x1="9" y1="14" x2="15" y2="14"></line>
+          <!-- Cordoncino "x" per indicare errore/non trovato -->
+          <line x1="16" y1="2" x2="22" y2="8" stroke="#dc3545"></line>
+          <line x1="22" y1="2" x2="16" y2="8" stroke="#dc3545"></line>
+        </svg>
+      </div>
+      
+      <h3 class="empty-title">Oops! Progetto non trovato</h3>
+      
+      @if (isAdmin()) {
+        <p class="empty-subtitle">
+          Il progetto <strong>#{{ requestedId() }}</strong> che stai cercando non esiste nel database o è stato eliminato. Puoi tornare alla lista generale oppure creare un nuovo progetto da zero.
+        </p>
+        <div style="display: flex; gap: 15px;">
+          <button class="btn btn-secondary" (click)="navigateToList()">Torna alla Lista</button>
+          <button class="btn btn-primary" (click)="navigateToCreate()">Crea Nuovo Progetto</button>
+        </div>
+      } @else {
+        <p class="empty-subtitle">
+          Il progetto <strong>#{{ requestedId() }}</strong> non è presente nel sistema o è stato eliminato. Se ritieni sia un errore, ti preghiamo di contattare un Amministratore.
+        </p>
+        <button class="btn btn-primary btn-lg" (click)="navigateToList()">Torna all'elenco</button>
+      }
+    </div>
+  }
+  @else if (errorMessage()) {
+    <div class="alert alert-danger">{{ errorMessage() }}</div>  
   } @else if (project(); as p) {
      <!-- CARD 1: Dettagli Progetto -->
      <div class="card main-info-card">
@@ -29,47 +62,68 @@
        </div>
      </div>
 
-     <!-- CARD 2: Lista delle Segnalazioni associate -->
+<!-- CARD 2: Lista delle Segnalazioni associate -->
      <div class="card issues-card">
        <div class="card-header">
          <h3>Segnalazioni nel Progetto ({{ projectIssues().length }})</h3>
        </div>
        
        <div class="card-body p-0">
-         <table class="issue-table">
-           <thead>
-             <tr>
-               <th>ID</th>
-               <th>Titolo</th>
-               <th>Tipo</th>
-               <th>Stato</th>
-               <th>Assegnato a</th>
-               <th>Azione</th>
-             </tr>
-           </thead>
-           <tbody>
-             @for (issue of projectIssues(); track issue.id) {
+         
+         <!-- CONTROLLO: Se ci sono issue, mostra la tabella -->
+         @if (projectIssues().length > 0) {
+           <table class="issue-table">
+             <thead>
                <tr>
-                 <td>#{{ issue.id }}</td>
-                 <td class="fw-bold">{{ issue.title }}</td>
-                 <td><app-status-badge category="type" [value]="issue.type"></app-status-badge></td>
-                 <td><app-status-badge category="status" [value]="issue.status"></app-status-badge></td>
-                 <td>{{ issue.assigneeEmail || 'Non assegnato' }}</td>
-                 <td>
-                   <button class="btn btn-sm btn-info" (click)="goToIssueDetail(issue.id)">Vedi Issue</button>
-                 </td>
+                 <th>ID</th>
+                 <th>Titolo</th>
+                 <th>Tipo</th>
+                 <th>Stato</th>
+                 <th>Assegnato a</th>
+                 <th>Azione</th>
                </tr>
-             } @empty {
-               <tr>
-                 <td colspan="6" class="text-center" style="padding: 20px;">Nessuna segnalazione aperta per questo progetto.</td>
-               </tr>
-             }
-           </tbody>
-         </table>
-       </div>
-     </div>
-  }
-</div>
+             </thead>
+             <tbody>
+               @for (issue of projectIssues(); track issue.id) {
+                 <tr>
+                   <td>#{{ issue.id }}</td>
+                   <td class="fw-bold">{{ issue.title }}</td>
+                   <td><app-status-badge category="type" [value]="issue.type"></app-status-badge></td>
+                   <td><app-status-badge category="status" [value]="issue.status"></app-status-badge></td>
+                   <td>{{ issue.assigneeEmail || 'Non assegnato' }}</td>
+                   <td>
+                     <button class="btn btn-sm btn-info" (click)="goToIssueDetail(issue.id)">Vedi Issue</button>
+                   </td>
+                 </tr>
+               }
+             </tbody>
+           </table>
+         } 
+         <!-- CONTROLLO: Se NON ci sono issue, mostra l'Empty State Proattivo -->
+         @else {
+           <div class="empty-state-container">
+             <div class="empty-illustration">
+               <!-- SVG in stile documento vuoto -->
+               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                 <polyline points="14 2 14 8 20 8"></polyline>
+                 <line x1="16" y1="13" x2="8" y2="13"></line>
+                 <line x1="16" y1="17" x2="8" y2="17"></line>
+                 <polyline points="10 9 9 9 8 9"></polyline>
+               </svg>
+             </div>
+             <h3 class="empty-title">Nessuna segnalazione in questo progetto</h3>
+             <p class="empty-subtitle">
+               Non sono state ancora aperte segnalazioni. Inizia a tracciare i task, i bug o le richieste di funzionalità creando la prima segnalazione per questo progetto.
+             </p>
+             <button class="btn btn-primary btn-lg" (click)="navigateToCreateIssue()">
+               <span style="font-size: 1.2rem; margin-right: 5px;">+</span> Crea Nuova Segnalazione
+             </button>
+           </div>
+         }
+        </div>
+      </div>
+    }
 
 <!-- NUOVO: Aggiunta del modale di conferma eliminazione -->
 <app-modal 

@@ -47,6 +47,10 @@ export class IssueDetailComponent implements OnInit {
   protected readonly resultModalMessage = signal<string>('');
   protected readonly resultModalType = signal<ModalType>('info');
 
+  // SIGNAL PER 404 (NOT FOUND) E PER STAMPA ID RICHIESTO
+  protected readonly isNotFound = signal<boolean>(false);
+  protected readonly requestedId = signal<number | null>(null);
+
   // Computed signal che esclude dalla tendina lo sviluppatore a cui il bug è già assegnato
   protected readonly availableDevelopers = computed(() => {
     const currentAssignee = this.issue()?.assigneeId;
@@ -78,6 +82,7 @@ export class IssueDetailComponent implements OnInit {
     
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
+      this.requestedId.set(Number(idParam));
       this.loadIssueDetail(Number(idParam));
     } else {
       this.errorMessage.set('ID segnalazione non valido.');
@@ -124,8 +129,12 @@ canModify(): boolean {
           this.isLoading.set(false);
         }
       },
-      error: () => {
-        this.errorMessage.set('Impossibile caricare i dettagli della segnalazione.');
+      error: (err) => {
+        if (err.status === 404 || err.error?.message?.toLowerCase().includes('non trovat')) {
+          this.isNotFound.set(true);
+        } else {
+          this.errorMessage.set('Impossibile caricare i dettagli della segnalazione.');
+        }
         this.isLoading.set(false);
       }
     });
@@ -301,6 +310,7 @@ executeAssignment(): void {
   // NAVIGAZIONE
   // ==========================================================================
 
+  // Lasciamo il metodo goBack() per compatibilità, ma aggiungiamo navigateToList() per sicurezza
   goBack(): void {
    this.location.back();
   }
@@ -311,5 +321,13 @@ executeAssignment(): void {
    if (currentIssue) {
      this.router.navigate(['/issues/edit', currentIssue.id]);
      }
+  }
+
+  navigateToCreate(): void {
+    this.router.navigate(['/issues/new']);
+  }
+
+  navigateToList(): void {
+    this.router.navigate(['/issues']);
   }
 }

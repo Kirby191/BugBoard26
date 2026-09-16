@@ -1,7 +1,7 @@
 <div class="detail-container">
   
   <div class="header-actions">
-    <button class="btn btn-secondary" (click)="goBack()">← Torna all'elenco</button>
+    <button class="btn btn-secondary" (click)="navigateToList()">← Torna all'elenco</button>
     
       @if (issue(); as i) {
       <div style="display: flex; gap: 15px;">
@@ -25,9 +25,40 @@
     }
   </div>
 
-  @if (isLoading()) {
+@if (isLoading()) {
     <div class="loading">Caricamento dettagli in corso...</div>
   } 
+  @else if (isNotFound()) {
+    <!--  404 EMPTY STATE -->
+    <div class="empty-state-container card" style="margin-top: 20px;">
+      <div class="empty-illustration">
+        <!-- Icona "File rotto / Bug non trovato" -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <!-- Taglio al centro -->
+          <line x1="9" y1="15" x2="15" y2="9"></line>
+        </svg>
+      </div>
+      
+      <h3 class="empty-title">Segnalazione non trovata</h3>
+      
+      @if (isAdmin()) {
+        <p class="empty-subtitle">
+          La segnalazione <strong>#{{ requestedId() }}</strong> non esiste nel sistema. Potrebbe essere stata eliminata in modo definitivo.
+        </p>
+        <div style="display: flex; gap: 15px;">
+          <button class="btn btn-secondary" (click)="navigateToList()">Torna alla Lista</button>
+          <button class="btn btn-primary" (click)="navigateToCreate()">Crea Nuova Segnalazione</button>
+        </div>
+      } @else {
+        <p class="empty-subtitle">
+          La segnalazione <strong>#{{ requestedId() }}</strong> che stai cercando non esiste o è stata rimossa. Rivolgiti a un Amministratore se il problema persiste.
+        </p>
+        <button class="btn btn-primary btn-lg" (click)="navigateToList()">Torna all'elenco</button>
+      }
+    </div>
+  }
   @else if (errorMessage()) {
     <div class="alert alert-danger">{{ errorMessage() }}</div>
   } 

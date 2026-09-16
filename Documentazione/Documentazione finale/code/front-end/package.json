@@ -1,12 +1,13 @@
 {
   "name": "front-end",
-  "version": "0.0.0",
+  "version": "2.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "build:prod": "ng build --configuration production"
   },
   "private": true,
   "packageManager": "npm@11.19.0",

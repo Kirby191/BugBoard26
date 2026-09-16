@@ -24,14 +24,14 @@
     }
   </div>
 
-  <!-- RIGA AVANZATA (Scompare/Compare) -->
+<!-- RIGA AVANZATA (Scompare/Compare) -->
   @if (isAdvancedSearchOpen()) {
     <div class="advanced-filters card" style="padding: 15px; margin-bottom: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
       <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" style="display: flex; gap: 15px; flex-wrap: wrap;">
         
         <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
           <label for="projectId" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Progetto</label>
-          <select id="projectId" formControlName="projectId" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+          <select id="projectId" formControlName="projectId" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;" (change)="applyFilters()">
             <option [ngValue]="null">Tutti i progetti</option>
             @for (proj of projects(); track proj.id) {
               <option [value]="proj.id">{{ proj.name }}</option>
@@ -41,7 +41,7 @@
 
         <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
           <label for="type" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Tipo</label>
-          <select id="type" formControlName="type" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+          <select id="type" formControlName="type" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;" (change)="applyFilters()">
             <option [ngValue]="null">Tutti i tipi</option>
             @for (type of issueTypes; track type) {
               <option [value]="type">{{ type }}</option>
@@ -51,7 +51,7 @@
 
         <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
           <label for="status" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Stato</label>
-          <select id="status" formControlName="status" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+          <select id="status" formControlName="status" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;" (change)="applyFilters()">
             <option [ngValue]="null">Tutti gli stati</option>
             @for (status of issueStatuses; track status) {
               <option [value]="status">{{ status }}</option>
@@ -61,7 +61,7 @@
 
         <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
           <label for="priority" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Priorità</label>
-          <select id="priority" formControlName="priority" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+          <select id="priority" formControlName="priority" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;" (change)="applyFilters()">
             <option [ngValue]="null">Tutte le priorità</option>
             @for (priority of issuePriorities; track priority) {
               <option [value]="priority">{{ priority }}</option>
@@ -71,7 +71,7 @@
 
         <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
           <label for="assigneeId" style="font-size: 0.85rem; font-weight: bold; color: #495057;">Assegnato a</label>
-          <select id="assigneeId" formControlName="assigneeId" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+          <select id="assigneeId" formControlName="assigneeId" class="form-control" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;" (change)="applyFilters()">
             <option [ngValue]="null">Tutti gli sviluppatori</option>
             @for (user of usersList(); track user.id) {
               <option [value]="user.id">{{ user.email }}</option>
