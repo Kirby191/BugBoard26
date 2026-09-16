@@ -1,8 +1,6 @@
 <div class="issue-list-container">
-  
   <div class="header-actions">
-    <h2>Gestione Progetti</h2>
-    <!-- Il bottone in alto appare SOLO se ci sono già progetti E l'utente è ADMIN -->
+    <h2>Progetti</h2>
     @if (projects().length > 0 && isAdmin()) {
       <button class="btn btn-primary" (click)="navigateToCreate()">+ Nuovo Progetto</button>
     }
@@ -13,45 +11,41 @@
   }
 
   @if (isLoading()) {
-    <div class="loading-spinner"><p>Caricamento...</p></div>
+    <div class="loading-spinner"><p>Caricamento dei progetti in corso...</p></div>
   } @else {
     
-    <!-- CONTROLLO 1: Se ci sono progetti, mostra la tabella -->
     @if (projects().length > 0) {
-      <table class="issue-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nome Progetto</th>
-            <th>Ultima Modifica</th>
-            <!-- La colonna azioni esiste solo per l'Admin -->
-            @if (isAdmin()) { <th>Azioni</th> }
-          </tr>
-        </thead>
-        <tbody>
-          @for (project of projects(); track project.id) {
-            <tr>
-              <td>#{{ project.id }}</td>
-              <td class="fw-bold">{{ project.name }}</td>
-              <td>{{ project.lastModified | date:'shortDate' }}</td>
-              
-              <!-- I bottoni di modifica/eliminazione sono solo per l'Admin -->
-              @if (isAdmin()) {
-                <td class="actions-cell">
-                  <button class="btn btn-sm btn-warning" (click)="navigateToEdit(project.id)">Modifica</button>
-                  <button class="btn btn-sm btn-danger" (click)="openDeleteModal(project.id)">Elimina</button>
-                </td>
-              }
-            </tr>
-          }
-        </tbody>
-      </table>
+      <!-- NUOVO DESIGN: Griglia a Cartelle (Ispirato a M01) -->
+      <div class="projects-grid">
+        @for (project of projects(); track project.id) {
+          
+          <!-- Evento di click per navigare ai dettagli del progetto -->
+          <div class="project-folder" (click)="navigateToDetail(project.id)">
+            
+      <div class="folder-icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" class="folder-svg">
+          <!-- Sagoma cartella (retro + linguetta) -->
+          <path d="M2 7C2 5.34315 3.34315 4 5 4H9.17157C9.96722 4 10.7303 4.31607 11.2929 4.87868L12.7071 6.29289C13.2697 6.8555 14.0328 7.17157 14.8284 7.17157H19C20.6569 7.17157 22 8.51472 22 10.1716V17C22 18.6569 20.6569 20 19 20H5C3.34315 20 2 18.6569 2 17V7Z" fill="#8CA8F0"/>
+          <!-- Solapa anteriore, arretrata su lati e base -->
+          <rect x="3.5" y="9" width="17" height="9.5" rx="1.5" fill="#1A237E"/>
+          <!-- Linea decorativa -->
+          <rect x="8" y="13" width="8" height="1.5" rx="0.75" fill="#ffffff" opacity="0.7"/>
+        </svg>
+      </div>
+            
+            <div class="folder-details">
+              <span class="folder-name">{{ project.name }}</span>
+              <span class="folder-date">Modificato: {{ project.lastModified | date:'shortDate' }}</span>
+            </div>
+          </div>
+
+        }
+      </div>
+      <p class="hint-text">💡 Clicca su una cartella per accedere ai dettagli e alle segnalazioni.</p>
     } 
-    <!-- CONTROLLO 2: Se NON ci sono progetti, mostra l'Empty State differenziato -->
     @else {
+      <!-- Empty State -->
       <div class="empty-state-container card">
-        
-        <!-- Illustrazione condivisa -->
         <div class="empty-illustration">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
@@ -59,41 +53,17 @@
             <line x1="9" y1="14" x2="15" y2="14"></line>
           </svg>
         </div>
-
         @if (isAdmin()) {
-          <!-- VISTA AMMINISTRATORE -->
           <h3 class="empty-title">Nessun progetto esistente</h3>
-          <p class="empty-subtitle">
-            Non hai ancora creato alcun progetto in BugBoard26. Inizia creando il tuo primo progetto per poter iniziare a tracciare le segnalazioni.
-          </p>
+          <p class="empty-subtitle">Non hai ancora creato alcun progetto in BugBoard26. Inizia creando il tuo primo progetto per poter iniziare a tracciare le segnalazioni.</p>
           <button class="btn btn-primary btn-lg" (click)="navigateToCreate()">
             <span style="font-size: 1.2rem; margin-right: 5px;">+</span> Crea Nuovo Progetto
           </button>
         } @else {
-          <!-- VISTA UTENTE NORMALE -->
           <h3 class="empty-title">Nessun progetto disponibile</h3>
-          <p class="empty-subtitle">
-            Non esistono progetti al momento nel sistema. Si prega di attendere che un Amministratore crei un nuovo progetto per poter iniziare a collaborare e inserire segnalazioni.
-          </p>
-          <!-- Nessun bottone per l'utente normale -->
+          <p class="empty-subtitle">Non esistono progetti al momento nel sistema. Si prega di attendere che un Amministratore crei un nuovo progetto per poter iniziare a collaborare e inserire segnalazioni.</p>
         }
-
       </div>
     }
-
   }
 </div>
-
-<!-- ========================================== -->
-<!-- MODALE ELIMINAZIONE                        -->
-<!-- ========================================== -->
-<app-modal 
-  [(isOpen)]="isModalOpen" 
-  title="Conferma Eliminazione" 
-  message="Sei sicuro di voler eliminare questo progetto? Tutte le issue collegate verranno eliminate in modo irreversibile." 
-  type="danger"
-  confirmText="Sì, Elimina"
-  cancelText="Annulla"
-  (confirm)="confirmDelete()"
-  (cancel)="cancelDelete()">
-</app-modal>

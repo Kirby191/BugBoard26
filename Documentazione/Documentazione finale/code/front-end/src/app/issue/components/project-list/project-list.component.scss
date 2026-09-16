@@ -15,35 +15,92 @@
     }
   }
 
-  .issue-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  // --- DESIGN A GRIGLIA ---
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
 
-    th, td {
-      padding: 12px 15px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-
-    th {
-      background-color: #f1f3f5;
-      color: #495057;
-      font-weight: 600;
-    }
-
-    tbody tr:hover {
-      background-color: #f8f9fa;
-    }
-
-    .actions-cell {
+    .project-folder {
+      background-color: #ffffff;
+      
+      background-clip: padding-box; 
+      
+      border-radius: 12px;
+      padding: 20px 15px;
       display: flex;
-      gap: 10px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+      border: 1px solid transparent;
+      transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+      cursor: pointer;
+
+      // Color Theory: Hover Effect
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(26, 35, 126, 0.15); // Ombra colorata col brand
+        border-color: rgba(13, 110, 253, 0.3); // Colore ora visibile in modo puro
+        
+        .folder-svg {
+          transform: scale(1.05);
+        }
+      }
+
+      // Evita selezione del testo durante il doppio click veloce
+      user-select: none; 
+
+      .folder-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .folder-svg {
+          width: 100%;
+          height: 100%;
+          transition: transform 0.3s ease;
+        }
+      }
+
+      .folder-details {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        .folder-name {
+          font-weight: 700;
+          color: #2c3e50;
+          font-size: 1.05rem;
+          // Tronca il testo se troppo lungo
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 170px;
+        }
+
+        .folder-date {
+          font-size: 0.8rem;
+          color: #6c757d;
+        }
+      }
     }
   }
 
-  // Stili base bottoni coerenti col sistema 3]
+  .hint-text {
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-top: 20px;
+    font-style: italic;
+  }
+
+  // Stili base bottoni coerenti col sistema
   .btn {
     padding: 8px 12px;
     border: none;
@@ -75,18 +132,18 @@
     border: 1px solid #f5c2c7;
   }
 
+  // --- MODERN EMPTY STATE ---
   .empty-state-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 80px 20px;
+    padding: 80px 20px; 
     background-color: #ffffff;
     border-radius: 12px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     text-align: center;
     
-
     width: 100%;
     margin: 0 auto;
 
@@ -96,7 +153,7 @@
       width: 100px;
       height: 100px;
       margin-bottom: 25px;
-      color: #ced4da;
+      color: #ced4da; 
       
       svg {
         width: 100%;
@@ -114,8 +171,8 @@
     .empty-subtitle {
       font-size: 1.05rem;
       color: #6c757d;
-      max-width: 450px;
-      margin: 0 auto 30px auto; // Assicura che anche il testo multiriga sia centrato
+      max-width: 450px; 
+      margin: 0 auto 30px auto;
       line-height: 1.6;
     }
 
@@ -132,9 +189,9 @@
       }
     }
   }
+}
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
