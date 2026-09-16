@@ -66,7 +66,7 @@
 
           <div class="meta-item">
             <strong class="meta-label">Scadenza:</strong> 
-            <div class="meta-content">{{ i.dueDate ? (i.dueDate | date:'dd/MM/yyyy') : 'Nessuna' }}</div>
+            <div class="meta-content">{{ i.dueDate ? (i.dueDate | date:'shortDate') : 'Nessuna' }}</div>
           </div>
 
           <div class="meta-item">
@@ -74,7 +74,7 @@
             <!-- La struttura a colonna permette alla data di stare comodamente sotto l'email -->
             <div class="meta-content">
               <span class="email-text">{{ i.creatorEmail }}</span>
-              <span class="date-text">il {{ i.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              <span class="date-text">il {{ i.createdAt| date:'medium' }}</span>
             </div>
           </div>
 
@@ -111,7 +111,7 @@
           <ul class="timeline">
             @for (event of history(); track event.id) {
               <li class="timeline-item">
-                <span class="timestamp">{{ event.timestamp | date:'dd/MM/yy HH:mm:ss' }}</span>
+                <span class="timestamp">{{ event.timestamp| date:'medium' }}</span>
                 <strong class="action">{{ event.action }}</strong>
                 <span class="author">da {{ event.authorEmail }}</span>
                 <p class="details">{{ event.details }}</p>

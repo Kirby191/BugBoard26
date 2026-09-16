@@ -53,10 +53,19 @@ export class DashboardService {
 
   /**
    * Recupera i dati completi per la vista di dettaglio.
+   * Intercetta la risposta per normalizzare il fuso orario UTC.
    */
   getIssueDetailed(id: number): Observable<IssueDetailed> {
-    return this.http.get<IssueDetailed>(`${this.API_ISSUES}/${id}`);
-  }
+    return this.http.get<IssueDetailed>(`${this.API_ISSUES}/${id}`).pipe(
+      map(issue => {
+        // Se c'è una data di creazione e non ha già la Z, gliela aggiungiamo
+        if (issue.createdAt && !issue.createdAt.endsWith('Z')) {
+          issue.createdAt += 'Z';
+        }
+        return issue;
+      })
+    );
+  } 
 
   /**
    * Recupera le statistiche aggregate per la Dashboard.
@@ -76,10 +85,20 @@ export class DashboardService {
     return this.http.get<UserReference[]>(this.API_USERS);
   }
 
-  /**
+/**
    * Recupera lo storico delle modifiche per un bug specifico.
+   * Intercetta la risposta iterando sull'array per normalizzare tutti i timestamp.
    */
   getBugHistory(issueId: number): Observable<BugHistory[]> {
-    return this.http.get<BugHistory[]>(`${this.API_ISSUES}/${issueId}/history`);
+    return this.http.get<BugHistory[]>(`${this.API_ISSUES}/${issueId}/history`).pipe(
+      map(historyArray => {
+        return historyArray.map(event => {
+          if (event.timestamp && !event.timestamp.endsWith('Z')) {
+            event.timestamp += 'Z';
+          }
+          return event;
+        });
+      })
+    );
   }
 }

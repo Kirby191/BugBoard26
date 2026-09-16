@@ -33,7 +33,7 @@
             <tr>
               <td>#{{ project.id }}</td>
               <td class="fw-bold">{{ project.name }}</td>
-              <td>{{ project.lastModified | date:'dd/MM/yyyy' }}</td>
+              <td>{{ project.lastModified | date:'shortDate' }}</td>
               
               <!-- I bottoni di modifica/eliminazione sono solo per l'Admin -->
               @if (isAdmin()) {

@@ -140,4 +140,268 @@
     margin-bottom: 20px;
     border: 1px solid #f5c2c7;
   }
+
+  .char-counter {
+    text-align: right;
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 5px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    
+    cursor: default; // Impedisce la selezione del testo e il cursore a forma di testo
+
+    &.text-danger {
+      color: #dc3545;
+      font-weight: 700;
+    }
+  }
+
+// ==========================================
+// STILI FILE UPLOAD 
+// ==========================================
+
+.upload-trigger-area {
+  display: flex;
+  flex-direction: column; // Incolonna icona e testo
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 35px 20px; // Aumentato il padding per dare il giusto "peso" visivo
+  background-color: #f8f9fa; // Sfondo grigio tenue coerente con la tabella
+  color: #6c757d;
+  border: 2px dashed #ced4da; // Bordo coerente con gli input
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+
+  svg {
+    color: #0d6efd; // L'icona rimane del colore primario per attirare l'attenzione
+    margin-bottom: 12px;
+    transition: transform 0.2s ease;
+  }
+
+  .trigger-text {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+
+  // Effetto al passaggio del mouse
+  &:hover {
+    background-color: #f0f6ff;
+    border-color: #0d6efd;
+    color: #0d6efd;
+
+    svg {
+      transform: translateY(-3px); // Piccolo feedback di interazione
+    }
+  }
+}
+
+.drag-drop-zone.inline-dropzone {
+  border: 2px dashed #8bb4f6;
+  border-radius: 8px;
+  padding: 40px 20px;
+  background-color: #f8f9fa;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+
+  // Effetto hover file
+  &.drag-over {
+    background-color: #f0f6ff;
+    border-color: #0d6efd;
+    transform: scale(0.99); 
+  }
+
+  .upload-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;    
+    justify-content: center;
+    width: 100%;
+  }
+
+  .upload-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;      // Spazio tra icona e bottone
+    cursor: pointer; 
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    &:hover {
+      transform: translateY(-5px) scale(1.05);
+    }
+  }
+
+  .btn-browse {
+    display: inline-block;  
+    padding: 8px 35px;        
+    background-color: #0d6efd;
+    color: white;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 12px;      // Spazio tra bottone e testo
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+
+    &:hover {
+      background-color: #0b5ed7;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(13, 110, 253, 0.3);
+    }
+  }
+
+  .drop-text {
+    color: #6c757d;
+    font-size: 1rem;
+    margin-bottom: 8px;     
+  }
+
+  .supported-text {
+    color: #adb5bd;
+    font-size: 0.85rem;
+  }
+}
+
+// Riga file caricato
+.uploaded-file-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+
+  .file-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    .file-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: #e7f1ff;
+      border-radius: 6px;
+    }
+
+    .file-name {
+      font-weight: 500;
+      color: #212529;
+    }
+  }
+
+  .btn-delete-file {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: rgba(220, 53, 69, 0.1); 
+    }
+  }
+ }
+ // ==========================================
+// CUSTOM DATE PICKER
+// ==========================================
+.custom-date-picker-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  background-color: #fff;
+  padding: 5px 15px;
+  transition: border-color 0.2s;
+
+  &:focus-within {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+  }
+
+  .date-inputs-container {
+    display: flex;
+    align-items: center;
+    flex: 1;
+
+    .date-part-input {
+      border: none;
+      background: transparent;
+      text-align: center;
+      font-size: 1rem;
+      color: #212529;
+      outline: none;
+      width: 30px; // Spazio per due cifre
+
+      &.year-input {
+        width: 45px; // Spazio per 4 cifre
+      }
+
+      &::placeholder {
+        color: #adb5bd;
+      }
+    }
+
+    .slash {
+      color: #ced4da;
+      font-weight: 300;
+      font-size: 1.2rem;
+      margin: 0 5px;
+    }
+
+    .date-example {
+      margin-left: 15px;
+      font-size: 0.85rem;
+      color: #adb5bd;
+      font-style: italic;
+    }
+  }
+
+  .calendar-btn-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #e9ecef;
+      .calendar-icon { stroke: #0d6efd; }
+    }
+
+    .calendar-icon {
+      color: #6c757d;
+      transition: stroke 0.2s;
+    }
+
+    /* Il trucco: L'input nativo è invisibile ma copre perfettamente l'icona. 
+       Quando l'utente clicca, si apre il popup nativo del browser. */
+    .hidden-native-date {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+  }
+ }
 }

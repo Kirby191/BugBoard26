@@ -7,11 +7,12 @@ import { NotificationListComponent } from './dashboard-query/components/notifica
 
 // Servizi
 import { AuthService } from './auth/services/auth.service';
+import { ModalComponent } from './shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, NotificationListComponent],
+  imports: [RouterOutlet, NavbarComponent, NotificationListComponent, ModalComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

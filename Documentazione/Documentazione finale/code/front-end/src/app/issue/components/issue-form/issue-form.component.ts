@@ -19,7 +19,7 @@ import { ProjectState } from '../../../shared/models/shared-dtos';
 @Component({
   selector: 'app-issue-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ModalComponent], // <-- Aggiunto ModalComponent
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent], 
   templateUrl: './issue-form.component.html',
   styleUrl: './issue-form.component.scss'
 })
@@ -41,17 +41,33 @@ export class IssueFormComponent implements OnInit {
   protected readonly isSubmitting = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly projects = signal<ProjectState[]>([]);
+
+  // --- STATO DRAG & DROP E VALIDAZIONE FILE ---
   protected readonly selectedFile = signal<File | null>(null);
+  protected readonly isDragging = signal<boolean>(false); // Per l'effetto hover quando il file è sopra l'area
+  
+  protected readonly isFileErrorModalOpen = signal<boolean>(false);
+  protected readonly fileErrorMessage = signal<string>('');
+
   
   // STATO DEL MODALE DI AVVISO
   protected readonly isModalOpen = signal<boolean>(false);
-
   protected readonly isAdmin = signal<boolean>(false);
+
+  // --- STATO DEL LIMITE CARATTERI ISSUE (RD-07: MAX 500) ---
+  protected readonly MAX_DESC_LENGTH = 500;
+  protected readonly DESC_THRESHOLD = 450; // 90% di 500
+  protected readonly isLimitModalOpen = signal<boolean>(false);
+
+  // --- SIGNALS PER CUSTOM DATE PICKER ---
+  protected readonly dateDay = signal<string>('');
+  protected readonly dateMonth = signal<string>('');
+  protected readonly dateYear = signal<string>('');
 
   issueForm = new FormGroup({
     projectId: new FormControl<number | null>(null, [Validators.required]),
     title: new FormControl('', [Validators.required, Validators.maxLength(32)]),
-    description: new FormControl('', [Validators.required, Validators.maxLength(500)]),
+    description: new FormControl('', [Validators.required]),
     type: new FormControl<IssueType | null>(null, [Validators.required]),
     status: new FormControl<IssueStatus | null>(null),
     priority: new FormControl<IssuePriority | null>(null),
@@ -72,6 +88,21 @@ export class IssueFormComponent implements OnInit {
       this.issueForm.controls.status.disable();
     }
   }
+
+  // --- GETTERS PER L'INTERFACCIA ---
+  get descriptionLength(): number {
+    return this.issueForm.get('description')?.value?.length || 0;
+  }
+
+  get remainingChars(): number {
+    return this.MAX_DESC_LENGTH - this.descriptionLength;
+  }
+
+  get showCharCounter(): boolean {
+    return this.descriptionLength >= this.DESC_THRESHOLD;
+  }
+
+  // --- METODI PRIVATI ---
 
   private loadProjects(): void {
     this.projectQueryService.getProjects().subscribe({
@@ -96,25 +127,32 @@ export class IssueFormComponent implements OnInit {
           priority: data.priority || null,
           dueDate: data.dueDate || null
         });
+      // Popoliamo i campi visivi se c'è una data dal server
+        if (data.dueDate) {
+          this.syncToCustomDateInputs(data.dueDate);
+        }
       },
       error: () => this.errorMessage.set('Impossibile caricare i dati della segnalazione.')
     });
   }
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile.set(input.files[0]);
-    }
-  }
-
+  
+  /**
+   * Gestisce l'invio del form.
+   */
   onSubmit(): void {
+    // 1. Controllo custom del limite di caratteri PRIMA di tutto
+    if (this.descriptionLength > this.MAX_DESC_LENGTH) {
+      this.isLimitModalOpen.set(true);
+      return; // Blocca l'invio
+    }
+
     this.errorMessage.set(null);
     if (this.issueForm.invalid) {
       this.issueForm.markAllAsTouched();
       this.errorMessage.set('Compila correttamente i campi obbligatori rispettando le lunghezze massime.');
       return;
     }
+    
     this.isSubmitting.set(true);
     if (this.isEditMode()) {
       this.handleUpdate();
@@ -186,6 +224,126 @@ export class IssueFormComponent implements OnInit {
       }
     });
   }
+
+  // ==========================================
+  // GESTIONE CUSTOM DATE PICKER
+  // ==========================================
+
+  // Chiamato dall'HTML quando l'utente digita a mano nei 3 campi
+  onCustomDateInput(type: 'day' | 'month' | 'year', event: Event): void {
+    const value = (event.target as HTMLInputElement).value.replace(/\D/g, ''); // Solo numeri
+    if (type === 'day') this.dateDay.set(value);
+    if (type === 'month') this.dateMonth.set(value);
+    if (type === 'year') this.dateYear.set(value);
+
+    this.syncToFormControl();
+  }
+
+  // Chiamato quando l'utente seleziona la data dal Calendario Nativo (icona a destra)
+  onNativeDateSelect(event: Event): void {
+    const value = (event.target as HTMLInputElement).value; // Arriva in formato YYYY-MM-DD
+    if (value) {
+      this.syncToCustomDateInputs(value);
+      this.issueForm.get('dueDate')?.setValue(value);
+      this.issueForm.get('dueDate')?.markAsDirty();
+    } else {
+      // Se l'utente clicca "Cancella" nel calendario nativo
+      this.dateDay.set('');
+      this.dateMonth.set('');
+      this.dateYear.set('');
+      this.issueForm.get('dueDate')?.setValue(null);
+    }
+  }
+
+  // Converte YYYY-MM-DD nei tre signal separati
+  private syncToCustomDateInputs(isoDate: string): void {
+    const parts = isoDate.split('-');
+    if (parts.length === 3) {
+      this.dateYear.set(parts[0]);
+      this.dateMonth.set(parts[1]);
+      this.dateDay.set(parts[2]);
+    }
+  }
+
+  // Prende i tre signal e aggiorna il form in formato YYYY-MM-DD
+  private syncToFormControl(): void {
+    const d = this.dateDay();
+    const m = this.dateMonth();
+    const y = this.dateYear();
+
+    if (d.length >= 1 && m.length >= 1 && y.length === 4) {
+      // Formatta con zero-padding (es: 5 -> 05)
+      const dayStr = d.padStart(2, '0');
+      const monthStr = m.padStart(2, '0');
+      const isoDate = `${y}-${monthStr}-${dayStr}`;
+      this.issueForm.get('dueDate')?.setValue(isoDate);
+      this.issueForm.get('dueDate')?.markAsDirty();
+    } else {
+      this.issueForm.get('dueDate')?.setValue(null);
+    }
+  }
+
+  // ==========================================
+  // GESTIONE DRAG & DROP E FILE
+  // ==========================================
+
+// Chiamato quando si clicca "Browse" 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.processFile(input.files[0]);
+    }
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isDragging.set(false);
+
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      this.processFile(event.dataTransfer.files[0]);
+    }
+  }
+
+  private processFile(file: File): void {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (!allowedTypes.includes(file.type)) {
+      this.fileErrorMessage.set('Formato non supportato. Per favore carica solo file .jpg, .png o .gif.');
+      this.isFileErrorModalOpen.set(true);
+      return;
+    }
+
+    if (file.size > maxSize) {
+      this.fileErrorMessage.set('Il file supera il limite massimo consentito di 5MB.');
+      this.isFileErrorModalOpen.set(true);
+      return;
+    }
+
+    this.selectedFile.set(file);
+    this.isDragging.set(false);
+  }
+
+  removeFile(): void {
+    this.selectedFile.set(null);
+  }
+
+  // ==========================================
+  // NAVIGAZIONE INDIETRO CON AVVISO
+  // ==========================================
 
   /**
    * Intercetta il tasto "Annulla". Se il form ha modifiche non salvate (dirty),

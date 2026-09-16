@@ -5,12 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service';
 import { CreateProject, UpdateProject } from '../../models/project-dtos';
-import { ModalComponent } from '../../../shared/components/modal/modal.component'; // <-- Aggiunto
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 
 @Component({
   selector: 'app-project-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ModalComponent], // <-- Aggiunto ModalComponent
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent],
   templateUrl: './project-form.component.html',
   styleUrls: ['./project-form.component.scss']
 })
@@ -20,6 +20,13 @@ export class ProjectFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly location = inject(Location);
+
+  // --- STATO DEL LIMITE CARATTERI ---
+  protected readonly MAX_DESC_LENGTH = 800;
+  protected readonly DESC_THRESHOLD = 720; // 90% di 800
+  protected readonly isLimitModalOpen = signal<boolean>(false);
+
+  // --- STATO DEL FORM ---
 
   protected readonly isEditMode = signal<boolean>(false);
   protected readonly projectId = signal<number | null>(null);
@@ -31,7 +38,7 @@ export class ProjectFormComponent implements OnInit {
 
   projectForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(150)]),
-    description: new FormControl('') // Opzionale
+    description: new FormControl('') // Opzionale, validato custom nell'onSubmit
   });
 
   ngOnInit(): void {
@@ -56,7 +63,14 @@ export class ProjectFormComponent implements OnInit {
   }
 
   onSubmit(): void {
+    // 1. Controllo custom del limite di caratteri PRIMA della validazione standard
+    if (this.descriptionLength > this.MAX_DESC_LENGTH) {
+      this.isLimitModalOpen.set(true);
+      return; // Interrompe il flusso: non invia dati al backend
+    }
+
     if (this.projectForm.invalid) return;
+    
     this.isSubmitting.set(true);
     this.errorMessage.set(null);
 
@@ -82,6 +96,21 @@ export class ProjectFormComponent implements OnInit {
       });
     }
   }
+
+  // --- GETTERS PER L'INTERFACCIA ---
+  get descriptionLength(): number {
+    return this.projectForm.get('description')?.value?.length || 0;
+  }
+
+  get remainingChars(): number {
+    return this.MAX_DESC_LENGTH - this.descriptionLength;
+  }
+
+  get showCharCounter(): boolean {
+    return this.descriptionLength >= this.DESC_THRESHOLD;
+  }
+
+  // --- NAVIGAZIONE INDIETRO CON MODALE DI AVVISO ---
 
   navigateBack(): void {
     // Intercetta se l'utente ha scritto qualcosa

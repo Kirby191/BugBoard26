@@ -28,7 +28,7 @@
               <li class="notification-item" (click)="openNotificationModal(notif)">
                 <div class="notif-content">
                   <p class="notif-message">{{ notif.message }}</p>
-                  <span class="notif-time">{{ notif.timestamp | date:'dd/MM/yy HH:mm' }}</span>
+                  <span class="notif-time">{{ notif.timestamp | date:'medium' }}</span>
                 </div>
                 <div class="notif-actions">
                   <!-- Spunta V veloce: Segna come letta al volo -->

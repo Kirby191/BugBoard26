@@ -7,7 +7,17 @@
   <app-notification-list></app-notification-list>
 </app-navbar>
 
-<!-- Container principale dove il router inietterà dinamicamente le viste -->
 <main class="app-content" style="padding: 20px;">
   <router-outlet />
 </main>
+
+<!-- MODALE SCADENZA SESSIONE PER INATTIVITÀ (Global Scope) -->
+<app-modal 
+  [isOpen]="authService.isSessionExpired()" 
+  title="Attenzione" 
+  message="Sessione scaduta per inattività. Si prega di effettuare nuovamente il login." 
+  type="info"
+  confirmText="Ho Capito"
+  cancelText=""
+  (confirm)="authService.confirmSessionExpiration()">
+</app-modal>

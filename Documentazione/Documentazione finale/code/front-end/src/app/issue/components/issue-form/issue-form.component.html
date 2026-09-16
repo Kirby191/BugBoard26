@@ -57,12 +57,20 @@
       <!-- 3. DESCRIZIONE -->
       <div class="form-group">
         <label for="description">Descrizione dettagliata</label>
-        <textarea id="description" formControlName="description" class="form-control" rows="5" placeholder="Descrivi il problema o la richiesta..." maxlength="500"></textarea>
-        <div class="char-counter">
-          {{ issueForm.get('description')?.value?.length || 0 }} / 500
-        </div>
+        <textarea id="description" formControlName="description" class="form-control" rows="5" placeholder="Descrivi il problema o la richiesta..."></textarea>
+        
+        <!-- Counter a comparsa (appare solo oltre il 90%) -->
+        @if (showCharCounter) {
+          <div class="char-counter" 
+               [ngClass]="{'text-danger': remainingChars < 0}"
+               [title]="remainingChars < 0 ? 'Il messaggio è troppo lungo' : (remainingChars > 0 ? remainingChars + ' caratteri rimasti' : 'Limite massimo raggiunto')">
+            {{ remainingChars }}
+          </div>
+        }
+
+        <!-- Errore locale solo se vuoto -->
         @if (issueForm.get('description')?.invalid && issueForm.get('description')?.touched) {
-          <small class="error-text">Descrizione obbligatoria (max 500 caratteri).</small>
+          <small class="error-text">La descrizione è obbligatoria.</small>
         }
       </div>
 
@@ -94,17 +102,89 @@
       <!-- 5. SCADENZA -->
       @if (isAdmin()) {
         <div class="form-group">
-          <label for="dueDate">Data di scadenza (Opzionale)</label>
-          <input id="dueDate" type="date" formControlName="dueDate" class="form-control" />
+          <label>Data di scadenza (Opzionale)</label>
+          
+          <div class="custom-date-picker-wrapper">
+            <!-- 3 Campi manuali -->
+            <div class="date-inputs-container">
+              <input type="text" maxlength="2" placeholder="gg" [value]="dateDay()" (input)="onCustomDateInput('day', $event)" class="date-part-input" />
+              <span class="slash">/</span>
+              <input type="text" maxlength="2" placeholder="mm" [value]="dateMonth()" (input)="onCustomDateInput('month', $event)" class="date-part-input" />
+              <span class="slash">/</span>
+              <input type="text" maxlength="4" placeholder="aaaa" [value]="dateYear()" (input)="onCustomDateInput('year', $event)" class="date-part-input year-input" />
+              <span class="date-example">(es. 30 / 06 / 2003)</span>
+            </div>
+
+            <!-- Icona Calendario con input nativo invisibile -->
+            <div class="calendar-btn-container">
+              <input type="date" class="hidden-native-date" [value]="issueForm.get('dueDate')?.value || ''" (change)="onNativeDateSelect($event)" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="calendar-icon">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </div>
+          </div>
+
         </div>
       }
 
-      <!-- 6. ALLEGATO IMMAGINE (Visibile solo in creazione) -->
-        <div class="form-group file-upload-section">
-        <label for="fileAttachment">
+      <!-- 6. ALLEGATO IMMAGINE -->
+<div class="form-group">
+        <label>
           {{ isEditMode() ? "Aggiorna l'immagine (Opzionale - sovrascriverà l'esistente)" : "Allega un'immagine (Opzionale)" }}
         </label>
-        <input id="fileAttachment" type="file" (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/gif" class="form-control file-input" />
+        
+        <!-- STATO 1: Area Drag & Drop Integrata nel Form -->
+        @if (!selectedFile()) {
+          <div class="drag-drop-zone inline-dropzone" 
+               [ngClass]="{'drag-over': isDragging()}"
+               (dragover)="onDragOver($event)"
+               (dragleave)="onDragLeave($event)"
+               (drop)="onDrop($event)">
+
+            <div class="upload-content">
+              <label for="hiddenFileInput" class="upload-icon" title="Scegli un file">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </label>
+
+              <label for="hiddenFileInput" class="btn-browse">Browse</label>
+              <input type="file" id="hiddenFileInput" style="display: none;" (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/gif">
+
+              <span class="drop-text">oppure trascina un file qui</span>
+              <span class="supported-text"><span class="text-danger">*</span>File supportati: .png, .jpg & .gif (Max 5MB)</span>
+            </div>
+          </div>
+        }
+
+        <!-- STATO 2: File Selezionato -->
+        @if (selectedFile(); as file) {
+          <div class="uploaded-file-row">
+            <div class="file-info">
+              <div class="file-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#0d6efd" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+              </div>
+              <span class="file-name">{{ file.name }}</span>
+            </div>
+            <button type="button" class="btn-delete-file" (click)="removeFile()" title="Rimuovi file">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
+          </div>
+        }
       </div>
 
       <hr>
@@ -121,6 +201,7 @@
   </div>
 </div>
 
+<!-- MODALE: Dati non salvati -->
 <app-modal 
   [isOpen]="isModalOpen()" 
   title="Attenzione: Dati non salvati" 
@@ -130,4 +211,28 @@
   cancelText="Rimani qui"
   (confirm)="forceNavigateBack()"
   (cancel)="isModalOpen.set(false)">
+</app-modal>
+
+<!-- MODALE: LIMITE CARATTERI ISSUE SUPERATO -->
+<app-modal 
+  [isOpen]="isLimitModalOpen()" 
+  title="Limite Superato" 
+  message="Le specifiche di BugBoard26 limitano la descrizione della issue a un massimo di 500 caratteri. Sintetizza il testo per poter procedere." 
+  type="info"
+  confirmText="Ho capito"
+  cancelText=""
+  (confirm)="isLimitModalOpen.set(false)">
+</app-modal>
+
+<!-- ========================================================================= -->
+<!-- MODALE: ERRORE CARICAMENTO FILE -->
+<!-- ========================================================================= -->
+<app-modal 
+  [isOpen]="isFileErrorModalOpen()" 
+  title="Errore File" 
+  [message]="fileErrorMessage()" 
+  type="danger"
+  confirmText="Ho capito"
+  cancelText=""
+  (confirm)="isFileErrorModalOpen.set(false)">
 </app-modal>

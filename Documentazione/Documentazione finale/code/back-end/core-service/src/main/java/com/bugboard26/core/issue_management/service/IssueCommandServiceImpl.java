@@ -81,7 +81,7 @@ public class IssueCommandServiceImpl implements IssueCommandService {
         return mapToResponse(savedIssue);
     }
 
-   @Override
+@Override
     @Transactional
     public IssueResponse updateIssue(Long id, UpdateIssue request, MultipartFile file) {
         Issue issue = issueRepository.findById(id)
@@ -90,33 +90,53 @@ public class IssueCommandServiceImpl implements IssueCommandService {
         // 1. Controllo di Accesso
         accessControlValidator.canModifyIssue(issue);
 
-        // 2. Verifica se è cambiato lo stato
+        // 2. Setup tracciamento modifiche
         boolean isStatusChanged = request.status() != null && request.status() != issue.getStatus();
         IssueStatus oldStatus = issue.getStatus();
+        
+        // Costruttore per la stringa dei dettagli (es: Priorità: N/A -> LOW | Titolo: x -> y)
+        java.util.StringJoiner details = new java.util.StringJoiner(" | ");
 
         // 3. Gestione del nuovo Allegato (se presente)
         if (file != null && !file.isEmpty()) {
-            // Deleghiamo il salvataggio al modulo Attachment e otteniamo il nuovo URL
             String newFileUrl = fileStorage.storeFile(issue.getId(), file);
             issue.setAttachmentUrl(newFileUrl);
+            details.add("Allegato: Aggiornato");
         }
 
-        // 4. Mutazione dei campi testuali
-        if (request.title() != null) issue.setTitle(request.title());
-        if (request.description() != null) issue.setDescription(request.description());
-        if (request.priority() != null) issue.setPriority(request.priority());
-        if (request.status() != null) issue.setStatus(request.status());
+        // 4. Mutazione dei campi e tracciamento puntuale
+        if (request.title() != null && !request.title().equals(issue.getTitle())) {
+            details.add("Titolo: '" + issue.getTitle() + "' -> '" + request.title() + "'");
+            issue.setTitle(request.title());
+        }
+        
+        if (request.description() != null && !request.description().equals(issue.getDescription())) {
+            details.add("Descrizione: Aggiornata");
+            issue.setDescription(request.description());
+        }
+        
+        if (request.priority() != issue.getPriority()) {
+            String oldPrio = issue.getPriority() == null ? "N/A" : issue.getPriority().name();
+            String newPrio = request.priority() == null ? "N/A" : request.priority().name();
+            details.add("Priorità: " + oldPrio + " -> " + newPrio);
+            issue.setPriority(request.priority());
+        }
+
+        if (request.status() != null) {
+            issue.setStatus(request.status());
+        }
 
         Issue savedIssue = issueRepository.save(issue);
 
-        // 5. Registrazione History
+        // 5. Registrazione History Intelligente (Solo per i BUG)
         if (savedIssue.getType() == IssueType.BUG) {
             Long authorId = userProvider.getCurrentUserId();
             if (isStatusChanged) {
                 historyService.recordEvent(savedIssue.getId(), authorId, AuditAction.STATUS_CHANGED,
                         "Stato modificato da " + oldStatus + " a " + savedIssue.getStatus());
-            } else {
-                historyService.recordEvent(savedIssue.getId(), authorId, AuditAction.UPDATED, "Dettagli Bug Aggiornati");
+            } else if (details.length() > 0) {
+                // Genera l'evento SOLO se c'è stato un effettivo cambiamento nei dettagli
+                historyService.recordEvent(savedIssue.getId(), authorId, AuditAction.UPDATED, details.toString());
             }
         }
 
@@ -126,25 +146,30 @@ public class IssueCommandServiceImpl implements IssueCommandService {
     @Override
     @Transactional
     public IssueResponse setDueDate(Long id, LocalDate dueDate) {
-        // 1. Solo l'Admin può impostare la data di scadenza
         accessControlValidator.canManageProjects();
-
         Issue issue = issueRepository.findById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Segnalazione inesistente con ID: " + id));
 
-        // 2. Validazione di Dominio sulla data
-        domainValidator.validateDueDate(dueDate);
+        LocalDate oldDate = issue.getDueDate();
 
-        issue.setDueDate(dueDate);
-        Issue savedIssue = issueRepository.save(issue);
+        // FIX: Aggiorna e registra SOLO se la data è effettivamente diversa
+        if (!java.util.Objects.equals(oldDate, dueDate)) {
+            
+            domainValidator.validateDueDate(dueDate);
+            issue.setDueDate(dueDate);
+            Issue savedIssue = issueRepository.save(issue);
 
-        // 3. Registrazione History
-        if (savedIssue.getType() == IssueType.BUG) {
-            historyService.recordEvent(savedIssue.getId(), userProvider.getCurrentUserId(),
-                    AuditAction.DUE_DATE_CHANGED, "Scadenza impostata al: " + dueDate);
+            if (savedIssue.getType() == IssueType.BUG) {
+                String oldD = oldDate == null ? "N/A" : oldDate.toString();
+                String newD = dueDate == null ? "N/A" : dueDate.toString();
+                historyService.recordEvent(savedIssue.getId(), userProvider.getCurrentUserId(),
+                        AuditAction.DUE_DATE_CHANGED, "Scadenza: " + oldD + " -> " + newD);
+            }
+            return mapToResponse(savedIssue);
         }
 
-        return mapToResponse(savedIssue);
+        // Se le date sono uguali, restituisci l'issue senza toccare il database
+        return mapToResponse(issue);
     }
 
     @Override

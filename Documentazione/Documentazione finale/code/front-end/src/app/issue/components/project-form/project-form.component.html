@@ -14,8 +14,17 @@
       </div>
 
       <div class="form-group">
-        <label for="description">Descrizione(Opzionale)</label>
+        <label for="description">Descrizione (Opzionale)</label>
         <textarea id="description" formControlName="description" class="form-control" rows="4"></textarea>
+        
+        <!-- Il counter appare solo se superi la soglia del 90% -->
+        @if (showCharCounter) {
+          <div class="char-counter" 
+               [ngClass]="{'text-danger': remainingChars < 0}"
+               [title]="remainingChars < 0 ? 'Il messaggio è troppo lungo' : (remainingChars > 0 ? remainingChars + ' caratteri rimasti' : 'Limite massimo raggiunto')">
+            {{ remainingChars }}
+          </div>
+        }
       </div>
 
       <div class="form-actions">
@@ -28,6 +37,7 @@
   </div>
 </div>
 
+<!-- MODALE: MODIFICA NON SALVATA -->
 <app-modal 
   [isOpen]="isModalOpen()" 
   title="Attenzione: Dati non salvati" 
@@ -37,4 +47,15 @@
   cancelText="Rimani qui"
   (confirm)="forceNavigateBack()"
   (cancel)="isModalOpen.set(false)">
+</app-modal>
+
+<!-- MODALE: LIMITE CARATTERI SUPERATO -->
+<app-modal 
+  [isOpen]="isLimitModalOpen()" 
+  title="Limite Superato" 
+  message="La descrizione ha superato il limite massimo di 800 caratteri. Riduci il testo per poter continuare e salvare il progetto." 
+  type="info"
+  confirmText="Ho capito"
+  cancelText=""
+  (confirm)="isLimitModalOpen.set(false)">
 </app-modal>
