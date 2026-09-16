@@ -1,6 +1,5 @@
 package com.bugboard26.core.query_view.controller;
 
-//import com.bugboard26.core.history.dto.BugHistory;
 import com.bugboard26.core.query_view.dto.IssueDetailed;
 import com.bugboard26.core.query_view.dto.IssueFilter;
 import com.bugboard26.core.query_view.dto.IssueSummary;

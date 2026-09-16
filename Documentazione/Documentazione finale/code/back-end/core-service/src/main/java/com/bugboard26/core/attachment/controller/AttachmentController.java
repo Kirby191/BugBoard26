@@ -19,7 +19,6 @@ public class AttachmentController {
 
     private final StorageProvider storageProvider;
 
-    // TODO: Rimossa inutile dipendenza da AttachmentService
     public AttachmentController(StorageProvider storageProvider) {
         this.storageProvider = storageProvider;
     }
