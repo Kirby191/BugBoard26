@@ -24,7 +24,6 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY nginx.conf /etc/nginx/conf.d/
 
 # Copia l'output della build di Angular nella cartella di Nginx
-# NOTA: Assicurati che "front-end" sia il nome corretto nell'output (verifica in angular.json "outputPath")
 COPY --from=builder /app/dist/front-end/browser /usr/share/nginx/html
 
 EXPOSE 80

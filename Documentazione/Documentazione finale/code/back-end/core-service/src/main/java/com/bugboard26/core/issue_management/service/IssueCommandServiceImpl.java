@@ -95,7 +95,7 @@ public class IssueCommandServiceImpl implements IssueCommandService {
     @Transactional
     public IssueResponse updateIssue(Long id, UpdateIssue request, MultipartFile file) {
     Issue issue = issueRepository.findById(id)
-            .orElseThrow(() -> new IssueNotFoundException("Segnalazione inesistente con ID: " + id));
+            .orElseThrow(() -> new IssueNotFoundException(INESISTENTE_CON_ID + id));
 
     // 1. Controllo di Accesso
     accessControlValidator.canModifyIssue(issue);

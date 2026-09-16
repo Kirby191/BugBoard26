@@ -14,9 +14,6 @@ import java.time.LocalDate;
  * Estende JpaSpecificationExecutor per permettere il filtraggio dinamico..
  */
 
-// TODO: Dopo una riflessione, si è pensato di far estendere anche JpaSpecificationExecutor per permettere il filtraggio
-//  dinamico delle segnalazioni, in modo da poter implementare facilmente
-//  le funzionalità di ricerca e filtro nel Query Layer. Bisogna aggiungerlo nella documentazione finale.
 @Repository
 public interface IssueReadRepository extends ReadOnlyRepository<Issue, Long>, JpaSpecificationExecutor<Issue> {
 
