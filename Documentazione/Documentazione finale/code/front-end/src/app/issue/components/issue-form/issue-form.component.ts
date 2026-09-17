@@ -29,6 +29,10 @@ import { ProjectState } from '../../../shared/models/shared-dtos';
 })
 export class IssueFormComponent implements OnInit {
 
+  // ----------------------------------------------------------------
+  // Iniezione dei servizi
+  // ----------------------------------------------------------------
+
   private readonly issueService = inject(IssueService);
   private readonly dashboardService = inject(DashboardService);
   private readonly projectQueryService = inject(ProjectQueryService);
@@ -83,8 +87,13 @@ export class IssueFormComponent implements OnInit {
   protected readonly dateMonth = signal<string>('');
   protected readonly dateYear = signal<string>('');
 
-  
   protected readonly isStatusDone = signal<boolean>(false);
+
+  // ----------------------------------------------------------------
+  // Preview dell'allegato
+  // ----------------------------------------------------------------
+  protected readonly isPreviewModalOpen = signal<boolean>(false);
+  protected readonly previewImageUrl = signal<string | null>(null);
 
   issueForm = new FormGroup({
     projectId: new FormControl<number | null>(null, [Validators.required]),
@@ -270,6 +279,10 @@ if (idParam) {
     }
   }
 
+  // ----------------------------------------------------------------
+  // Creazione e aggiornamento della issue
+  // ----------------------------------------------------------------
+
   private handleCreate(): void {
     // La creazione usa il multipart per inviare insieme dati JSON e allegato opzionale.
     const formValues = this.issueForm.getRawValue();
@@ -297,8 +310,6 @@ if (idParam) {
       }
     });
   }
-
-  
 
 
   private handleUpdate(): void {
@@ -335,13 +346,10 @@ if (idParam) {
       }
     });
   }
-
-  
-  
   
 
   // ----------------------------------------------------------------
-  // Data e allegati
+  // Data e sincronizzazione tra input testuali e form control
   // ----------------------------------------------------------------
   onCustomDateInput(type: 'day' | 'month' | 'year', event: Event): void {
     const value = (event.target as HTMLInputElement).value.replace(/\D/g, ''); 
@@ -396,9 +404,9 @@ if (idParam) {
     }
   }
 
-  
-  
-  
+  // ----------------------------------------------------------------
+  // Gestione degli allegati
+  // ----------------------------------------------------------------
 
 
   onFileSelected(event: Event): void {
@@ -406,6 +414,7 @@ if (idParam) {
     if (input.files && input.files.length > 0) {
       this.processFile(input.files[0]);
     }
+    input.value = ''; // Reset dell'input per permettere la selezione dello stesso file in futuro
   }
 
   onDragOver(event: DragEvent): void {
@@ -432,7 +441,7 @@ if (idParam) {
 
   private processFile(file: File): void {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    const maxSize = 5 * 1024 * 1024; 
+    const maxSize = 5 * 1024 * 1024; // 5MB
 
     if (!allowedTypes.includes(file.type)) {
       this.fileErrorMessage.set('Formato non supportato. Per favore carica solo file .jpg, .png o .gif.');
@@ -445,22 +454,57 @@ if (idParam) {
       this.isFileErrorModalOpen.set(true);
       return;
     }
-
+    
+    // Se il file è valido, aggiorniamo lo stato
     this.selectedFile.set(file);
     this.isDragging.set(false);
+
+    // Se l'utente ha sostituito l'immagine mentre il modale era già aperto
+    // apriamo nuovamente il modale per mostrare l'anteprima del nuovo file.
+    if (this.isPreviewModalOpen()) {
+      this.openImagePreviewModal();
+    }
   }
 
   removeFile(): void {
     this.selectedFile.set(null);
   }
 
-  
-  
-  
+  // ----------------------------------------------------------------
+  // Anteprima dell'allegato
+  // ----------------------------------------------------------------
+  /**
+   * Converte il file caricato in un URL leggibile dal browser e apre il modale
+   */
+  openImagePreviewModal(): void {
+    const file = this.selectedFile();
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.previewImageUrl.set(e.target?.result as string);
+        this.isPreviewModalOpen.set(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
 
-  
+  closeImagePreviewModal(): void {
+    this.isPreviewModalOpen.set(false);
+    this.previewImageUrl.set(null);
+  }
 
+  /**
+   * Invocato dal bottone "Cambia immagine" del modale: 
+   * Chiude il modale e riapre nativamente l'esplora risorse.
+   */
+    triggerFileInputFromModal(): void {
+    // Attiva programmaticamente l'input file nascosto
+    document.getElementById('hiddenFileInput')?.click();
+  }
 
+  // ----------------------------------------------------------------
+  // Navigazione
+  // ----------------------------------------------------------------
 
   navigateBack(): void {
     if (this.issueForm.dirty) {

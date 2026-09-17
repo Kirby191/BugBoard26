@@ -25,5 +25,6 @@
   message="Sessione scaduta per inattività. Si prega di effettuare nuovamente il login." 
   type="info"
   confirmText="Ho Capito"
-  (confirm)="authService.confirmSessionExpiration()">
+  (confirm)="authService.confirmSessionExpiration()"
+  (cancel)="authService.confirmSessionExpiration()">
 </app-modal>

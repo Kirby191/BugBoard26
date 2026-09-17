@@ -84,7 +84,7 @@
         
         @if (isEditMode()) {
           <div class="form-group half-width">
-            <label for="status">Stato della segnalazione *</label>
+            <label for="status">Stato della segnalazione</label>
             <select id="status" formControlName="status" class="form-control">
               @for (status of issueStatuses; track status) {
                 <option [value]="status">{{ status }}</option>
@@ -144,7 +144,10 @@
           {{ isEditMode() ? "Aggiorna l'immagine (Opzionale - sovrascriverà l'esistente)" : "Allega un'immagine (Opzionale)" }}
         </label>
         
-        <!-- Mostriamo una sola modalità alla volta: zona di upload oppure file già selezionato. -->
+        <!-- INPUT FILE: Utilizzato per la selezione di un file -->
+        <input type="file" id="hiddenFileInput" style="display: none;" (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/gif">
+
+        <!-- STATO 1: Area Drag & Drop Integrata nel Form -->
         @if (!selectedFile()) {
           <div class="drag-drop-zone inline-dropzone" 
                [ngClass]="{'drag-over': isDragging()}"
@@ -153,27 +156,34 @@
                (drop)="onDrop($event)">
 
             <div class="upload-content">
-              <label for="hiddenFileInput" class="upload-icon" title="Scegli un file">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="17 8 12 3 7 8"></polyline>
-                  <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
+              
+              <!-- HITBOX UNIFICATA: Incolonna Icona e Bottone -->
+              <label for="hiddenFileInput" class="clickable-upload-area" title="Clicca per scegliere un file">
+                
+                <div class="upload-icon">
+                  <!-- Icona ingrandita a 56x56 per dare più peso visivo -->
+                  <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                </div>
+                
+                <div class="btn-browse">Browse</div>
+                
               </label>
 
-              <label for="hiddenFileInput" class="btn-browse">Browse</label>
-              <input type="file" id="hiddenFileInput" style="display: none;" (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/gif">
-
+              <!-- Testi informativi centrati sotto -->
               <span class="drop-text">oppure trascina un file qui</span>
               <span class="supported-text"><span class="text-danger">*</span>File supportati: .png, .jpg & .gif (Max 5MB)</span>
             </div>
           </div>
         }
 
-        
+        <!-- STATO 2: File Selezionato -->
         @if (selectedFile(); as file) {
           <div class="uploaded-file-row">
-            <div class="file-info">
+            <div class="file-info clickable-preview" (click)="openImagePreviewModal()" title="Clicca per vedere l'anteprima">
               <div class="file-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#0d6efd" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -255,4 +265,30 @@
   [message]="fileErrorMessage()" 
   type="danger"
   confirmText="Ho capito">
+</app-modal>
+
+<!-- ============================================================
+  MODALI / ANTEPRIMA ALLEGATO
+  ============================================================
+  Mostra l'anteprima dell'immagine caricata prima della conferma.
+  ============================================================ -->
+
+<app-modal 
+  [(isOpen)]="isPreviewModalOpen" 
+  title="Anteprima Immagine" 
+  type="info"
+  confirmText="Va bene"
+  cancelText="Cambia immagine"
+  [autoCloseOnConfirm]="false"
+  (confirm)="closeImagePreviewModal()"
+  (cancel)="triggerFileInputFromModal()">
+  
+  <p style="margin-bottom: 15px; color: #495057;">Questa è l'immagine che hai caricato:</p>
+  
+  <div class="image-preview-container">
+    @if (previewImageUrl()) {
+      <img [src]="previewImageUrl()" alt="Anteprima allegato" class="preview-img" />
+    }
+  </div>
+
 </app-modal>

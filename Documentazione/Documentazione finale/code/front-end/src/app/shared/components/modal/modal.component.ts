@@ -28,6 +28,9 @@ export class ModalComponent {
   
   type = input<ModalType>('info');
 
+  // Se true, il modal si chiude automaticamente quando l'utente conferma l'azione.
+  autoCloseOnConfirm = input<boolean>(true);
+
   confirm = output<void>();
   cancel = output<void>();
 
@@ -36,8 +39,9 @@ export class ModalComponent {
    * dell'azione. In questo modo il modal resta riutilizzabile in contesti diversi.
    */
   onConfirm(): void {
-    // Il modal si chiude subito; il componente padre decide poi cosa fare dell'azione.
-    this.isOpen.set(false);
+    if (this.autoCloseOnConfirm()) {
+      this.isOpen.set(false);
+    }
     this.confirm.emit();
   }
 

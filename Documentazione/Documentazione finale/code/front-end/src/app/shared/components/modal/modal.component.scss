@@ -24,8 +24,8 @@
   border-radius: 8px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   width: 100%;
-  max-width: 500px;
-  min-width: 300px;
+  max-width: min(600px, 90vw);
+  max-height: 90vh;
   margin: 20px;
   display: flex;
   flex-direction: column;
@@ -64,6 +64,10 @@
     color: #495057;
     font-size: 1rem;
     line-height: 1.5;
+    
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
 
     p { margin: 0; }
   }

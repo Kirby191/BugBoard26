@@ -96,20 +96,30 @@ export class AuthService {
   }
 
   
+// L'uso della arrow function preserva il contesto di 'this'
   private resetIdleTimer = (): void => {
     clearTimeout(this.idleTimeoutId);
     
     this.idleTimeoutId = setTimeout(() => {
-      // Il signal aggiorna il modal globale e lascia all'utente la conferma del logout.
+      // Quando il tempo scade, rientriamo nella NgZone per aggiornare l'UI
       this.ngZone.run(() => {
+        // 1. WARNING: Distruggiamo immediatamente la sessione a livello fisico
+        localStorage.removeItem('jwt_token');
+        localStorage.removeItem('user_role');
+        localStorage.removeItem('user_id');
+        // 2. Fermiamo il timer per evitare loop
+        this.stopIdleMonitoring();
+
+        // 3. Mostriamo il modale. (L'utente è già tecnicamente disconnesso)
         this.isSessionExpired.set(true);
       });
     }, this.IDLE_TIME_LIMIT_MS);
   }
 
-  
+  // Metodo richiamato dal bottone "Ho Capito" nel modale
   confirmSessionExpiration(): void {
     this.isSessionExpired.set(false);
-    this.logout();
+    // Il localStorage è già stato pulito dal timeout. Ci limitiamo a reindirizzare.
+    this.router.navigate(['/login']);
   }
 }

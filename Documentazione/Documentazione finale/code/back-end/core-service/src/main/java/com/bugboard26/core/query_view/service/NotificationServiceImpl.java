@@ -6,8 +6,8 @@ import com.bugboard26.core.query_view.model.Notification;
 import com.bugboard26.core.query_view.repository.NotificationRepository;
 import com.bugboard26.core.shared.model.UserReference;
 import com.bugboard26.core.shared.security.AuthenticatedUserProvider;
-import jakarta.persistence.EntityManager;
 import com.bugboard26.core.shared.sse.SseConnectionManager;
+import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,24 +34,21 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public void createNotification(Long assigneeId, Long bugId, String message) {
-        // Usa il proxy (getReference) per evitare una query SELECT inutile a DB
-        UserReference recipient = entityManager.getReference(UserReference.class, assigneeId);
+        // Delega la logica al metodo privato per evitare la self-invocation del Proxy Spring
+        internalCreateAndPushNotification(assigneeId, bugId, message);
+    }
 
-        Notification notification = Notification.builder()
-                .recipient(recipient)
-                .bugId(bugId)
-                .message(message)
-                .build();
+    @Override
+    @Transactional
+    public void handleUnassignment(Long previousAssigneeId, Long bugId) {
+        // 1. Pulisce la vecchia notifica "Ti è stato assegnato..." se non è stata ancora letta
+        notificationRepository.deleteUnreadByRecipientAndBugId(previousAssigneeId, bugId);
 
-        notificationRepository.save(notification);
+        // 2. Genera una nuova notifica per avvisare l'utente della rimozione
+        String message = "L'assegnazione del Bug #" + bugId + " è stata annullata dall'Amministratore.";
 
-        // Invia la notifica in tempo reale tramite SSE se l'utente è connesso
-        sseConnectionManager.pushToUser(assigneeId, new NotificationDTO(
-                notification.getId(),
-                notification.getMessage(),
-                notification.getTimestamp(),
-                notification.isRead()
-        ));
+        // Delega la logica al metodo privato per evitare la self-invocation del Proxy Spring
+        internalCreateAndPushNotification(previousAssigneeId, bugId, message);
     }
 
     @Override
@@ -88,14 +85,33 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
     }
 
-    @Override
-    @Transactional
-    public void handleUnassignment(Long previousAssigneeId, Long bugId) {
-        // 1. Pulisce la vecchia notifica "Ti è stato assegnato..." se non è stata ancora letta
-        notificationRepository.deleteUnreadByRecipientAndBugId(previousAssigneeId, bugId);
+    // =========================================================================
+    // METODI PRIVATI
+    // =========================================================================
 
-        // 2. Genera una nuova notifica per avvisare l'utente della rimozione
-        String message = "L'assegnazione del Bug #" + bugId + " è stata annullata dall'Amministratore.";
-        createNotification(previousAssigneeId, bugId, message);
+    /**
+     * Metodo privato che esegue effettivamente la logica.
+     * Essendo private, Spring non lo inserisce nel Proxy AOP,
+     * risolvendo il problema della chiamata transazionale interna.
+     */
+    private void internalCreateAndPushNotification(Long assigneeId, Long bugId, String message) {
+        // Usa il proxy (getReference) per evitare una query SELECT inutile a DB
+        UserReference recipient = entityManager.getReference(UserReference.class, assigneeId);
+
+        Notification notification = Notification.builder()
+                .recipient(recipient)
+                .bugId(bugId)
+                .message(message)
+                .build();
+
+        notificationRepository.save(notification);
+
+        // Invia la notifica in tempo reale tramite SSE se l'utente è connesso
+        sseConnectionManager.pushToUser(assigneeId, new NotificationDTO(
+                notification.getId(),
+                notification.getMessage(),
+                notification.getTimestamp(),
+                notification.isRead()
+        ));
     }
 }

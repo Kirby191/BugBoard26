@@ -1,5 +1,5 @@
 // ----------------------------------------------------------
-// APP / ISSUE / COMPONENTS / ISSUE FORM / ISSUE FORM
+// APP / ISSUE / COMPONENTS / ISSUE FORM
 // ----------------------------------------------------------
 
 .form-container {
@@ -213,71 +213,91 @@
   }
 }
 
+// ==========================================
+// STILI FILE UPLOAD (Area Drag&Drop Inline)
+// ==========================================
+
 .drag-drop-zone.inline-dropzone {
   border: 2px dashed #8bb4f6;
-  border-radius: 8px;
-  padding: 40px 20px;
+  border-radius: 12px; // Bordi leggermente più curvi
+  padding: 50px 20px;  // Aumentato il padding verticale per dare grandezza
   background-color: #f8f9fa;
   transition: all 0.3s ease;
   width: 100%;
   box-sizing: border-box;
 
-  // La classe viene applicata mentre il browser sta trascinando un file sopra la zona.
   &.drag-over {
     background-color: #f0f6ff;
     border-color: #0d6efd;
     transform: scale(0.99); 
   }
 
+  // Contenitore principale che forza il contenuto al centro
   .upload-content {
     display: flex;
     flex-direction: column;
-    align-items: center;    
+    align-items: center;
     justify-content: center;
     width: 100%;
+  }
+
+  // HITBOX UNIFICATA: Incolonna obbligatoriamente Icona e Bottone
+  .clickable-upload-area {
+    display: flex;
+    flex-direction: column; // <-- Questo garantisce che l'icona stia SOPRA il bottone
+    align-items: center;
+    justify-content: center;
+    padding: 15px 40px;     // Area cuscinetto cliccabile invisibile
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #e7f1ff; 
+      
+      .upload-icon {
+        transform: translateY(-5px) scale(1.05);
+      }
+      .btn-browse {
+        background-color: #0b5ed7;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(13, 110, 253, 0.3);
+      }
+    }
   }
 
   .upload-icon {
     display: flex;
     justify-content: center;
-    margin-bottom: 20px;      
-    cursor: pointer; 
+    margin-bottom: 18px; // Distanza perfetta tra icona e bottone "Browse"
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-    &:hover {
-      transform: translateY(-5px) scale(1.05);
-    }
   }
 
   .btn-browse {
-    display: inline-block;  
-    padding: 8px 35px;        
+    display: inline-block;
+    padding: 10px 40px; // Bottone più grande
     background-color: #0d6efd;
     color: white;
-    border-radius: 30px;
-    font-size: 1rem;
+    border-radius: 30px; // Forma a pillola
+    font-size: 1.05rem;
     font-weight: 600;
-    margin-bottom: 12px;      
-    cursor: pointer;
+    margin-bottom: 15px; // Distanza dal testo "oppure trascina..." sottostante
     transition: all 0.3s ease;
     box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
-
-    &:hover {
-      background-color: #0b5ed7;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(13, 110, 253, 0.3);
-    }
   }
 
+  // Testi informativi
   .drop-text {
     color: #6c757d;
     font-size: 1rem;
-    margin-bottom: 8px;     
+    margin-bottom: 8px;
+    pointer-events: none; // Il click passa attraverso il testo
   }
 
   .supported-text {
     color: #adb5bd;
     font-size: 0.85rem;
+    pointer-events: none;
   }
 }
 
@@ -327,8 +347,69 @@
       background-color: rgba(220, 53, 69, 0.1); 
     }
   }
+  .clickable-preview {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #e2e6ea; // Effetto grigio tenue al passaggio del mouse
+    }
  }
+}
+
+.image-preview-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: clamp(300px, calc(90vh - 220px), 700px);
+
+  min-width: 0;
+  min-height: 0;
+
+  padding: 10px;
+  box-sizing: border-box;
+
+  background-color: #f1f3f5;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+
+  overflow: hidden;
+
+  .preview-img {
+    display: block;
+
+    max-width: 100%;
+    max-height: 100%;
+
+    width: auto;
+    height: auto;
+
+    object-fit: contain;
+    object-position: center;
+
+    border-radius: 4px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  // Quando l'utente attiva lo zoom
+  &.zoom-active {
+    overflow: auto;
+    align-items: flex-start;
+    justify-content: flex-start;
+
+    .preview-img {
+      max-width: none;
+      max-height: none;
+    }
+  }
+}
  
+
 
 
 .custom-date-picker-wrapper {
