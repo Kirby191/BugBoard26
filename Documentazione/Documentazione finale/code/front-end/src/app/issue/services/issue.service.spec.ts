@@ -1,3 +1,7 @@
+// ------------------------------------------------
+// APP / ISSUE / SERVICES / ISSUE.SERVICE
+// ------------------------------------------------
+
 import { TestBed } from '@angular/core/testing';
 import { IssueService } from './issue.service';
 import { provideHttpClient } from '@angular/common/http';
@@ -5,12 +9,12 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { CreateIssue, UpdateIssue, AssignBug } from '../models/issue-dtos';
 
 describe('IssueService', () => {
+  /* La suite protegge soprattutto il contratto multipart e i comandi separati della issue. */
   let service: IssueService;
   let httpMock: HttpTestingController;
 
-  // L'endpoint punta al Core API (porta 8080) in base all'architettura per il command layer
+  
   const API_ISSUES = 'http://localhost:8080/api/issues';
-  const API_PROJECTS = 'http://localhost:8080/api/projects';
 
   beforeEach(() => {
     TestBed.resetTestingModule();
@@ -26,7 +30,7 @@ describe('IssueService', () => {
   });
 
   afterEach(() => {
-    httpMock.verify(); // Previene richieste "appese" a fine test
+    httpMock.verify(); 
   });
 
   it('should be created', () => {
@@ -45,11 +49,11 @@ describe('IssueService', () => {
       const req = httpMock.expectOne(API_ISSUES);
       expect(req.request.method).toBe('POST');
       
-      // Verifica l'uso di FormData per il Multipart richiesto dal back-end 4, 13]
+      
       expect(req.request.body instanceof FormData).toBe(true);
       const formData = req.request.body as FormData;
       expect(formData.has('issue')).toBe(true);
-      expect(formData.has('file')).toBe(false); // Nessun file allegato
+      expect(formData.has('file')).toBe(false); 
 
       req.flush(mockResponse);
     });
@@ -64,7 +68,7 @@ describe('IssueService', () => {
       
       const formData = req.request.body as FormData;
       expect(formData.has('issue')).toBe(true);
-      expect(formData.has('file')).toBe(true); // Il file è stato agganciato 4]
+      expect(formData.has('file')).toBe(true); 
       expect(formData.get('file')).toBe(dummyFile);
 
       req.flush({});
@@ -77,7 +81,7 @@ describe('IssueService', () => {
 
       const req = httpMock.expectOne(`${API_ISSUES}/10`);
       expect(req.request.method).toBe('PUT');
-      expect(req.request.body).toEqual(updateDto); // Invio Standard JSON 4, 13]
+      expect(req.request.body).toEqual(updateDto); 
       
       req.flush({});
     });
@@ -100,7 +104,7 @@ describe('IssueService', () => {
       const req = httpMock.expectOne(request => request.url === `${API_ISSUES}/10/due-date`);
       expect(req.request.method).toBe('PUT');
       
-      // Il backend Spring si aspetta la data come @RequestParam 4, 13]
+      
       expect(req.request.params.get('dueDate')).toBe('2026-12-31');
       expect(req.request.body).toBeNull(); 
       

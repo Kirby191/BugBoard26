@@ -1,3 +1,7 @@
+// ------------------------------------------------
+// APP / APP.ROUTES
+// ------------------------------------------------
+
 import { Routes } from '@angular/router';
 import { inject } from '@angular/core';
 import { AuthService } from './auth/services/auth.service';
@@ -7,9 +11,9 @@ import { adminGuard } from './auth/guards/admin-guard';
 import { guestGuard } from './auth/guards/guest-guard';
 
 export const routes: Routes = [
-  // ==========================================================
-  // ROTTA DI DEFAULT (Redirect dinamico in base al login)
-  // ==========================================================
+  // ----------------------------------------------------------------
+  // Ingresso pubblico e autenticazione
+  // ----------------------------------------------------------------
   { 
     path: '', 
     pathMatch: 'full',
@@ -19,16 +23,13 @@ export const routes: Routes = [
     }
   },
 
-  // ==========================================================
-  // ROTTA PUBBLICA (Welcome)
-  // ==========================================================
   { 
     path: 'welcome', 
     title: 'Benvenuto - BugBoard26', 
     loadComponent: () => import('./welcome/welcome.component').then(c => c.WelcomeComponent) 
   },
   
-  // 2. ROTTA PUBBLICA PROTETTA
+  
   { 
     path: 'login', 
     title: 'Login', 
@@ -42,9 +43,9 @@ export const routes: Routes = [
     loadComponent: () => import('./auth/components/register/register.component').then(c => c.RegisterComponent),
     canActivate: [authGuard, adminGuard] 
   },
-  // ==========================================================
-  // MODULO: DASHBOARD
-  // ==========================================================
+  // ----------------------------------------------------------------
+  // Dashboard e gestione progetti
+  // ----------------------------------------------------------------
   {
     path: 'dashboard',
     title: 'Dashboard',
@@ -52,9 +53,6 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
-  // ==========================================================
-  // MODULO PROJECT (Lazy Loaded e Protette da Guards)
-  // ==========================================================
   { 
     path: 'projects', 
     title: 'Elenco Progetti',
@@ -65,13 +63,13 @@ export const routes: Routes = [
     path: 'projects/new', 
     title: 'Nuovo Progetto',
     loadComponent: () => import('./issue/components/project-form/project-form.component').then(c => c.ProjectFormComponent),
-    canActivate: [authGuard, adminGuard] // REQUISITO: Solo gli Admin possono creare progetti
+    canActivate: [authGuard, adminGuard] 
   },
   { 
     path: 'projects/edit/:id', 
     title: 'Modifica Progetto',
     loadComponent: () => import('./issue/components/project-form/project-form.component').then(c => c.ProjectFormComponent),
-    canActivate: [authGuard, adminGuard] // REQUISITO: Solo gli Admin possono modificare progetti
+    canActivate: [authGuard, adminGuard] 
   },
   { 
     path: 'projects/:id', 
@@ -80,9 +78,9 @@ export const routes: Routes = [
     canActivate: [authGuard] 
   },
 
-  // ==========================================================
-  // MODULO ISSUE (Lazy Loaded e Protette da AuthGuard)
-  // ==========================================================
+  // ----------------------------------------------------------------
+  // Gestione delle issue
+  // ----------------------------------------------------------------
   { 
     path: 'issues', 
     title: 'Elenco Segnalazioni',
@@ -90,7 +88,7 @@ export const routes: Routes = [
     canActivate: [authGuard] 
   },
   { 
-    // DEVE STARE PRIMA DI :id
+    
     path: 'issues/new', 
     title: 'Nuova Segnalazione',
     loadComponent: () => import('./issue/components/issue-form/issue-form.component').then(c => c.IssueFormComponent),

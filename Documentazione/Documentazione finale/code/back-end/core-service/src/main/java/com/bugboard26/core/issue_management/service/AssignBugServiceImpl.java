@@ -5,6 +5,7 @@ import com.bugboard26.core.history.service.HistoryService;
 import com.bugboard26.core.issue_management.dto.AssignBug;
 import com.bugboard26.core.issue_management.dto.IssueResponse;
 import com.bugboard26.core.issue_management.event.BugAssignedEvent;
+import com.bugboard26.core.issue_management.event.BugUnassignedEvent;
 import com.bugboard26.core.shared.exception.IssueNotFoundException;
 import com.bugboard26.core.shared.exception.UserNotFoundException;
 import com.bugboard26.core.issue_management.model.Issue;
@@ -74,11 +75,22 @@ public class AssignBugServiceImpl implements AssignBugService {
 
         // 5. RIMOZIONE ASSEGNAZIONE
         if (newAssigneeId == null) {
-            issue.setAssigneeId(null);
-            Issue savedIssue = issueRepository.save(issue);
-            historyService.recordEvent(savedIssue.getId(), currentAdminId, AuditAction.ASSIGNED, "L'amministratore ha rimosso l'assegnazione del task.");
-            return buildResponse(savedIssue);
+        Long previousAssigneeId = issue.getAssigneeId(); // Cattura l'ID prima di azzerarlo
+        issue.setAssigneeId(null);
+        Issue savedIssue = issueRepository.save(issue);
+
+        historyService.recordEvent(savedIssue.getId(), currentAdminId, AuditAction.ASSIGNED, "L'amministratore ha rimosso l'assegnazione del task.");
+
+        // Pubblica l'evento per rimuovere le notifiche pendenti e avvisare l'utente
+        if (previousAssigneeId != null) {
+            eventPublisher.publishEvent(new BugUnassignedEvent(
+                    savedIssue.getId(),
+                    previousAssigneeId,
+                    LocalDateTime.now(ZoneId.systemDefault())
+            ));
         }
+        return buildResponse(savedIssue);
+    }
 
         // 6. NUOVA ASSEGNAZIONE / RIASSEGNAZIONE
         if (!userRepository.existsById(newAssigneeId)) {

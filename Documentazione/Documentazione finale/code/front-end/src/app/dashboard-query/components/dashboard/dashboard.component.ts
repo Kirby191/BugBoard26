@@ -1,8 +1,12 @@
+// ------------------------------------------------------------------
+// APP / DASHBOARD QUERY / COMPONENTS / DASHBOARD / DASHBOARD
+// ------------------------------------------------------------------
+
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
-// Iniezione del Query Service e dei DTO
+
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardStats } from '../../models/query-dtos';
 
@@ -18,6 +22,9 @@ export class DashboardComponent implements OnInit {
   private readonly dashboardService = inject(DashboardService);
   private readonly router = inject(Router);
 
+  // ----------------------------------------------------------------
+  // Stato delle metriche
+  // ----------------------------------------------------------------
   protected readonly stats = signal<DashboardStats | null>(null);
   protected readonly isLoading = signal<boolean>(true);
   protected readonly errorMessage = signal<string | null>(null);
@@ -26,6 +33,7 @@ export class DashboardComponent implements OnInit {
     this.loadStatistics();
   }
 
+  // Il template distingue caricamento, errore e metriche disponibili attraverso questi signal.
   private loadStatistics(): void {
     this.isLoading.set(true);
     this.dashboardService.getDashboardStats().subscribe({
@@ -41,28 +49,23 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // ==========================================================================
-  // COMMAND ACTIONS (Navigazione dinamica e Filtraggio - Funzionalità 3)
-  // ==========================================================================
 
-  /**
-   * Naviga verso la lista passando parametri di query dinamici.
-   * Es: /issues?status=TODO oppure /issues?priority=CRITICAL
-   */
+  // ----------------------------------------------------------------
+  // Navigazione verso la lista dei bug filtrata
+  // ----------------------------------------------------------------
   goToFilteredList(queryParams: any = {}): void {
     this.router.navigate(['/issues'], { queryParams });
   }
 
-  /**
-   * Azione specifica: Filtra per "Assegnate a me".
-   * Legge in modo sicuro l'ID utente salvato in sessione durante il login.
-   */
+  // ----------------------------------------------------------------
+  // Navigazione verso la lista dei bug assegnati all'utente
+  // ----------------------------------------------------------------
   goToMyIssues(): void {
     const userId = localStorage.getItem('user_id');
     if (userId) {
       this.goToFilteredList({ assigneeId: userId });
     } else {
-      this.goToFilteredList(); // Fallback se la sessione non è completa
+      this.goToFilteredList(); 
     }
   }
 }

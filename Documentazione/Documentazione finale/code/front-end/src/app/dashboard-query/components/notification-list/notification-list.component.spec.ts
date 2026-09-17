@@ -1,3 +1,7 @@
+// --------------------------------------------------------------------------------------------
+// APP / DASHBOARD QUERY / COMPONENTS / NOTIFICATION LIST / NOTIFICATION LIST.COMPONENT
+// --------------------------------------------------------------------------------------------
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NotificationListComponent } from './notification-list.component';
 import { NotificationService } from '../../services/notification.service';
@@ -22,7 +26,7 @@ describe('NotificationListComponent', () => {
 
     notificationServiceMock = {
       getUnreadNotifications: vi.fn().mockReturnValue(of(mockNotifications)),
-      markAsRead: vi.fn().mockReturnValue(of({})) // Ritorna void/empty in caso di successo
+      markAsRead: vi.fn().mockReturnValue(of({})) 
     };
 
     routerMock = { navigate: vi.fn() };
@@ -44,15 +48,15 @@ describe('NotificationListComponent', () => {
   });
 
   it('should create and load notifications on init (DOM Testing)', () => {
-    fixture.detectChanges(); // Innesca ngOnInit
+    fixture.detectChanges(); 
 
     expect(notificationServiceMock.getUnreadNotifications).toHaveBeenCalled();
 
-    // DOM Testing: verifica che il badge conti esattamente 2 notifiche
+    
     const badge = fixture.nativeElement.querySelector('.badge');
     expect(badge.textContent.trim()).toBe('2');
 
-    // DOM Testing: verifica il rendering delle righe
+    
     const items = fixture.nativeElement.querySelectorAll('.notification-item');
     expect(items.length).toBe(2);
     expect(items[0].textContent).toContain('Bug #42');
@@ -61,24 +65,24 @@ describe('NotificationListComponent', () => {
   it('should call markAsRead and remove item from DOM when clicking check button', () => {
     fixture.detectChanges();
 
-    // Troviamo il pulsante "Segna come letta" della prima notifica
+    
     const readBtn = fixture.nativeElement.querySelectorAll('.btn-read')[0];
     
-    // Creiamo un evento fittizio per soddisfare $event.stopPropagation()
+    
     const mockEvent = new Event('click');
     vi.spyOn(mockEvent, 'stopPropagation');
     
-    // Simuliamo la chiamata alla funzione come farebbe l'HTML
+    
     component.markAsRead(1, mockEvent);
-    fixture.detectChanges(); // Aggiorna il DOM post-signal update
+    fixture.detectChanges(); 
 
     expect(notificationServiceMock.markAsRead).toHaveBeenCalledWith(1);
     
-    // Verifica che l'array locale sia stato filtrato (ora ne resta 1)
+    
     const items = fixture.nativeElement.querySelectorAll('.notification-item');
     expect(items.length).toBe(1);
     
-    // Verifica che il badge si sia aggiornato a 1
+    
     const badge = fixture.nativeElement.querySelector('.badge');
     expect(badge.textContent.trim()).toBe('1');
   });
@@ -86,11 +90,11 @@ describe('NotificationListComponent', () => {
   it('should navigate to issue details when clicking the notification body', () => {
     fixture.detectChanges();
 
-    // Simula il click sul body della prima notifica
+    
     const notifItem = fixture.nativeElement.querySelectorAll('.notification-item')[0];
     notifItem.click();
 
-    // Il regex interno ha estratto il "42" dalla stringa "Ti è stato assegnato il Bug #42"
+    
     expect(routerMock.navigate).toHaveBeenCalledWith(['/issues', '42']);
   });
 });

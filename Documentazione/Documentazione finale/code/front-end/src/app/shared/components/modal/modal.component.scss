@@ -1,14 +1,21 @@
+// -------------------------------------------------
+// APP / SHARED / COMPONENTS / MODAL / MODAL
+// -------------------------------------------------
+
+// --------------------------------------------------------------
+// Struttura del modal e livelli di sovrapposizione
+// --------------------------------------------------------------
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.6); // Effetto oscuramento pagina
+  background-color: rgba(0, 0, 0, 0.6); 
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1050; // Molto alto per coprire navbar e altri elementi
+  z-index: 1050; 
   animation: fadeIn 0.2s ease-out forwards;
 }
 
@@ -72,7 +79,10 @@
   }
 }
 
-// Stili standard per i bottoni (condivisi, ma definiti qui per autonomia del modulo)
+
+// --------------------------------------------------------------
+// Varianti delle azioni
+// --------------------------------------------------------------
 .btn {
   padding: 8px 16px;
   border: none;
@@ -87,7 +97,8 @@
   &-danger    { background-color: #dc3545; color: white; &:hover { background-color: #c82333; } }
 }
 
-// Animazioni fluide
+
+// Le animazioni restano separate dalla struttura per essere modificate senza toccare il layout.
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

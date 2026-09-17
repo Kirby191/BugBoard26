@@ -1,5 +1,9 @@
+// --------------------------------------------------------------
+// APP / ISSUE / COMPONENTS / PROJECT FORM / PROJECT FORM
+// --------------------------------------------------------------
+
 .form-container {
-  max-width: 600px; // Leggermente più stretto del form issue perché ha meno campi
+  max-width: 600px; 
   margin: 0 auto;
   padding: 20px;
   background-color: #ffffff;
@@ -44,7 +48,7 @@
         box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
       }
 
-      // Evidenziazione campi invalidi toccati dall'utente
+      
       &.ng-invalid.ng-touched {
         border-color: #dc3545;
         background-color: #fff8f8;
@@ -104,7 +108,7 @@
     min-height: 100px;
   }
 
-  // Nuove regole per il counter
+  
 .char-counter {
     text-align: right;
     font-size: 0.85rem;
@@ -113,7 +117,7 @@
     font-weight: 500;
     transition: color 0.3s ease;
 
-    cursor: default; // Impedisce la selezione del testo e il cursore a forma di testo
+    cursor: default; 
 
     &.text-danger {
       color: #dc3545;

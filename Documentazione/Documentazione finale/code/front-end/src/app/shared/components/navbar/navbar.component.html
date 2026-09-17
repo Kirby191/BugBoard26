@@ -1,5 +1,10 @@
+<!-- ---------------------------------------------------
+     APP / SHARED / COMPONENTS / NAVBAR / NAVBAR
+     ---------------------------------------------------
+ -->
+
 <nav class="navbar">
-  <!-- Brand Logo Cliccabile -->
+  <!-- Identità dell'applicazione e ritorno alla pagina pubblica. -->
   <div class="navbar-brand">
     <a routerLink="/welcome" class="brand-link" title="Torna alla pagina di presentazione">
       <span class="brand-icon">🚀</span>
@@ -7,13 +12,13 @@
     </a>
   </div>
 
-  <!-- Menu Links -->
+  <!-- Le voci cambiano in base alla sessione; il menu admin è un livello aggiuntivo. -->
   <div class="navbar-menu">
     @if (isLoggedIn()) {
       <a routerLink="/projects" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Progetti</a>
       <a routerLink="/issues" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Segnalazioni</a>
       <a routerLink="/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Dashboard</a>
-     <!-- MENU A TENDINA ADMIN -->
+     
       @if (isAdmin()) {
         <div class="dropdown-container">
           <button class="nav-link dropdown-toggle" (click)="toggleAdminMenu()" [class.active]="isAdminMenuOpen()">
@@ -23,12 +28,12 @@
           @if (isAdminMenuOpen()) {
             <div class="dropdown-menu">
               <a routerLink="/admin/register" class="dropdown-item" (click)="isAdminMenuOpen.set(false)">Gestione Utenti</a>
-              <!-- Qui in futuro aggiungerai: <a routerLink="..." class="dropdown-item">Log Sistema</a>, ecc. -->
+              
             </div>
           }
         </div>
       }
-      <!-- Content Projection: Qui verrà iniettata la campanellina delle notifiche -->
+      
       <div class="nav-widget">
         <ng-content></ng-content>
       </div>

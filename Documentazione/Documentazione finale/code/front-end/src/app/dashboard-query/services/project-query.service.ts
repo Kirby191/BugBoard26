@@ -1,3 +1,7 @@
+// --------------------------------------------------------
+// APP / DASHBOARD QUERY / SERVICES / PROJECT QUERY
+// --------------------------------------------------------
+
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,6 +14,9 @@ export class ProjectQueryService {
   private readonly http = inject(HttpClient);
   private readonly API_PROJECTS = '/api/projects';
 
+  // ----------------------------------------------------------------
+  // Letture usate da liste, form e dettaglio progetto
+  // ----------------------------------------------------------------
   getProjects(): Observable<ProjectState[]> {
     return this.http.get<ProjectState[]>(this.API_PROJECTS);
   }

@@ -1,3 +1,8 @@
+<!-- --------------------------------------------------------------
+     APP / ISSUE / COMPONENTS / PROJECT FORM / PROJECT FORM
+     --------------------------------------------------------------
+ -->
+
 <div class="form-container card">
   <div class="card-header">
     <h2>{{ isEditMode() ? 'Modifica Progetto' : 'Nuovo Progetto' }}</h2>
@@ -17,7 +22,7 @@
         <label for="description">Descrizione (Opzionale)</label>
         <textarea id="description" formControlName="description" class="form-control" rows="4"></textarea>
         
-        <!-- Il counter appare solo se superi la soglia del 90% -->
+        
         @if (showCharCounter) {
           <div class="char-counter" 
                [ngClass]="{'text-danger': remainingChars < 0}"
@@ -37,9 +42,14 @@
   </div>
 </div>
 
-<!-- ========================================================================= -->
-<!-- MODALE: MODIFICA NON SALVATA -->
-<!-- ========================================================================= -->
+
+
+
+<!-- ============================================================
+  MODALI / USCITA DALLA FORM
+  ============================================================
+  Avvisa l'utente prima di scartare modifiche non salvate.
+  ============================================================ -->
 <app-modal 
   [(isOpen)]="isModalOpen" 
   title="Attenzione: Dati non salvati" 
@@ -50,9 +60,14 @@
   (confirm)="forceNavigateBack()">
 </app-modal>
 
-<!-- ========================================================================= -->
-<!-- MODALE: LIMITE CARATTERI SUPERATO -->
- <!-- ========================================================================= -->
+
+
+ 
+<!-- ============================================================
+  MODALI / VALIDAZIONE DESCRIZIONE
+  ============================================================
+  Informa l'utente quando il testo supera il limite previsto.
+  ============================================================ -->
 <app-modal 
   [(isOpen)]="isLimitModalOpen" 
   title="Limite Superato" 

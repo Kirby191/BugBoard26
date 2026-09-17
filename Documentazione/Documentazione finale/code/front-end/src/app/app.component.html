@@ -1,5 +1,8 @@
-<!-- Navbar condivisa -->
-<!-- Il componente è 'dumb': riceve lo stato e notifica l'azione -->
+<!-- ------------------------------------------------
+     APP / APP
+     ------------------------------------------------
+ -->
+
 <app-navbar 
   [isLoggedIn]="authService.isLoggedIn()" 
   [isAdmin]="isAdmin()" 
@@ -11,7 +14,11 @@
   <router-outlet />
 </main>
 
-<!-- MODALE SCADENZA SESSIONE PER INATTIVITÀ (Global Scope) -->
+<!-- ============================================================
+     MODALI GLOBALI / SESSIONE
+     ============================================================
+     Questo modal appartiene all'app shell e non a una singola pagina.
+     ============================================================ -->
 <app-modal 
   [(isOpen)]="authService.isSessionExpired" 
   title="Attenzione" 

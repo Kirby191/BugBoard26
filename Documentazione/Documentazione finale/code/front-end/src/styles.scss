@@ -1,14 +1,18 @@
+// ------------------------------------------------
+// STYLES
+// ------------------------------------------------
+
 html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  /* Assicura che font e colori di sfondo siano uniformi in tutta l'app */
+  
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background-color: #f4f6f9; 
 }
 
-/* Fa in modo che padding e border non allarghino le dimensioni dichiarate degli elementi */
+
 *, *::before, *::after {
   box-sizing: border-box;
 }

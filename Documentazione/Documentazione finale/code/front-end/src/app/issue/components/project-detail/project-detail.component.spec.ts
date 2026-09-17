@@ -1,3 +1,7 @@
+// ----------------------------------------------------------------------------
+// APP / ISSUE / COMPONENTS / PROJECT DETAIL / PROJECT DETAIL.COMPONENT
+// ----------------------------------------------------------------------------
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProjectDetailComponent } from './project-detail.component';
 import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service';
@@ -29,7 +33,7 @@ describe('ProjectDetailComponent', () => {
   beforeEach(async () => {
     TestBed.resetTestingModule();
 
-    // Mocks di default per evitare TypeError
+    
     projectQueryMock = {
       getProjectById: vi.fn().mockReturnValue(of(mockProject))
     };
@@ -41,7 +45,7 @@ describe('ProjectDetailComponent', () => {
     routerMock = { navigate: vi.fn() };
     locationMock = { back: vi.fn() };
 
-    // Simuliamo un routing con ID "10"
+    
     activatedRouteMock = {
       snapshot: { paramMap: { get: vi.fn().mockReturnValue('10') } }
     };
@@ -66,33 +70,33 @@ describe('ProjectDetailComponent', () => {
   });
 
   it('should display an error banner and hide loading if no ID is provided in route', () => {
-    // Sovrascriviamo la rotta per restituire null
+    
     activatedRouteMock.snapshot.paramMap.get.mockReturnValue(null);
     
-    fixture.detectChanges(); // Innesca ngOnInit
+    fixture.detectChanges(); 
 
-    // DOM TESTING: verifica visibilità del signal `errorMessage` raggirando il protected
+    
     const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
     expect(errorAlert).toBeTruthy();
     expect(errorAlert.textContent).toContain('ID progetto non valido');
 
-    // DOM TESTING: verifica che `isLoading` sia falso (lo spinner scompare)
+    
     const loadingSpinner = fixture.nativeElement.querySelector('.loading-spinner');
     expect(loadingSpinner).toBeNull();
   });
 
   it('should load project details and its associated issues (Double Query)', () => {
-    fixture.detectChanges(); // Innesca ngOnInit
+    fixture.detectChanges(); 
 
-    // Verifica le due chiamate separate imposte dall'architettura CQRS 2]
+    
     expect(projectQueryMock.getProjectById).toHaveBeenCalledWith(10);
     expect(dashboardServiceMock.searchIssues).toHaveBeenCalledWith({ projectId: 10 });
 
-    // DOM TESTING: Verifica che i dati del progetto siano nella prima card
+    
     const projectHeader = fixture.nativeElement.querySelector('.main-info-card h2');
     expect(projectHeader.textContent).toContain('#10 - Progetto Alpha');
 
-    // DOM TESTING: Verifica che la issue sia renderizzata nella tabella della seconda card
+    
     const issueRow = fixture.nativeElement.querySelector('.issues-card tbody tr');
     expect(issueRow.textContent).toContain('#100');
     expect(issueRow.textContent).toContain('Bug Login');
@@ -129,7 +133,7 @@ describe('ProjectDetailComponent', () => {
   it('should navigate to issue detail when "Vedi Issue" is clicked on a row', () => {
     fixture.detectChanges();
     
-    // Essendo l'unico bottone "info" nella tabella fittizia, lo selezioniamo
+    
     const viewIssueBtn = fixture.nativeElement.querySelector('.issues-card .btn-info');
     viewIssueBtn.click();
     

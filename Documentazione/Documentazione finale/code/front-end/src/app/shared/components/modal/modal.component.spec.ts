@@ -1,7 +1,12 @@
+// -----------------------------------------------------------
+// APP / SHARED / COMPONENTS / MODAL / MODAL.COMPONENT
+// -----------------------------------------------------------
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ModalComponent } from './modal.component';
 
 describe('ModalComponent (Shared UI)', () => {
+  /* La suite copre rendering condizionale, proiezione del contenuto ed eventi di azione. */
   let component: ModalComponent;
   let fixture: ComponentFixture<ModalComponent>;
 
@@ -13,7 +18,7 @@ describe('ModalComponent (Shared UI)', () => {
     fixture = TestBed.createComponent(ModalComponent);
     component = fixture.componentInstance;
     
-    // Inizializza i signal inputs di base necessari
+    
     fixture.componentRef.setInput('title', 'Titolo di Test');
   });
 
@@ -44,7 +49,7 @@ describe('ModalComponent (Shared UI)', () => {
     fixture.componentRef.setInput('isOpen', true);
     fixture.detectChanges();
 
-    // Creiamo una "Spia" (Spy) sull'Output event emitter usando Vitest
+    
     vi.spyOn(component.cancel, 'emit');
 
     const cancelBtn = fixture.nativeElement.querySelector('.btn-secondary');
@@ -61,7 +66,7 @@ describe('ModalComponent (Shared UI)', () => {
 
     vi.spyOn(component.confirm, 'emit');
 
-    // Cerchiamo il bottone che ora dovrebbe avere la classe dinamica .btn-danger
+    
     const confirmBtn = fixture.nativeElement.querySelector('.btn-danger');
     expect(confirmBtn).toBeTruthy();
     expect(confirmBtn.textContent.trim()).toBe('Elimina Definitivamente');

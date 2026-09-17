@@ -1,3 +1,7 @@
+// ------------------------------------------------------------
+// APP / DASHBOARD QUERY / SERVICES / DASHBOARD.SERVICE
+// ------------------------------------------------------------
+
 import { TestBed } from '@angular/core/testing';
 import { DashboardService } from './dashboard.service';
 import { provideHttpClient } from '@angular/common/http';
@@ -5,6 +9,10 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { IssueFilter, IssueDetailed, DashboardStats, BugHistory } from '../models/query-dtos';
 
 describe('DashboardService', () => {
+  /*
+   * Questi test verificano il contratto tra il Query layer e il frontend:
+   * parametri, risposta paginata e normalizzazione delle date.
+   */
   let service: DashboardService;
   let httpMock: HttpTestingController;
 
@@ -12,7 +20,7 @@ describe('DashboardService', () => {
   const API_DASHBOARD = 'http://localhost:8080/api/dashboard';
 
   beforeEach(() => {
-    TestBed.resetTestingModule(); // Previene l'errore "Test module already instantiated"
+    TestBed.resetTestingModule(); 
     
     TestBed.configureTestingModule({
       providers: [
@@ -26,13 +34,14 @@ describe('DashboardService', () => {
   });
 
   afterEach(() => {
-    httpMock.verify(); // Assicura che non ci siano chiamate HTTP pendenti
+    httpMock.verify(); 
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
+  // La ricerca deve conservare i filtri e trasformare la pagina backend in un array.
   it('should format HttpParams correctly and unbox pagination in searchIssues()', () => {
     const mockFilter: IssueFilter = {
       projectId: 1,
@@ -49,7 +58,7 @@ describe('DashboardService', () => {
       expect(issues[0].title).toBe('Test Bug');
     });
 
-    // CORREZIONE: Il service vero chiama API_ISSUES (senza /summary)
+    
     const req = httpMock.expectOne(request => request.url === API_ISSUES);
     expect(req.request.method).toBe('GET');
     
@@ -61,6 +70,7 @@ describe('DashboardService', () => {
     req.flush(mockResponse);
   });
 
+  // Il dettaglio viene restituito con il timestamp coerente con l'interpretazione del browser.
   it('should retrieve detailed issue correctly in getIssueDetailed()', () => {
     const mockIssue: IssueDetailed = {
       id: 10, projectId: 1, projectName: 'Test', title: 'Titolo', description: 'Desc',

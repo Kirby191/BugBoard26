@@ -1,9 +1,14 @@
+// ------------------------------------------------
+// APP / AUTH / GUARDS / AUTH GUARD
+// ------------------------------------------------
+
 import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree } from '@angular/router';
 import { authGuard } from './auth-guard';
 import { AuthService } from '../services/auth.service';
 
 describe('AuthGuard', () => {
+  /* Il test verifica il confine principale dell'app: accesso libero con sessione, redirect senza token. */
   let authServiceMock: any;
   let routerMock: any;
 

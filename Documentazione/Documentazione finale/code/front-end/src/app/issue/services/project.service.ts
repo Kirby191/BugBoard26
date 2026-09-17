@@ -1,3 +1,7 @@
+// ------------------------------------------------
+// APP / ISSUE / SERVICES / PROJECT
+// ------------------------------------------------
+
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,6 +14,10 @@ export class ProjectService {
   private readonly http = inject(HttpClient);
   private readonly API_PROJECTS = '/api/projects';
 
+  // ----------------------------------------------------------------
+  // Operazioni di scrittura
+  // ----------------------------------------------------------------
+  // Creazione e aggiornamento usano JSON perché il progetto non contiene allegati.
   createProject(request: CreateProject): Observable<any> {
     return this.http.post(this.API_PROJECTS, request);
   }
@@ -19,6 +27,7 @@ export class ProjectService {
   }
 
   deleteProject(id: number): Observable<void> {
+    // La risposta non contiene dati utili al frontend: basta il completamento della richiesta.
     return this.http.delete<void>(`${this.API_PROJECTS}/${id}`);
   }
 }

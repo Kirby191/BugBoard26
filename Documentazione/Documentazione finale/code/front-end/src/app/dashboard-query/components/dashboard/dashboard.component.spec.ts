@@ -1,3 +1,7 @@
+// ----------------------------------------------------------------------------
+// APP / DASHBOARD QUERY / COMPONENTS / DASHBOARD / DASHBOARD.COMPONENT
+// ----------------------------------------------------------------------------
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DashboardComponent } from './dashboard.component';
 import { DashboardService } from '../../services/dashboard.service';
@@ -6,6 +10,10 @@ import { of, throwError } from 'rxjs';
 import { DashboardStats } from '../../models/query-dtos';
 
 describe('DashboardComponent', () => {
+  /*
+   * La suite controlla sia il rendering delle metriche sia la navigazione
+   * prodotta dalle card, che è il comportamento principale della dashboard.
+   */
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
 
@@ -20,7 +28,7 @@ describe('DashboardComponent', () => {
   beforeEach(async () => {
     TestBed.resetTestingModule();
 
-    // Mock sicuro di default
+    
     dashboardServiceMock = {
       getDashboardStats: vi.fn().mockReturnValue(of(mockStats))
     };
@@ -38,7 +46,7 @@ describe('DashboardComponent', () => {
     fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
     
-    // Predisponiamo lo spionaggio sul localStorage per testare goToMyIssues() 2]
+    
     vi.spyOn(Storage.prototype, 'getItem');
   });
 
@@ -47,15 +55,15 @@ describe('DashboardComponent', () => {
   });
 
   it('should create and load stats on init (DOM Testing)', () => {
-    fixture.detectChanges(); // Innesca ngOnInit
+    fixture.detectChanges(); 
 
     expect(dashboardServiceMock.getDashboardStats).toHaveBeenCalled();
 
     const values = fixture.nativeElement.querySelectorAll('.stat-value');
     const textValues = Array.from(values).map((node: any) => node.textContent.trim());
 
-    expect(textValues).toContain('5');  // assignedToMeCount
-    expect(textValues).toContain('2');  // criticalCount
+    expect(textValues).toContain('5');  
+    expect(textValues).toContain('2');  
   });
 
   it('should display an error banner if getDashboardStats fails (DOM Testing)', () => {
@@ -67,6 +75,7 @@ describe('DashboardComponent', () => {
     expect(errorAlert.textContent).toContain('Impossibile caricare le metriche');
   });
 
+  // Ogni card deve produrre il filtro che l'utente si aspetta nella lista issue.
   describe('Navigation & Filtering (Command Actions)', () => {
     
     it('should navigate to issues list without filters when clicking standard button', () => {
@@ -75,7 +84,7 @@ describe('DashboardComponent', () => {
       const listBtn = fixture.nativeElement.querySelector('.btn-primary');
       listBtn.click();
       
-      // Verifica l'assenza di parametri di filtro 2]
+      
       expect(routerMock.navigate).toHaveBeenCalledWith(['/issues'], { queryParams: {} });
     });
 
@@ -85,14 +94,14 @@ describe('DashboardComponent', () => {
       const criticalCard = fixture.nativeElement.querySelector('.danger-border');
       criticalCard.click();
       
-      // Verifica la corretta applicazione del parametro di filtro per la Funzionalità 3 2]
+      
       expect(routerMock.navigate).toHaveBeenCalledWith(['/issues'], { queryParams: { priority: 'CRITICAL' } });
     });
 
     it('should navigate passing TODO status filter when clicking the workflow card', () => {
       fixture.detectChanges();
       
-      // Troviamo la card del TODO
+      
       const todoCard = fixture.nativeElement.querySelectorAll('.workflow-card')[0];
       todoCard.click();
       
@@ -102,7 +111,7 @@ describe('DashboardComponent', () => {
     it('should read localStorage and pass assigneeId when clicking "Assegnate a me"', () => {
       fixture.detectChanges();
       
-      // Simuliamo la presenza dell'utente loggato nel localStorage
+      
       vi.mocked(localStorage.getItem).mockReturnValue('42');
       
       const myIssuesCard = fixture.nativeElement.querySelector('.primary-border');
@@ -115,13 +124,13 @@ describe('DashboardComponent', () => {
     it('should fallback to unfiltered list if localStorage has no user_id', () => {
       fixture.detectChanges();
       
-      // Simuliamo assenza dell'utente loggato
+      
       vi.mocked(localStorage.getItem).mockReturnValue(null);
       
       const myIssuesCard = fixture.nativeElement.querySelector('.primary-border');
       myIssuesCard.click();
       
-      // Se non c'è ID, non applica il filtro
+      
       expect(routerMock.navigate).toHaveBeenCalledWith(['/issues'], { queryParams: {} });
     });
   });

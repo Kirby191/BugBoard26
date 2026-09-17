@@ -1,3 +1,7 @@
+// --------------------------------------------------------------
+// APP / ISSUE / COMPONENTS / PROJECT LIST / PROJECT LIST
+// --------------------------------------------------------------
+
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -20,6 +24,7 @@ export class ProjectListComponent implements OnInit {
   protected readonly isLoading = signal<boolean>(true);
   protected readonly errorMessage = signal<string | null>(null);
 
+  // Il ruolo controlla solo la possibilità di creare un nuovo progetto.
   protected readonly isAdmin = signal<boolean>(false);
 
   ngOnInit(): void {
@@ -29,6 +34,7 @@ export class ProjectListComponent implements OnInit {
   }
 
   private loadProjects(): void {
+    // La lista è una lettura condivisa con form e dettaglio progetto.
     this.isLoading.set(true);
     this.projectQueryService.getProjects().subscribe({
       next: (data) => {
@@ -46,8 +52,9 @@ export class ProjectListComponent implements OnInit {
     this.router.navigate(['/projects/new']);
   }
 
-  // Navigazione innescata dal doppio-click sulla cartella
+  
   navigateToDetail(id: number): void {
-    this.router.navigate(['/projects', id]); // Il Router inietterà project-detail
+    // L'id resta nell'URL per permettere al dettaglio di ricaricare i dati direttamente.
+    this.router.navigate(['/projects', id]); 
   }
 }

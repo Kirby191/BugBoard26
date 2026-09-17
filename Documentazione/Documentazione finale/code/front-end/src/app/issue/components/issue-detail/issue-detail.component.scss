@@ -1,8 +1,15 @@
+// --------------------------------------------------------------
+// APP / ISSUE / COMPONENTS / ISSUE DETAIL / ISSUE DETAIL
+// --------------------------------------------------------------
+
 .detail-container {
   max-width: 900px;
   margin: 0 auto;
   padding: 20px;
 
+  // --------------------------------------------------------------
+  // Testata e informazioni principali
+  // --------------------------------------------------------------
   .header-actions {
     display: flex;
     justify-content: space-between;
@@ -37,6 +44,9 @@
     }
   }
 
+// --------------------------------------------------------------
+// Metadati, allegati e cronologia
+// --------------------------------------------------------------
 .metadata-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -93,7 +103,7 @@
     margin-top: 10px;
   }
 
-  // Stile per la Timeline
+  
   .timeline {
     list-style: none;
     padding: 0;
@@ -120,11 +130,11 @@
 
   .badge {
     padding: 6px 12px; border-radius: 12px; color: white; margin-left: 5px; font-weight: bold;
-    &.type-bug { background-color: #dc3545; } // Rosso
-    &.type-feature { background-color: #0dcaf0; } // Azzurro
-    &.status-todo { background-color: #6c757d; } // Grigio
-    &.status-in_progress { background-color: #0d6efd; } // Blu
-    &.status-done { background-color: #198754; } // Verde
+    &.type-bug { background-color: #dc3545; } 
+    &.type-feature { background-color: #0dcaf0; } 
+    &.status-todo { background-color: #6c757d; } 
+    &.status-in_progress { background-color: #0d6efd; } 
+    &.status-done { background-color: #198754; } 
   }
   .text-overdue {
   color: #dc3545 !important;
@@ -139,7 +149,7 @@
 .btn-suggest-priority {
   display: flex;
   align-items: center;
-  background-color: #fff3cd; // Sfondo giallino tenue per non essere invadente
+  background-color: #fff3cd; 
   color: #856404;
   border: 1px solid #ffeeba;
   border-radius: 12px;
@@ -157,7 +167,7 @@
     box-shadow: 0 2px 4px rgba(253, 126, 20, 0.3);
     
     svg {
-      transform: translateY(-1px); // L'icona a doppia freccia scivola sopra all'hover
+      transform: translateY(-1px); 
       transition: transform 0.2s;
     }
   }
@@ -169,6 +179,9 @@
   100% { transform: scale(1); opacity: 1; }
   }
 
+  // --------------------------------------------------------------
+  // Stati vuoti e feedback visivi
+  // --------------------------------------------------------------
   .empty-state-container {
     display: flex;
     flex-direction: column;

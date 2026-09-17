@@ -1,3 +1,7 @@
+// ---------------------------------------------------
+// APP / SHARED / COMPONENTS / NAVBAR / NAVBAR
+// ---------------------------------------------------
+
 import { Component, input, output, signal, HostListener, ElementRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -17,19 +21,25 @@ export class NavbarComponent {
   private readonly elementRef = inject(ElementRef);
   isAdminMenuOpen = signal<boolean>(false);
 
+  // ----------------------------------------------------------------
+  // Menu amministratore
+  // ----------------------------------------------------------------
   toggleAdminMenu(): void {
     this.isAdminMenuOpen.update(v => !v);
   }
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event): void {
-    // Chiude il menu admin SOLO se il click avviene al di fuori del suo specifico contenitore
+    // Il click globale chiude il menu solo quando avviene fuori dal suo contenitore.
     const adminDropdown = this.elementRef.nativeElement.querySelector('.dropdown-container');
     if (adminDropdown && !adminDropdown.contains(event.target as Node)) {
       this.isAdminMenuOpen.set(false);
     }
   }
 
+  // ----------------------------------------------------------------
+  // Comunicazione con il componente shell
+  // ----------------------------------------------------------------
   onLogout(): void {
     this.logoutAction.emit();
   }

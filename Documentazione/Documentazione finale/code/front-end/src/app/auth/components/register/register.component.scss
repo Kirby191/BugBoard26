@@ -1,11 +1,18 @@
+// -----------------------------------------------------
+// APP / AUTH / COMPONENTS / REGISTER / REGISTER
+// -----------------------------------------------------
+
 .register-container {
-  max-width: 600px; // Leggermente più largo per accomodare i due campi affiancati
+  max-width: 600px; 
   margin: 40px auto;
   padding: 30px;
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 
+  // --------------------------------------------------------------
+  // Intestazione e feedback dell'operazione
+  // --------------------------------------------------------------
   .card-header {
     border-bottom: 2px solid #f1f3f5;
     margin-bottom: 20px;
@@ -26,7 +33,7 @@
     }
   }
 
-  /* Banner di Errore dal Server */
+  
   .alert-danger {
     background-color: #f8d7da; 
     color: #842029; 
@@ -39,7 +46,7 @@
     font-weight: bold;
   }
   
-  /* Banner di Successo (fallback se non si usa il Modale) */
+  
   .alert-success {
     background-color: #d1e7dd; 
     color: #0f5132; 
@@ -52,6 +59,9 @@
     font-weight: bold;
   }
 
+  // --------------------------------------------------------------
+  // Campi, password e responsive layout
+  // --------------------------------------------------------------
   .form-group {
     margin-bottom: 20px;
 
@@ -81,15 +91,15 @@
       align-items: center;
       justify-content: center;
       
-      // Stili specifici per l'icona SVG
+      
       svg {
-        color: #6c757d; // Grigio di default
+        color: #6c757d; 
         transition: color 0.2s ease, transform 0.2s ease;
       }
 
       &:hover svg {
         color: #1A237E;
-        transform: scale(1.1); // Leggero ingrandimento
+        transform: scale(1.1); 
       }
     }
   }
@@ -117,7 +127,7 @@
     }
   }
 
-  /* Layout a due colonne per schermi grandi */
+  
   .form-row {
     display: flex; 
     gap: 15px;
@@ -139,7 +149,7 @@
     font-size: 0.85rem; 
   }
 
-  /* Design Moderno del Bottone */
+  
   .form-actions {
     display: flex; 
     justify-content: flex-end; 
@@ -167,7 +177,7 @@
         font-size: 1.2rem;
       }
 
-      /* Effetto "Sollevamento" al passaggio del mouse */
+      
       &:hover:not(:disabled) {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(26, 35, 126, 0.4);
@@ -180,7 +190,7 @@
         cursor: not-allowed;
       }
 
-      /* Spinner CSS per il caricamento */
+      
       .spinner {
         display: inline-block;
         width: 18px;
@@ -193,13 +203,14 @@
     }
   }
 
-  /* Checklist interattiva per la Password */
+  
+  // La checklist rende visibili le regole già applicate dal validator.
   .pwd-checklist {
     list-style: none;
     padding: 0;
     margin: 8px 0 0 0;
     font-size: 0.85rem;
-    color: #dc3545; // Testo Rosso di default (regola non rispettata)
+    color: #dc3545; 
     
     li {
       margin-bottom: 4px;
@@ -214,17 +225,17 @@
         margin-right: 5px;
       }
 
-      // Quando la regola è rispettata da Angular
+      
       &.valid {
-        color: #198754; // Verde successo
+        color: #198754; 
       }
     }
   }
 }
 
-/* ---------------------------------------------------- */
-/* KEYFRAMES                                            */
-/* ---------------------------------------------------- */
+
+
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }

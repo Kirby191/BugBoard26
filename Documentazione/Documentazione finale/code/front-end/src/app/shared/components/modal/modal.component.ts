@@ -1,4 +1,8 @@
-import { Component, input, output, model } from '@angular/core'; // <-- Aggiunto 'model'
+// -------------------------------------------------
+// APP / SHARED / COMPONENTS / MODAL / MODAL
+// -------------------------------------------------
+
+import { Component, input, output, model } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 
 export type ModalType = 'info' | 'warning' | 'danger';
@@ -11,7 +15,9 @@ export type ModalType = 'info' | 'warning' | 'danger';
   styleUrl: './modal.component.scss'
 })
 export class ModalComponent {
-  
+  // ----------------------------------------------------------------
+  // API del modal: stato, contenuto e azioni
+  // ----------------------------------------------------------------
   isOpen = model<boolean>(false);
   
   title = input.required<string>();
@@ -25,14 +31,20 @@ export class ModalComponent {
   confirm = output<void>();
   cancel = output<void>();
 
+  /*
+   * Il componente chiude subito la propria UI e delega al padre l'effetto
+   * dell'azione. In questo modo il modal resta riutilizzabile in contesti diversi.
+   */
   onConfirm(): void {
-    this.isOpen.set(false); // Il modale si chiude autonomamente
-    this.confirm.emit();    // Avvisa il padre SOLO se al padre interessa
+    // Il modal si chiude subito; il componente padre decide poi cosa fare dell'azione.
+    this.isOpen.set(false);
+    this.confirm.emit();
   }
 
   onCancel(): void {
-    this.isOpen.set(false); // Il modale si chiude autonomamente
-    this.cancel.emit();     // Avvisa il padre SOLO se al padre interessa
+    // Anche l'annullamento aggiorna il model prima di notificare il componente padre.
+    this.isOpen.set(false); 
+    this.cancel.emit();     
   }
 
   stopPropagation(event: Event): void {

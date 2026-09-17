@@ -1,8 +1,15 @@
+// ------------------------------------------------------------------
+// APP / DASHBOARD QUERY / COMPONENTS / DASHBOARD / DASHBOARD
+// ------------------------------------------------------------------
+
 .dashboard-container {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
 
+  // --------------------------------------------------------------
+  // Intestazione e titoli delle sezioni
+  // --------------------------------------------------------------
   .header-actions {
     display: flex;
     justify-content: space-between;
@@ -17,6 +24,7 @@
     }
   }
 
+  // Le card sono raggruppate per attenzione operativa e stato del workflow.
   .section-title {
     color: #495057;
     margin-bottom: 15px;
@@ -29,7 +37,9 @@
     margin-top: 40px;
   }
 
-  // Layout a griglia per le card
+  // --------------------------------------------------------------
+  // Griglia delle metriche
+  // --------------------------------------------------------------
   .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -40,7 +50,9 @@
     }
   }
 
-  // Stile delle singole Card
+  // --------------------------------------------------------------
+  // Card operative e stati cromatici
+  // --------------------------------------------------------------
   .stat-card {
     background-color: white;
     border-radius: 8px;
@@ -75,7 +87,7 @@
       color: #adb5bd;
     }
 
-    // Varianti di colore per i bordi superiori (Allarmi)
+    
     &.primary-border { border-top-color: #0d6efd; }
     &.warning-border { border-top-color: #fd7e14; }
     &.danger-border { border-top-color: #dc3545; }
@@ -88,14 +100,15 @@
     }
   }
 
-  // Utility text colors
+  
+  // Colori semantici condivisi dai valori numerici delle metriche.
   .text-danger { color: #dc3545 !important; }
   .text-warning { color: #fd7e14 !important; }
   .text-info { color: #0dcaf0 !important; }
   .text-primary { color: #0d6efd !important; }
   .text-success { color: #198754 !important; }
 
-  // Componenti standard
+  
   .btn-primary {
     padding: 10px 20px;
     background-color: #0d6efd;

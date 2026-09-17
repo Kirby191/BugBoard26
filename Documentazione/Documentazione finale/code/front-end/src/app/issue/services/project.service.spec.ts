@@ -1,3 +1,7 @@
+// ------------------------------------------------
+// APP / ISSUE / SERVICES / PROJECT.SERVICE
+// ------------------------------------------------
+
 import { TestBed } from '@angular/core/testing';
 import { ProjectService } from './project.service';
 import { provideHttpClient } from '@angular/common/http';
@@ -5,18 +9,19 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { CreateProject, UpdateProject } from '../models/project-dtos';
 
 describe('ProjectService', () => {
+  /* Il Command service espone il mapping HTTP delle tre operazioni sul progetto. */
   let service: ProjectService;
   let httpMock: HttpTestingController;
 
   const API_PROJECTS = 'http://localhost:8080/api/projects';
 
   beforeEach(() => {
-    TestBed.resetTestingModule(); // Prevenzione crash Vitest 3]
+    TestBed.resetTestingModule(); 
     TestBed.configureTestingModule({
       providers: [
         ProjectService,
         provideHttpClient(),
-        provideHttpClientTesting() // Sostituisce la rete reale 3]
+        provideHttpClientTesting() 
       ]
     });
     service = TestBed.inject(ProjectService);
@@ -24,7 +29,7 @@ describe('ProjectService', () => {
   });
 
   afterEach(() => {
-    httpMock.verify(); // Assicura che non ci siano chiamate HTTP pendenti 3]
+    httpMock.verify(); 
   });
 
   it('should be created', () => {
@@ -41,7 +46,7 @@ describe('ProjectService', () => {
 
     const req = httpMock.expectOne(API_PROJECTS);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(requestDto); // Verifica payload JSON 6, 10]
+    expect(req.request.body).toEqual(requestDto); 
     
     req.flush(mockResponse);
   });

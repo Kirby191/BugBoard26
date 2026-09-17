@@ -1,10 +1,14 @@
+<!-- ----------------------------------------------------------
+     APP / ISSUE / COMPONENTS / ISSUE LIST / ISSUE LIST
+     ----------------------------------------------------------
+ -->
+
 <div class="issue-list-container">
-  
-  <!-- INTESTAZIONE E RICERCA RAPIDA SULLO STESSO LIVELLO -->
+  <!-- Ricerca rapida e azioni principali della lista. -->
  <div class="header-actions">
   <h2>Elenco Segnalazioni</h2>
   
-  <!-- Form di ricerca pulito dagli stili inline -->
+  
   <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="search-form">
     <input id="titleQuery" type="text" formControlName="titleQuery" class="form-control" placeholder="🔍 Cerca una segnalazione scrivendo il titolo...">
     
@@ -24,7 +28,8 @@
     }
   </div>
 
-<!-- RIGA AVANZATA (Scompare/Compare) -->
+
+  <!-- I filtri avanzati restano richiudibili per non occupare spazio durante la consultazione. -->
   @if (isAdvancedSearchOpen()) {
     <div class="advanced-filters card" style="padding: 15px; margin-bottom: 20px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
       <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" style="display: flex; gap: 15px; flex-wrap: wrap;">
@@ -83,6 +88,7 @@
     </div>
   }
 
+  <!-- Questo filtro arriva dalla dashboard e viene mostrato separatamente dai filtri API. -->
   @if (activeLocalFilter()) {
     <div class="alert alert-warning" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 10px 15px; border-radius: 8px; background-color: #fff3cd; border: 1px solid #ffecb5; color: #664d03;">
       <div style="font-weight: bold;">
@@ -99,22 +105,24 @@
     </div>
   }
 
-  <!-- Gestione Stato: Errore -->
+  
   @if (errorMessage()) {
     <div class="alert alert-danger">
       {{ errorMessage() }}
     </div>
   }
 
-  <!-- Gestione Stato: Caricamento -->
+  
+  <!-- Risultati, stato vuoto e caricamento sono mutuamente esclusivi. -->
   @if (isLoading()) {
     <div class="loading-spinner">
       <p>Caricamento segnalazioni in corso...</p>
     </div>
   } 
   @else {
-<!-- CONTROLLO: Se ci sono issue, mostra la tabella -->
+
     @if (issues().length > 0) {
+      <!-- La riga evidenziata identifica le issue create dall'utente corrente. -->
       <table class="issue-table">
         <thead>
           <tr>
@@ -162,11 +170,11 @@
         </tbody>
       </table>
     } 
-    <!-- CONTROLLO: Se NON ci sono issue, mostra l'Empty State -->
+    
     @else {
       <div class="empty-state-container card">
         <div class="empty-illustration">
-          <!-- SVG Pulito e Moderno (Stile cartella vuota) -->
+          
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
             <line x1="9" y1="14" x2="15" y2="14"></line>
@@ -184,9 +192,14 @@
   }
 </div>
 
-<!-- ========================================== -->
-<!-- MODALE: ELIMINAZIONE SEGNALAZIONE          -->
-<!-- ========================================== -->
+
+
+
+<!-- ============================================================
+  MODALI / ELIMINAZIONE ISSUE
+  ============================================================
+  L'azione parte solo dopo il confirm del modal.
+  ============================================================ -->
 <app-modal 
   [(isOpen)]="isDeleteModalOpen" 
   title="Conferma Eliminazione" 
@@ -198,9 +211,14 @@
   (cancel)="cancelDelete()">
 </app-modal>
 
-<!-- ========================================== -->
-<!-- MODALE: ASSENZA PROGETTI                   -->
-<!-- ========================================== -->
+
+
+
+<!-- ============================================================
+  MODALI / PROGETTO NON DISPONIBILE
+  ============================================================
+  Gestisce un progetto selezionato che non è più disponibile.
+  ============================================================ -->
 <app-modal 
   [(isOpen)]="isMissingProjectModalOpen" 
   [title]="missingProjectTitle()" 

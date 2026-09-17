@@ -1,3 +1,7 @@
+// --------------------------------------------------------------------
+// APP / ISSUE / COMPONENTS / ISSUE LIST / ISSUE LIST.COMPONENT
+// --------------------------------------------------------------------
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { IssueListComponent } from './issue-list.component';
 import { DashboardService } from '../../../dashboard-query/services/dashboard.service';
@@ -25,10 +29,10 @@ describe('IssueListComponent', () => {
   beforeEach(async () => {
     TestBed.resetTestingModule();
 
-    // Mock aggiornato con TUTTE le chiamate usate nell'ngOnInit
+    
     dashboardServiceMock = {
       searchIssues: vi.fn().mockReturnValue(of(mockIssues)),
-      getUsersReference: vi.fn().mockReturnValue(of([])) // <-- Mock mancante aggiunto!
+      getUsersReference: vi.fn().mockReturnValue(of([])) 
     };
 
     projectQueryServiceMock = {
@@ -41,10 +45,10 @@ describe('IssueListComponent', () => {
     
     routerMock = { navigate: vi.fn() };
 
-    // Creiamo il mock di base per la rotta con query parameters vuoti
+    
     activatedRouteMock = {
       queryParams: of({}),
-      snapshot: { queryParams: {} } // Utile per il metodo applyFilters
+      snapshot: { queryParams: {} } 
     };
 
     await TestBed.configureTestingModule({
@@ -65,10 +69,10 @@ describe('IssueListComponent', () => {
   });
 
   it('should create and load all issues if no query params are present', () => {
-    fixture.detectChanges(); // Innesca ngOnInit
+    fixture.detectChanges(); 
     
     expect(dashboardServiceMock.searchIssues).toHaveBeenCalledWith({});
-    // Verifichiamo che anche il nuovo metodo venga chiamato
+    
     expect(dashboardServiceMock.getUsersReference).toHaveBeenCalled(); 
     
     const rows = fixture.nativeElement.querySelectorAll('tbody tr');

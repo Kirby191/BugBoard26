@@ -1,7 +1,11 @@
+// ------------------------------------------------
+// APP / AUTH / SERVICES / AUTH
+// ------------------------------------------------
+
 import { Injectable, inject, NgZone, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
-import { LoginRequest, JwtResponse, UserRegistration, UserResponse } from '../models/auth-dtos'; // Importiamo i DTO[cite: 4]
+import { LoginRequest, JwtResponse, UserRegistration, UserResponse } from '../models/auth-dtos'; 
 import { Router } from '@angular/router';
 
 @Injectable({
@@ -10,24 +14,27 @@ import { Router } from '@angular/router';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  private readonly ngZone = inject(NgZone); // Usato per non impattare le performance di Angular
+  private readonly ngZone = inject(NgZone); 
   
   private readonly AUTH_URL = '/api/auth';
 
-  // --- GESTIONE INATTIVITÀ ---
+  
   private idleTimeoutId: any;
-  private readonly IDLE_TIME_LIMIT_MS = 30 * 60 * 1000; // 30 minuti in millisecondi
+  private readonly IDLE_TIME_LIMIT_MS = 30 * 60 * 1000; 
 
-  // Segnale globale ascoltato da AppComponent per aprire il modale
+  // Il modal viene aperto prima del logout, così l'utente capisce perché la sessione è terminata.
   readonly isSessionExpired = signal<boolean>(false);
 
   constructor() {
-    // Se l'utente è già loggato al caricamento dell'app, avvia il monitoraggio
+    
     if (this.isLoggedIn()) {
       this.startIdleMonitoring();
     }
   }
 
+  // ----------------------------------------------------------------
+  // Sessione e autenticazione
+  // ----------------------------------------------------------------
   login(request: LoginRequest): Observable<JwtResponse> {
     return this.http.post<JwtResponse>(`${this.AUTH_URL}/login`, request).pipe(
       tap(response => {
@@ -35,7 +42,7 @@ export class AuthService {
         localStorage.setItem('user_role', response.role);
         localStorage.setItem('user_id', response.id.toString());
 
-        this.startIdleMonitoring(); // Avvia il monitoraggio dell'inattività dopo il login
+        this.startIdleMonitoring(); 
       })
     );
   }
@@ -49,7 +56,7 @@ export class AuthService {
     localStorage.removeItem('user_role');
     localStorage.removeItem('user_id');
     
-    this.stopIdleMonitoring(); // Ferma il monitoraggio dell'inattività al logout
+    this.stopIdleMonitoring(); 
 
     this.router.navigate(['/login']);
   }
@@ -62,16 +69,14 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  // ==========================================================================
-  // LOGICA DI MONITORAGGIO INATTIVITÀ (Idle Timeout)
-  // ==========================================================================
-
+  // ----------------------------------------------------------------
+  // Monitoraggio dell'inattività
+  // ----------------------------------------------------------------
   private startIdleMonitoring(): void {
-    // Assicuriamoci che non ci siano listener duplicati
+    // Il metodo può essere richiamato dopo un nuovo login: prima eliminiamo eventuali listener precedenti.
     this.stopIdleMonitoring();
 
-    // Eseguiamo fuori dalla NgZone per evitare di scatenare continui cicli di Change Detection 
-    // di Angular ad ogni minimo movimento del mouse (ottimizzazione delle performance).
+    // Gli eventi ad alta frequenza restano fuori da Angular; rientriamo nella zone solo alla scadenza.
     this.ngZone.runOutsideAngular(() => {
       window.addEventListener('mousemove', this.resetIdleTimer);
       window.addEventListener('keydown', this.resetIdleTimer);
@@ -79,7 +84,7 @@ export class AuthService {
       window.addEventListener('scroll', this.resetIdleTimer);
     });
 
-    this.resetIdleTimer(); // Inizializza il timer
+    this.resetIdleTimer(); 
   }
 
   private stopIdleMonitoring(): void {
@@ -90,20 +95,19 @@ export class AuthService {
     window.removeEventListener('scroll', this.resetIdleTimer);
   }
 
-  // L'uso della arrow function preserva il contesto di 'this'
+  
   private resetIdleTimer = (): void => {
     clearTimeout(this.idleTimeoutId);
     
     this.idleTimeoutId = setTimeout(() => {
-      // Quando il tempo scade, rientriamo nella NgZone per far sì che 
-      // il routing (logout) venga rilevato e renderizzato correttamente da Angular.
+      // Il signal aggiorna il modal globale e lascia all'utente la conferma del logout.
       this.ngZone.run(() => {
         this.isSessionExpired.set(true);
       });
     }, this.IDLE_TIME_LIMIT_MS);
   }
 
-  // Metodo richiamato dal bottone "Ho Capito" nel modale
+  
   confirmSessionExpiration(): void {
     this.isSessionExpired.set(false);
     this.logout();

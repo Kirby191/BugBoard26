@@ -1,9 +1,14 @@
+// ---------------------------------------------------
+// APP / AUTH / INTERCEPTORS / JWT INTERCEPTOR
+// ---------------------------------------------------
+
 import { TestBed } from '@angular/core/testing';
 import { HttpRequest } from '@angular/common/http';
 import { jwtInterceptor } from './jwt-interceptor';
 import { AuthService } from '../services/auth.service';
 
 describe('JwtInterceptor', () => {
+  /* Il contratto testato è minimale: aggiungere Bearer solo quando esiste un token. */
   let authServiceMock: any;
 
   beforeEach(() => {
@@ -19,18 +24,18 @@ describe('JwtInterceptor', () => {
   it('should add Authorization header if token exists', () => {
     authServiceMock.getToken.mockReturnValue('fake-token');
     
-    // Creiamo una richiesta mock uscente verso le API 10]
-    const request = new HttpRequest('GET', '/api/issues');
     
-    // Creiamo una funzione "next" fittizia per catturare l'output dell'interceptor
+    const request = new HttpRequest('GET', 'http://localhost:8080/api/issues');
+    
+    
     const nextFn = vi.fn().mockImplementation((req: HttpRequest<any>) => {
-      // Verifichiamo che la richiesta clonata abbia l'header corretto 3]
+      
       expect(req.headers.has('Authorization')).toBe(true);
       expect(req.headers.get('Authorization')).toBe('Bearer fake-token');
       return 'obs-mock';
     });
 
-    // Eseguiamo l'interceptor nel contesto di iniezione di Angular
+    
     const result = TestBed.runInInjectionContext(() => jwtInterceptor(request, nextFn));
     
     expect(nextFn).toHaveBeenCalled();
@@ -39,10 +44,10 @@ describe('JwtInterceptor', () => {
 
   it('should NOT add Authorization header if token does not exist', () => {
     authServiceMock.getToken.mockReturnValue(null);
-    const request = new HttpRequest('GET', '/api/issues');
+    const request = new HttpRequest('GET', 'http://localhost:8080/api/issues');
     
     const nextFn = vi.fn().mockImplementation((req: HttpRequest<any>) => {
-      // Verifichiamo che l'header non sia stato alterato 3]
+      
       expect(req.headers.has('Authorization')).toBe(false);
       return 'obs-mock';
     });

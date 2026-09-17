@@ -1,6 +1,10 @@
+// ------------------------------------------------
+// APP / AUTH / COMPONENTS / LOGIN / LOGIN
+// ------------------------------------------------
+
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router'; // <-- AGGIUNGI L'IMPORT
+import { Router } from '@angular/router'; 
 import { AuthService } from '../../services/auth.service';
 import { LoginRequest } from '../../models/auth-dtos';
 
@@ -15,6 +19,9 @@ export class Login {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
+  // ----------------------------------------------------------------
+  // Stato della form e visibilità della password
+  // ----------------------------------------------------------------
   protected readonly isPasswordVisible = signal<boolean>(false);
 
   readonly errorMessage = signal<string | null>(null);
@@ -25,6 +32,9 @@ export class Login {
     password: new FormControl('', [Validators.required])
   });
 
+  // ----------------------------------------------------------------
+  // Invio delle credenziali
+  // ----------------------------------------------------------------
   login() {
     this.errorMessage.set(null);
 
@@ -41,6 +51,7 @@ export class Login {
       password: this.loginForm.value.password! 
     };
 
+    // Il redirect avviene solo dopo la risposta positiva del servizio di autenticazione.
     this.authService.login(request).subscribe({
       next: () => {
         this.isSubmitting.set(false);
@@ -53,6 +64,7 @@ export class Login {
     });
   }
 
+  // Stato esclusivamente visuale: il valore della password resta nella form.
   togglePasswordVisibility(): void {
       this.isPasswordVisible.update(v => !v);
     }

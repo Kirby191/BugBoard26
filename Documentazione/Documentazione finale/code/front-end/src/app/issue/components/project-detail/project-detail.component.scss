@@ -1,9 +1,13 @@
+// ------------------------------------------------------------------
+// APP / ISSUE / COMPONENTS / PROJECT DETAIL / PROJECT DETAIL
+// ------------------------------------------------------------------
+
 .detail-container {
-  max-width: 1000px; // Più largo dei form per ospitare comodamente la tabella
+  max-width: 1000px; 
   margin: 0 auto;
   padding: 20px;
 
-  // --- AZIONI INTESTAZIONE ---
+  
   .header-actions {
     display: flex;
     justify-content: space-between;
@@ -11,13 +15,13 @@
     margin-bottom: 25px;
   }
 
-  // --- STRUTTURA A CARD ---
+  
   .card {
     background: #ffffff;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     margin-bottom: 25px;
-    overflow: hidden; // Evita che la tabella sbordi dagli angoli arrotondati della card
+    overflow: hidden; 
     
     .card-header {
       display: flex;
@@ -25,7 +29,7 @@
       align-items: center;
       border-bottom: 1px solid #eaeaea;
       padding: 15px 20px;
-      background-color: #fafbfc; // Sfondo leggermente grigio per staccare dal body
+      background-color: #fafbfc; 
       
       h2, h3 { 
         margin: 0; 
@@ -51,14 +55,14 @@
         color: #343a40;
       }
 
-      // Classe utility per annullare il padding quando serve far aderire la tabella ai bordi
+      
       &.p-0 { 
         padding: 0; 
       } 
     }
   }
 
-  // --- TABELLA DELLE ISSUE ---
+  
   .issue-table {
     width: 100%;
     border-collapse: collapse;
@@ -70,11 +74,11 @@
     }
     
     th {
-      background-color: #ffffff; // Si fonde con la card, ma il testo è marcato
+      background-color: #ffffff; 
       color: #495057;
       font-weight: 600;
       font-size: 0.95rem;
-      border-bottom: 2px solid #eaeaea; // Bordo più spesso per separare l'header
+      border-bottom: 2px solid #eaeaea; 
     }
     
     tbody tr {
@@ -84,7 +88,7 @@
         background-color: #f8f9fa;
       }
       
-      // Rimuove l'ultimo bordo per non avere doppie linee col bordo della card
+      
       &:last-child td {
         border-bottom: none;
       }
@@ -96,7 +100,7 @@
     }
   }
 
-  // --- BOTTONI ---
+  
   .btn {
     padding: 8px 16px; 
     border: none; 
@@ -129,7 +133,7 @@
     }
   }
 
-  // --- BADGE (Stesso schema colori di issue-list) ---
+  
   .badge {
     padding: 5px 10px; 
     border-radius: 12px; 
@@ -146,7 +150,7 @@
     &.status-done { background-color: #198754; }
   }
 
-  // --- GESTIONE STATI (Caricamento ed Errori) ---
+  
   .loading-spinner {
     text-align: center;
     padding: 40px;

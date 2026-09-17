@@ -1,3 +1,7 @@
+// --------------------------------------------------------------------
+// APP / ISSUE / COMPONENTS / ISSUE FORM / ISSUE FORM.COMPONENT
+// --------------------------------------------------------------------
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { IssueFormComponent } from './issue-form.component';
 import { IssueService } from '../../services/issue.service';
@@ -13,7 +17,7 @@ describe('IssueFormComponent', () => {
   let component: IssueFormComponent;
   let fixture: ComponentFixture<IssueFormComponent>;
 
-  // Mock dei servizi per l'Isolation Testing
+  
   let issueServiceMock: any;
   let dashboardServiceMock: any;
   let projectQueryServiceMock: any;
@@ -35,8 +39,8 @@ describe('IssueFormComponent', () => {
   beforeEach(async () => {
     TestBed.resetTestingModule();
 
-    // INIZIALIZZAZIONE MOCK SICURA:
-    // Aggiungiamo .mockReturnValue(of({})) per prevenire i TypeError sui subscribe() 6]
+    
+    
     issueServiceMock = {
       createIssue: vi.fn().mockReturnValue(of({})),
       updateIssue: vi.fn().mockReturnValue(of({})),
@@ -47,7 +51,7 @@ describe('IssueFormComponent', () => {
       getIssueDetailed: vi.fn().mockReturnValue(of(mockIssueDetailed))
     };
 
-    // NUOVO MOCK: Servizio dedicato alla lettura dei progetti
+    
     projectQueryServiceMock = {
       getProjects: vi.fn().mockReturnValue(of(mockProjects))
     };
@@ -55,7 +59,7 @@ describe('IssueFormComponent', () => {
     routerMock = { navigate: vi.fn() };
     locationMock = { back: vi.fn() };
 
-    // Di default, simuliamo la Creazione (nessun parametro 'id' nella rotta)
+    
     activatedRouteMock = {
       snapshot: { paramMap: { get: vi.fn().mockReturnValue(null) } }
     };
@@ -82,26 +86,26 @@ describe('IssueFormComponent', () => {
 
   describe('Initialization (Create Mode)', () => {
     it('should initialize with an empty form and load projects from ProjectQueryService', () => {
-      fixture.detectChanges(); // Innesca ngOnInit
+      fixture.detectChanges(); 
 
-      // Il form deve essere invalido all'avvio a causa dei Validators.required
+      
       expect(component.issueForm.valid).toBe(false);
       
-      // Verifica l'uso del nuovo servizio separato per i progetti 4, 5]
+      
       expect(projectQueryServiceMock.getProjects).toHaveBeenCalled();
       
-      // Lo status non serve in creazione, quindi deve essere disabilitato
+      
       expect(component.issueForm.get('status')?.disabled).toBe(true);
     });
 
     it('should enforce domain constraints (Title max 32, Desc max 500)', () => {
       fixture.detectChanges();
 
-      // Test validazione superamento limiti (Equivalence Classes: Invalid) 6, 7]
+      
       component.issueForm.patchValue({
         projectId: 1,
-        title: 'a'.repeat(33), // Troppo lungo
-        description: 'b'.repeat(501), // Troppo lunga
+        title: 'a'.repeat(33), 
+        description: 'b'.repeat(501), 
         type: 'BUG'
       });
 
@@ -115,16 +119,16 @@ describe('IssueFormComponent', () => {
     it('should show an error banner if submitted with invalid form (DOM Testing)', () => {
       fixture.detectChanges();
       
-      // Eseguiamo il submit con form vuoto
+      
       component.onSubmit();
       fixture.detectChanges();
 
-      // Black-Box Testing: verifichiamo la comparsa dell'errore nell'HTML 6]
+      
       const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
       expect(errorAlert).toBeTruthy();
       expect(errorAlert.textContent).toContain('Compila correttamente i campi');
       
-      // Il servizio di back-end non deve essere mai chiamato
+      
       expect(issueServiceMock.createIssue).not.toHaveBeenCalled();
     });
 
@@ -145,33 +149,33 @@ describe('IssueFormComponent', () => {
 
   describe('Initialization and Submit (Edit Mode)', () => {
     beforeEach(() => {
-      // Modifichiamo la rotta per simulare Edit Mode (es. /issues/edit/10)
+      
       activatedRouteMock.snapshot.paramMap.get.mockReturnValue('10');
     });
 
     it('should load issue details, patch the form and disable projectId/type', () => {
-      fixture.detectChanges(); // Innesca ngOnInit in modalità Edit
+      fixture.detectChanges(); 
 
       expect(dashboardServiceMock.getIssueDetailed).toHaveBeenCalledWith(10);
       
-      // I campi chiave non possono essere modificati in Edit
+      
       expect(component.issueForm.get('projectId')?.disabled).toBe(true);
       expect(component.issueForm.get('type')?.disabled).toBe(true);
       
-      // I dati pregressi devono essere stati caricati nel form
+      
       expect(component.issueForm.get('title')?.value).toBe('Bug Login');
-      expect(component.issueForm.get('status')?.disabled).toBe(false); // Status diviene modificabile
+      expect(component.issueForm.get('status')?.disabled).toBe(false); 
     });
 
     it('should call updateIssue and setDueDate, then navigate back on success (Branch Coverage)', () => {
-      fixture.detectChanges(); // Patch dei valori precaricati
+      fixture.detectChanges(); 
 
-      // Modifichiamo solo lo status e la dueDate
+      
       component.issueForm.patchValue({ status: 'IN_PROGRESS', dueDate: '2026-12-31' });
       
       component.onSubmit();
 
-      // Verifica Branch: poiché dueDate è valorizzata, deve chiamare entrambi i metodi 6]
+      
       expect(issueServiceMock.updateIssue).toHaveBeenCalled();
       expect(issueServiceMock.setDueDate).toHaveBeenCalledWith(10, '2026-12-31');
       
@@ -179,16 +183,16 @@ describe('IssueFormComponent', () => {
     });
 
     it('should ONLY call updateIssue if dueDate is not provided', () => {
-      fixture.detectChanges(); // Patch dei valori precaricati
+      fixture.detectChanges(); 
 
-      // Rimuoviamo la data di scadenza (simuliamo svuotamento dell'input date)
+      
       component.issueForm.patchValue({ dueDate: null });
       
       component.onSubmit();
 
       expect(issueServiceMock.updateIssue).toHaveBeenCalled();
       
-      // Verifichiamo il ramo "falso" della condizione dueDate (evitando il vecchio crash) 6]
+      
       expect(issueServiceMock.setDueDate).not.toHaveBeenCalled(); 
     });
   });
@@ -197,7 +201,7 @@ describe('IssueFormComponent', () => {
     it('should display server error messages on API failure (DOM Testing)', () => {
       fixture.detectChanges();
       
-      // Mockiamo un errore 500 o 400 dal backend sovrascrivendo il mock predefinito 6]
+      
       issueServiceMock.createIssue.mockReturnValue(throwError(() => ({
         error: { message: 'Errore generico dal server' }
       })));

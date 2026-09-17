@@ -1,15 +1,23 @@
+// ------------------------------------------------
+// APP / AUTH / MODELS / AUTH DTOS
+// ------------------------------------------------
+
 import { UserRole } from "../../shared/models/enums";
-/**
- * DTO per la richiesta di Login.
- */
+
+/* ============================================================
+  CONTRATTI DI AUTENTICAZIONE
+  ============================================================
+  I DTO distinguono i dati inviati al backend dalle risposte ricevute.
+  ============================================================ */
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
-/**
- * DTO di risposta con il Token JWT.
- */
+
+
+
+// Risposta del login: il token viene persistito dall'AuthService.
 export interface JwtResponse {
   token: string;
   type: string;
@@ -19,6 +27,7 @@ export interface JwtResponse {
   role: UserRole;
 }
 
+// Payload per la creazione di un'utenza, disponibile solo agli amministratori.
 export interface UserRegistration {
     email: string;
     password: string;

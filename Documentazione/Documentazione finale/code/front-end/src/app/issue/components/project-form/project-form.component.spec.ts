@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------
+// APP / ISSUE / COMPONENTS / PROJECT FORM / PROJECT FORM.COMPONENT
+// ------------------------------------------------------------------------
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProjectFormComponent } from './project-form.component';
 import { ProjectService } from '../../services/project.service';
@@ -24,7 +28,7 @@ describe('ProjectFormComponent', () => {
   beforeEach(async () => {
     TestBed.resetTestingModule();
 
-    // Mocks di default sicuri per prevenire TypeError
+    
     projectCommandMock = {
       createProject: vi.fn().mockReturnValue(of({})),
       updateProject: vi.fn().mockReturnValue(of({}))
@@ -37,7 +41,7 @@ describe('ProjectFormComponent', () => {
     routerMock = { navigate: vi.fn() };
     locationMock = { back: vi.fn() };
 
-    // Di default, simuliamo la Creazione (nessun parametro 'id' nella rotta)
+    
     activatedRouteMock = {
       snapshot: { paramMap: { get: vi.fn().mockReturnValue(null) } }
     };
@@ -65,9 +69,9 @@ describe('ProjectFormComponent', () => {
     it('should initialize empty and invalidate form if name is missing', () => {
       fixture.detectChanges();
 
-      expect(component.projectForm.valid).toBe(false); // Nome è obbligatorio
+      expect(component.projectForm.valid).toBe(false); 
       
-      // DOM Testing: verifichiamo che il titolo della pagina rispecchi la modalità "Nuovo"
+      
       const title = fixture.nativeElement.querySelector('h2');
       expect(title.textContent).toContain('Nuovo Progetto');
       
@@ -78,7 +82,7 @@ describe('ProjectFormComponent', () => {
       fixture.detectChanges();
       
       component.projectForm.patchValue({
-        name: 'a'.repeat(151) // Supera il limite
+        name: 'a'.repeat(151) 
       });
 
       expect(component.projectForm.valid).toBe(false);
@@ -100,20 +104,20 @@ describe('ProjectFormComponent', () => {
 
   describe('Edit Mode', () => {
     beforeEach(() => {
-      // Modifica il mock della rotta per simulare Edit Mode
+      
       activatedRouteMock.snapshot.paramMap.get.mockReturnValue('10');
     });
 
     it('should load project data via query service and patch form (DOM Testing)', () => {
-      fixture.detectChanges(); // Innesca ngOnInit
+      fixture.detectChanges(); 
 
-      // DOM Testing: verifichiamo che il titolo della pagina rispecchi la modalità "Modifica"
+      
       const title = fixture.nativeElement.querySelector('h2');
       expect(title.textContent).toContain('Modifica Progetto');
 
       expect(projectQueryMock.getProjectById).toHaveBeenCalledWith(10);
       
-      // Verifica che il form sia stato riempito
+      
       expect(component.projectForm.get('name')?.value).toBe('Progetto Esistente');
       expect(component.projectForm.get('description')?.value).toBe('Vecchia descrizione');
     });
@@ -121,7 +125,7 @@ describe('ProjectFormComponent', () => {
     it('should call updateProject and navigate on valid submit', () => {
       fixture.detectChanges();
 
-      // Simuliamo la modifica del nome
+      
       component.projectForm.patchValue({ name: 'Nome Aggiornato' });
       component.onSubmit();
 
@@ -144,7 +148,7 @@ describe('ProjectFormComponent', () => {
       component.onSubmit();
       fixture.detectChanges();
 
-      // DOM Testing: elusione di errorMessage()
+      
       const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
       expect(errorAlert).toBeTruthy();
       expect(errorAlert.textContent).toContain('Errore dal backend');

@@ -1,3 +1,7 @@
+// ---------------------------------------------------------
+// APP / AUTH / COMPONENTS / LOGIN / LOGIN.COMPONENT
+// ---------------------------------------------------------
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Login } from './login.component';
 import { AuthService } from '../../services/auth.service';
@@ -10,7 +14,7 @@ describe('LoginComponent', () => {
   let authServiceMock: any;
 
   beforeEach(async () => {
-    TestBed.resetTestingModule(); // Previene crash con Vitest[cite: 8]
+    TestBed.resetTestingModule(); 
     
     authServiceMock = {
       login: vi.fn().mockReturnValue(of({ token: 'fake-jwt', role: 'ADMIN' }))
@@ -39,9 +43,9 @@ describe('LoginComponent', () => {
 
   it('should display local errors and NOT call service if form is empty on submit (DOM Testing)', () => {
     component.login();
-    fixture.detectChanges(); // Aggiorna il DOM[cite: 7]
+    fixture.detectChanges(); 
     
-    // Verifichiamo la presenza dei messaggi <small> locali sotto gli input[cite: 6]
+    
     const localErrors = fixture.nativeElement.querySelectorAll('.error-text');
     expect(localErrors.length).toBe(2);
     expect(localErrors[0].textContent).toContain("Si prega di inserire l'email");
@@ -50,14 +54,14 @@ describe('LoginComponent', () => {
   });
 
   it('should clear local errors and call authService on valid submission', () => {
-    // Riempiamo il form
+    
     component.loginForm.patchValue({ email: 'test@bugboard.com', password: 'password123' });
     
-    // Invochiamo il login (che internamente farà markAsUntouched per pulire la UI)[cite: 6]
+    
     component.login();
     fixture.detectChanges();
 
-    // Gli errori locali devono essere spariti per simulare il loading pulito[cite: 6]
+    
     const localErrors = fixture.nativeElement.querySelectorAll('.error-text');
     expect(localErrors.length).toBe(0);
 
@@ -65,7 +69,7 @@ describe('LoginComponent', () => {
   });
 
   it('should handle backend errors and show the global error banner (DOM Testing)', () => {
-    // Simuliamo un errore reale 401 Unauthorized dal back-end[cite: 7]
+    
     authServiceMock.login.mockReturnValue(throwError(() => ({
       error: { message: 'Credenziali non trovate a sistema' }
     })));
@@ -74,7 +78,7 @@ describe('LoginComponent', () => {
     component.login();
     fixture.detectChanges();
 
-    // Verifichiamo che il DOM mostri il banner globale in alto (e non messaggi locali)[cite: 6]
+    
     const errorBanner = fixture.nativeElement.querySelector('.error-banner');
     expect(errorBanner).toBeTruthy();
     expect(errorBanner.textContent).toContain('Credenziali errate');

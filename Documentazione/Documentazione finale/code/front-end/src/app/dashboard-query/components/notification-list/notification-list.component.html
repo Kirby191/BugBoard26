@@ -1,5 +1,11 @@
+<!-- ----------------------------------------------------------------------------------
+     APP / DASHBOARD QUERY / COMPONENTS / NOTIFICATION LIST / NOTIFICATION LIST
+     ----------------------------------------------------------------------------------
+ -->
+
 <div class="notification-wrapper">
-  <!-- Trigger: Campanellina senza $event param -->
+  <!-- La campanella è il punto di ingresso sia per il pannello sia per il contatore. -->
+  
   <div class="bell-icon-container" (click)="togglePanel()">
     <span class="bell-icon">🔔</span>
     @if (unreadCount() > 0) {
@@ -7,7 +13,8 @@
     }
   </div>
 
-  <!-- Pannello Notifiche -->
+  
+  <!-- Il pannello resta separato dal toast: il primo è persistente, il secondo temporaneo. -->
   @if (isPanelOpen()) {
     <div class="notification-panel">
       <div class="panel-header">
@@ -24,14 +31,14 @@
         } @else {
           <ul class="notification-list">
             @for (notif of notifications(); track notif.id) {
-              <!-- Click intera riga: Apre il modale -->
+              
               <li class="notification-item" (click)="openNotificationModal(notif)">
                 <div class="notif-content">
                   <p class="notif-message">{{ notif.message }}</p>
                   <span class="notif-time">{{ notif.timestamp | date:'medium' }}</span>
                 </div>
                 <div class="notif-actions">
-                  <!-- Spunta V veloce: Segna come letta al volo -->
+                  
                   <button class="btn-read" title="Segna come letta" (click)="markAsReadQuick(notif.id, $event)">
                     ✔
                   </button>
@@ -45,9 +52,51 @@
   }
 </div>
 
-<!-- ========================================== -->
-<!-- MODALE DI INTERAZIONE NOTIFICA             -->
-<!-- ========================================== -->
+
+
+
+@if (activeToast(); as toast) {
+  
+  <!-- Binding dinamico della classe colore in base al tipo di evento -->
+  <div class="live-toast-container" [ngClass]="toast.typeClass || 'toast-info'" (click)="closeToast()">
+    
+    <div class="toast-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="16" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+      </svg>
+    </div>
+    
+    <div class="toast-text">
+      {{ toast.message }}
+    </div>
+    
+    
+    <button class="toast-close" (click)="closeToast(); $event.stopPropagation()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    
+    <div class="toast-progress">
+      <div class="toast-progress-bar"></div>
+    </div>
+    
+  </div>
+}
+
+
+
+
+<!-- ============================================================
+  MODALI / AZIONE SULLA NOTIFICA
+  ============================================================
+  L'utente apre il dettaglio oppure segna la notifica come letta.
+  ============================================================ -->
 <app-modal 
   [(isOpen)]="isModalOpen" 
   title="Nuovo Task Assegnato" 

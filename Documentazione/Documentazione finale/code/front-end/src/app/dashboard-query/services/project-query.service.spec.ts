@@ -1,3 +1,7 @@
+// ----------------------------------------------------------------
+// APP / DASHBOARD QUERY / SERVICES / PROJECT QUERY.SERVICE
+// ----------------------------------------------------------------
+
 import { TestBed } from '@angular/core/testing';
 import { ProjectQueryService } from './project-query.service';
 import { provideHttpClient } from '@angular/common/http';
@@ -5,18 +9,19 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ProjectState } from '../../shared/models/shared-dtos';
 
 describe('ProjectQueryService', () => {
+  /* Le query di progetto devono restare pure letture GET, usate da più schermate. */
   let service: ProjectQueryService;
   let httpMock: HttpTestingController;
 
   const API_PROJECTS = 'http://localhost:8080/api/projects';
 
   beforeEach(() => {
-    TestBed.resetTestingModule(); // Prevenzione crash Vitest
+    TestBed.resetTestingModule(); 
     TestBed.configureTestingModule({
       providers: [
         ProjectQueryService,
         provideHttpClient(),
-        provideHttpClientTesting() // Sostituisce la rete reale
+        provideHttpClientTesting() 
       ]
     });
     service = TestBed.inject(ProjectQueryService);
@@ -24,7 +29,7 @@ describe('ProjectQueryService', () => {
   });
 
   afterEach(() => {
-    httpMock.verify(); // Assicura l'assenza di richieste HTTP pendenti
+    httpMock.verify(); 
   });
 
   it('should be created', () => {
@@ -43,7 +48,7 @@ describe('ProjectQueryService', () => {
 
     const req = httpMock.expectOne(API_PROJECTS);
     expect(req.request.method).toBe('GET');
-    req.flush(mockProjects); // Simula la risposta di Spring Boot
+    req.flush(mockProjects); 
   });
 
   it('should execute a GET request to retrieve a single project by ID', () => {

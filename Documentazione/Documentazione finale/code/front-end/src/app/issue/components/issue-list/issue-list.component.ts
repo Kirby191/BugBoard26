@@ -1,10 +1,14 @@
+// ----------------------------------------------------------
+// APP / ISSUE / COMPONENTS / ISSUE LIST / ISSUE LIST
+// ----------------------------------------------------------
+
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms'; 
 
 import { DashboardService } from '../../../dashboard-query/services/dashboard.service';
-import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service'; // <-- Aggiunto
+import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service'; 
 import { IssueService } from '../../services/issue.service';
 
 import { IssueSummary, IssueFilter, UserReference } from '../../../dashboard-query/models/query-dtos'; 
@@ -23,29 +27,39 @@ import { ModalComponent } from '../../../shared/components/modal/modal.component
 })
 export class IssueListComponent implements OnInit {
   private readonly dashboardService = inject(DashboardService);
-  private readonly projectQueryService = inject(ProjectQueryService); // Inietto il servizio progetti
+  private readonly projectQueryService = inject(ProjectQueryService); 
   private readonly issueService = inject(IssueService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute); 
 
-  // --- STATO DEL MODALE DI ELIMINAZIONE ---
+  // ----------------------------------------------------------------
+  // Modali e selezione della issue corrente
+  // ----------------------------------------------------------------
   protected readonly isDeleteModalOpen = signal<boolean>(false);
   protected readonly issueToDelete = signal<number | null>(null);
-
+  // ----------------------------------------------------------------
+  // Risultati, caricamento e permessi
+  // ----------------------------------------------------------------
   protected readonly issues = signal<IssueSummary[]>([]);
   protected readonly isLoading = signal<boolean>(true);
   protected readonly isAdmin = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly currentUserId = signal<number | null>(null);
 
-  // --- STATO PER I FILTRI ---
+  // ----------------------------------------------------------------
+  // Opzioni dei filtri
+  // ----------------------------------------------------------------
   protected readonly projects = signal<ProjectState[]>([]);
   protected readonly usersList = signal<UserReference[]>([]);
   protected readonly issueStatuses: IssueStatus[] = ['TODO', 'IN_PROGRESS', 'DONE'];
   protected readonly issueTypes: IssueType[] = ['BUG', 'FEATURE', 'QUESTION', 'DOCUMENTATION'];
   protected readonly issuePriorities: IssuePriority[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
 
-  // --- STATO DEL MODALE: ASSENZA PROGETTI ---
+    /* ============================================================
+      MODAL PROGETTO NON DISPONIBILE
+      ============================================================
+      Un solo modal viene riempito dinamicamente in base al caso rilevato.
+      ============================================================ */
   protected readonly isMissingProjectModalOpen = signal<boolean>(false);
   protected readonly missingProjectTitle = signal<string>('');
   protected readonly missingProjectMessage = signal<string>('');
@@ -53,11 +67,13 @@ export class IssueListComponent implements OnInit {
   protected readonly missingProjectConfirmText = signal<string>('');
   protected readonly missingProjectCancelText = signal<string>('');
 
-  // Signal per la tendina della ricerca avanzata
+    /* ============================================================
+      RICERCA AVANZATA E FILTRI LOCALI
+      ============================================================ */
   protected readonly isAdvancedSearchOpen = signal<boolean>(false);
   protected readonly activeLocalFilter = signal<'unassigned' | 'overdue' | null>(null);
 
-  // Form espanso con TUTTI i parametri previsti dalla Funzionalità 3
+  
   filterForm = new FormGroup({
     titleQuery: new FormControl<string | null>(null),
     projectId: new FormControl<number | null>(null),
@@ -68,6 +84,7 @@ export class IssueListComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    // I query params sono la sorgente unica dei filtri: consentono di condividere e ricaricare la ricerca.
     const userIdStr = localStorage.getItem('user_id');
     const role = localStorage.getItem('user_role');
     this.isAdmin.set(role === 'ADMIN');
@@ -78,7 +95,8 @@ export class IssueListComponent implements OnInit {
 
     this.loadFilterOptions();
 
-    this.route.queryParams.subscribe(params => {  
+    // La pagina può essere aperta dalla dashboard: i filtri arrivano quindi dall'URL.
+    this.route.queryParams.subscribe(params => {
       const filter: IssueFilter = {};
       
       if (params['projectId']) filter.projectId = Number(params['projectId']);
@@ -88,7 +106,7 @@ export class IssueListComponent implements OnInit {
       if (params['assigneeId']) filter.assigneeId = Number(params['assigneeId']);
       if (params['titleQuery']) filter.titleQuery = params['titleQuery'];
 
-      // ESTRAZIONE FILTRO LOCALE
+      // Il filtro locale non viene inviato al backend: rifinisce i risultati ricevuti.
       const localParam = params['localFilter'];
       if (localParam === 'unassigned' || localParam === 'overdue') {
         this.activeLocalFilter.set(localParam);
@@ -105,9 +123,9 @@ export class IssueListComponent implements OnInit {
         assigneeId: filter.assigneeId || null
       }, { emitEvent: false }); 
 
-      // UX FIX: Se l'utente arriva tramite un link con filtri avanzati attivi,
-      // apriamo il pannello. TUTTAVIA, se c'è un 'localFilter' attivo (es. dalla Dashboard),
-      // lo teniamo chiuso per non ingombrare la vista, dato che c'è già il banner illustrativo!
+      
+      
+      
       if (!localParam && (filter.projectId || filter.status || filter.type || filter.priority || filter.assigneeId)) {
         this.isAdvancedSearchOpen.set(true);
       } else {
@@ -118,13 +136,15 @@ export class IssueListComponent implements OnInit {
     });
   }
 
+  // Carica in parallelo i dati necessari ai menu della ricerca avanzata.
   private loadFilterOptions(): void {
     this.dashboardService.getUsersReference().subscribe(u => this.usersList.set(u));
-    // Popoliamo dinamicamente i progetti per la ricerca avanzata
+    
     this.projectQueryService.getProjects().subscribe(p => this.projects.set(p));
   }
 
-private loadIssues(filter: IssueFilter): void {
+  // Applica prima i filtri del backend e poi quelli locali, come "non assegnate" o "in scadenza".
+  private loadIssues(filter: IssueFilter): void {
     this.isLoading.set(true);
     this.errorMessage.set(null); 
     
@@ -132,33 +152,33 @@ private loadIssues(filter: IssueFilter): void {
       next: (data) => {
         let processedData = data;
 
-        // =======================================================
-        // APPLICAZIONE FILTRAGGIO LATO CLIENT
-        // =======================================================
+        
+        
+        
         const currentLocalFilter = this.activeLocalFilter();
 
         if (currentLocalFilter === 'unassigned') {
-          // Mantieni solo i bug dove assigneeId non è definito (o nullo)
+          // Unassigned vale solo per le issue di tipo BUG prive di assegnatario.
           processedData = processedData.filter(issue => !issue.assigneeId && issue.type === 'BUG');
         } 
         else if (currentLocalFilter === 'overdue') {
-          // Calcolo target: Oggi + 7 giorni
+          // La finestra operativa include scadenze superate e prossimi sette giorni.
           const today = new Date();
-          today.setHours(0, 0, 0, 0); // Azzera ore per calcolo preciso del giorno
+          today.setHours(0, 0, 0, 0); 
           const targetDate = new Date(today);
           targetDate.setDate(today.getDate() + 7);
 
           processedData = processedData.filter(issue => {
-            // Escludi se è già completata o se non ha una scadenza
+            
             if (issue.status === 'DONE' || !issue.dueDate) return false;
             
-            // Confronta la data della issue con il target
+            
             const issueDate = new Date(issue.dueDate);
             return issueDate <= targetDate;
           });
         }
 
-        // Salva i dati filtrati nel Signal per aggiornare l'HTML
+        
         this.issues.set(processedData);
         this.isLoading.set(false);
       },
@@ -169,12 +189,13 @@ private loadIssues(filter: IssueFilter): void {
     });
   }
 
-  // Alterna l'apertura/chiusura della ricerca avanzata
+  
   toggleAdvancedSearch(): void {
     this.isAdvancedSearchOpen.update(v => !v);
   }
 
   applyFilters(): void {
+    // La navigazione aggiorna l'URL; la sottoscrizione ai query params ricarica automaticamente la lista.
     const formValues = this.filterForm.getRawValue();
     const currentParams = { ...this.route.snapshot.queryParams };
     
@@ -199,9 +220,9 @@ private loadIssues(filter: IssueFilter): void {
     this.router.navigate(['/issues']); 
   }
 
-  // ==========================================================================
-  // GESTIONE DEI PERMESSI E AZIONI SULLA TABELLA (Invariati)
-  // ==========================================================================
+  // ----------------------------------------------------------------
+  // Permessi e azioni sulle issue
+  // ----------------------------------------------------------------
 
   canModify(issue: IssueSummary): boolean {
     const role = localStorage.getItem('user_role');
@@ -220,9 +241,9 @@ private loadIssues(filter: IssueFilter): void {
     return issue.reporterId === userId;
   }
   
-  // ==========================================================================
-  // GESTIONE DEL MODALE DI ELIMINAZIONE
-  // ==========================================================================
+  
+  
+  
 
   openDeleteModal(id: number): void {
     this.issueToDelete.set(id);
@@ -253,12 +274,12 @@ private loadIssues(filter: IssueFilter): void {
     }
   }
 
-  // ==========================================================================
-  // UTILITIES
-  // ==========================================================================
+  
+  
+  
    handleMissingProjectConfirm(): void {
     this.isMissingProjectModalOpen.set(false);
-    // Se è un admin che ha confermato, lo portiamo alla pagina di creazione progetto
+    
     if (this.isAdmin() && this.projects().length === 0) {
       this.router.navigate(['/projects/new']);
     }
@@ -269,31 +290,31 @@ private loadIssues(filter: IssueFilter): void {
   }
   
 
-  // ==========================================================================
-  // CREAZIONE SEGNALAZIONE (Con Controllo Progetti)
-  // ==========================================================================
+  
+  
+  
   navigateToCreate(): void {
     if (this.projects().length > 0) {
-      // Flusso Normale: ci sono progetti, vai al form
+      
       this.router.navigate(['/issues/new']);
     } else {
-      // Flusso Interrotto: mancano i progetti
+      
       if (this.isAdmin()) {
-        // Vista Admin
+        
         this.missingProjectTitle.set('Nessun Progetto Trovato');
         this.missingProjectMessage.set('Non esistono progetti al momento! Per poter creare una segnalazione, è necessario che esista almeno un progetto nel sistema. Desideri crearne uno adesso?');
         this.missingProjectType.set('warning');
         this.missingProjectConfirmText.set('Crea nuovo progetto');
         this.missingProjectCancelText.set('Non ora');
       } else {
-        // Vista Utente Base
+        
         this.missingProjectTitle.set('Impossibile Creare Segnalazione');
         this.missingProjectMessage.set('Non esistono progetti al momento nel sistema a cui poter assegnare la segnalazione. Ti preghiamo di attendere che un Amministratore crei un nuovo progetto.');
         this.missingProjectType.set('info');
         this.missingProjectConfirmText.set('Ho capito');
         this.missingProjectCancelText.set('');
       }
-      // Apre il pop-up
+      
       this.isMissingProjectModalOpen.set(true);
     }
   }

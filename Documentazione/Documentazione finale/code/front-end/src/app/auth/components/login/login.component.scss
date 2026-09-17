@@ -1,19 +1,26 @@
+// ------------------------------------------------
+// APP / AUTH / COMPONENTS / LOGIN / LOGIN
+// ------------------------------------------------
+
 .login-container {
   max-width: 400px;
-  margin: 80px auto; // Centra verticalmente e orizzontalmente nella pagina
+  margin: 80px auto; 
   padding: 30px;
   background-color: #ffffff;
   border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); // Ombreggiatura per effetto "Card"
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
 
+  // --------------------------------------------------------------
+  // Feedback e campi della form
+  // --------------------------------------------------------------
   h1 {
     text-align: center;
-    color: #1A237E; // Colore brand allineato alla Navbar
+    color: #1A237E; 
     margin-bottom: 25px;
     font-size: 1.8rem;
   }
 
-  // Stile per il messaggio di errore proveniente dal back-end o dalla validazione
+  
   .error-banner {
     background-color: #f8d7da;
     color: #842029;
@@ -48,15 +55,15 @@
       align-items: center;
       justify-content: center;
       
-      // Stili specifici per l'icona SVG
+      
       svg {
-        color: #6c757d; // Grigio di default
+        color: #6c757d; 
         transition: color 0.2s ease, transform 0.2s ease;
       }
 
       &:hover svg {
         color: #1A237E;
-        transform: scale(1.1); // Leggero ingrandimento
+        transform: scale(1.1); 
       }
     }
   }
@@ -70,14 +77,14 @@
       transition: border-color 0.2s, box-shadow 0.2s;
       box-sizing: border-box;
 
-      // Effetto focus per l'accessibilità
+      
       &:focus {
         outline: none;
         border-color: #0d6efd;
         box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
       }
 
-      // Evidenziazione rossa gestita nativamente dalle Reactive Forms di Angular
+      
       &.ng-invalid.ng-touched {
         border-color: #dc3545;
         background-color: #fff8f8;
@@ -92,10 +99,11 @@
     }
   }
 
+  // Il pulsante riflette lo stato asincrono dell'autenticazione.
   button[type="submit"] {
     width: 100%;
     padding: 12px;
-    background-color: #0d6efd; // Colore primario (Primary Blue)
+    background-color: #0d6efd; 
     color: white;
     border: none;
     border-radius: 4px;

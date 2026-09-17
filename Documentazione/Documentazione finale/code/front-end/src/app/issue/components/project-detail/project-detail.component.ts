@@ -1,20 +1,24 @@
+// ------------------------------------------------------------------
+// APP / ISSUE / COMPONENTS / PROJECT DETAIL / PROJECT DETAIL
+// ------------------------------------------------------------------
+
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service';
 import { DashboardService } from '../../../dashboard-query/services/dashboard.service';
-import { ProjectService } from '../../services/project.service'; // Aggiunto Command Service
+import { ProjectService } from '../../services/project.service'; 
 
 import { IssueSummary } from '../../../dashboard-query/models/query-dtos';
 import { ProjectState } from '../../../shared/models/shared-dtos';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
-import { ModalComponent } from '../../../shared/components/modal/modal.component'; // Aggiunto Modale
+import { ModalComponent } from '../../../shared/components/modal/modal.component'; 
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, StatusBadgeComponent, ModalComponent], // Importato il Modale
+  imports: [CommonModule, StatusBadgeComponent, ModalComponent], 
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
@@ -26,6 +30,9 @@ export class ProjectDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
 
+  // ----------------------------------------------------------------
+  // Stato del progetto e delle issue collegate
+  // ----------------------------------------------------------------
   protected readonly project = signal<ProjectState | null>(null);
   protected readonly projectIssues = signal<IssueSummary[]>([]);
   protected readonly isLoading = signal<boolean>(true);
@@ -43,7 +50,7 @@ export class ProjectDetailComponent implements OnInit {
 
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
-      this.requestedId.set(Number(idParam)); // Salviamo l'id cercato per stamparlo a schermo
+      this.requestedId.set(Number(idParam)); 
       this.loadData(Number(idParam));
     } else {
       this.errorMessage.set('ID progetto non valido.');
@@ -51,9 +58,11 @@ export class ProjectDetailComponent implements OnInit {
     }
   }
 
-  /**
-   * Carica i dettagli del progetto e, in parallelo/successione, le sue issue.
-   */
+  // ----------------------------------------------------------------
+  // Caricamento coordinato del progetto e delle issue
+  // ----------------------------------------------------------------
+
+
  private loadData(projectId: number): void {
     this.isLoading.set(true);
     this.projectQueryService.getProjectById(projectId).subscribe({
@@ -62,7 +71,7 @@ export class ProjectDetailComponent implements OnInit {
         this.loadProjectIssues(projectId);
       },
       error: (err) => {
-        // Se il back-end restituisce 404 (o l'errore contiene un messaggio specifico)
+        
         if (err.status === 404 || err.error?.message?.toLowerCase().includes('non trovat')) {
           this.isNotFound.set(true);
         } else {
@@ -83,11 +92,13 @@ export class ProjectDetailComponent implements OnInit {
     });
   }
 
-  // ==========================
-  // NAVIGAZIONE
-  // ==========================
+  
+  
+  
 
-  // Lasciamo il metodo goBack() per compatibilità, ma aggiungiamo navigateToList() per sicurezza
+  // ----------------------------------------------------------------
+  // Navigazione
+  // ----------------------------------------------------------------
   goBack(): void {
     this.location.back();
   }
@@ -106,7 +117,7 @@ export class ProjectDetailComponent implements OnInit {
   navigateToCreateIssue(): void {
     const currentProject = this.project();
     if (currentProject) {
-      // Passa l'ID del progetto come parametro query nell'URL
+      
       this.router.navigate(['/issues/new'], { queryParams: { projectId: currentProject.id } });
     } else {
       this.router.navigate(['/issues/new']);
@@ -121,10 +132,12 @@ export class ProjectDetailComponent implements OnInit {
     this.router.navigate(['/projects']);
   }
 
-  // ==========================
-  // MODALE DI CONFERMA ELIMINAZIONE
-  // ==========================
-
+  
+  
+  
+  // ----------------------------------------------------------------
+  // Eliminazione del progetto
+  // ----------------------------------------------------------------
   openDeleteModal(): void {
     this.isDeleteModalOpen.set(true);
   }
@@ -138,7 +151,7 @@ export class ProjectDetailComponent implements OnInit {
     if (p) {
       this.isDeleteModalOpen.set(false);
       this.projectCommandService.deleteProject(p.id).subscribe({
-        next: () => this.router.navigate(['/projects']), // Dopo aver eliminato, torna alla lista
+        next: () => this.router.navigate(['/projects']), 
         error: (err) => this.errorMessage.set(err.error?.message || 'Errore durante l\'eliminazione.')
       });
     }

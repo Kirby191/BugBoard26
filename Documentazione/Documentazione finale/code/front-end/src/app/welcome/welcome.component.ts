@@ -1,3 +1,7 @@
+// ------------------------------------------------
+// APP / WELCOME / WELCOME
+// ------------------------------------------------
+
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -18,11 +22,11 @@ interface PresentationSection {
 })
 export class WelcomeComponent {
   protected readonly authService = inject(AuthService);
-  
-  // Traccia l'indice della sezione attualmente aperta (null = tutte chiuse)
+
+  // L'indice singolo garantisce che l'interfaccia mostri una sola sezione aperta.
   protected readonly openSectionIndex = signal<number | null>(null);
 
-  // Dati strutturati per evitare HTML verboso e ripetitivo
+  // Contenuti editoriali della pagina: il template si limita a renderizzarli.
   protected readonly sections: PresentationSection[] = [
     {
       title: 'Il Problema e la Soluzione',
@@ -71,7 +75,7 @@ export class WelcomeComponent {
   ];
 
   toggleSection(index: number): void {
-    // Se clicco sulla sezione già aperta, la chiudo. Altrimenti apro quella nuova.
+    // Cliccare la sezione attiva la richiude; una nuova sezione sostituisce la precedente.
     this.openSectionIndex.update(current => current === index ? null : index);
   }
 }

@@ -1,3 +1,7 @@
+// --------------------------------------------------------------
+// APP / ISSUE / COMPONENTS / ISSUE DETAIL / ISSUE DETAIL
+// --------------------------------------------------------------
+
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,7 +12,7 @@ import { IssueService } from '../../services/issue.service';
 
 import { IssueDetailed, BugHistory, UserReference } from '../../../dashboard-query/models/query-dtos';
 import { IssuePriority } from '../../../shared/models/enums';
-// IMPORTIAMO I COMPONENTI CONDIVISI (Aggiunto ModalType)
+
 import { ModalComponent, ModalType } from '../../../shared/components/modal/modal.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 
@@ -27,19 +31,22 @@ export class IssueDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
 
+  // ----------------------------------------------------------------
+  // Stato della pagina e stato dei modali
+  // ----------------------------------------------------------------
   protected readonly issue = signal<IssueDetailed | null>(null);
   protected readonly history = signal<BugHistory[]>([]);
   protected readonly isLoading = signal<boolean>(true);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly currentUserId = signal<number | null>(null);
 
-  // --- STATO MODALE ASSEGNAZIONE E RBAC ---
+  
   protected readonly isAdmin = signal<boolean>(false);
   protected readonly isAssignModalOpen = signal<boolean>(false);
   protected readonly usersList = signal<UserReference[]>([]);
   protected readonly selectedUserId = signal<number | null>(null);
 
-  // SIGNALS PER I FEEDBACK VISIVI
+  
   protected readonly isWarningAssignModalOpen = signal<boolean>(false);
   protected readonly isResultModalOpen = signal<boolean>(false);
   protected readonly isDeleteModalOpen = signal<boolean>(false);
@@ -47,17 +54,19 @@ export class IssueDetailComponent implements OnInit {
   protected readonly resultModalMessage = signal<string>('');
   protected readonly resultModalType = signal<ModalType>('info');
 
-  // SIGNAL PER 404 (NOT FOUND) E PER STAMPA ID RICHIESTO
+  
   protected readonly isNotFound = signal<boolean>(false);
   protected readonly requestedId = signal<number | null>(null);
 
-  // Computed signal che esclude dalla tendina lo sviluppatore a cui il bug è già assegnato
+  // ----------------------------------------------------------------
+  // Valori derivati usati dal template
+  // ----------------------------------------------------------------
   protected readonly availableDevelopers = computed(() => {
     const currentAssignee = this.issue()?.assigneeId;
     return this.usersList().filter(user => user.id !== currentAssignee);
   });
 
-  // Computed signal per capire se il bug è in scadenza (overdue)
+  
   protected readonly isOverdue = computed(() => {
     const i = this.issue();
     if (!i || !i.dueDate || i.status === 'DONE') return false;
@@ -71,6 +80,9 @@ export class IssueDetailComponent implements OnInit {
     return dueDate <= targetDate;
   });
 
+  // ----------------------------------------------------------------
+  // Lifecycle e caricamento dati
+  // ----------------------------------------------------------------
   ngOnInit(): void {
     const role = localStorage.getItem('user_role');
     this.isAdmin.set(role === 'ADMIN');
@@ -90,16 +102,20 @@ export class IssueDetailComponent implements OnInit {
     }
   }
 
-// ==========================================================================
-// CONTROLLI DI PERMESSO (RBAC) PER MODIFICARE/ELIMINARE
-// ==========================================================================
 
 
+
+
+  // ----------------------------------------------------------------
+  // Permessi dell'utente corrente
+  // ----------------------------------------------------------------
 canModify(): boolean {
     const i = this.issue();
     if (!i) return false;
     if (this.isAdmin()) return true;
     const userId = this.currentUserId();
+
+    // I bug seguono l'assegnatario; gli altri tipi restano modificabili dal loro autore.
     if (i.type === 'BUG') {
       return i.assigneeId === userId;
     }
@@ -113,12 +129,14 @@ canModify(): boolean {
     return i.reporterId === this.currentUserId();
   }
 
-// ==========================================================================
-// CARICAMENTO DEI DETTAGLI DELLA SEGNALAZIONE E DELLO STORICO (BUG)
-// ==========================================================================
 
+
+
+  // ----------------------------------------------------------------
+  // Dettaglio e storico della segnalazione
+  // ----------------------------------------------------------------
   private loadIssueDetail(id: number): void {
-    // Il metodo esistente rimane intatto
+    
     this.isLoading.set(true);
     this.dashboardService.getIssueDetailed(id).subscribe({
       next: (data) => {
@@ -141,7 +159,7 @@ canModify(): boolean {
   }
 
   private loadHistory(bugId: number): void {
-     // Il metodo esistente rimane intatto
+     
     this.dashboardService.getBugHistory(bugId).subscribe({
       next: (histData) => {
         this.history.set(histData);
@@ -154,30 +172,32 @@ canModify(): boolean {
     });
   }
 
-  // ==========================================================================
-  // LOGICA DI ASSEGNAZIONE (Aggiornata con i Feedback)
-  // ==========================================================================
+  
+  
+  
 
-  /**
-   * Scatta al click sul pulsante "Assegna/Riassegna".
-   * Se il bug ha già un assegnatario, intercetta e lancia l'avviso.
-   */
+  
+
+
+  // ----------------------------------------------------------------
+  // Assegnazione dei bug
+  // ----------------------------------------------------------------
   openAssignModal(): void {
     const currentIssue = this.issue();
     if (currentIssue && currentIssue.assigneeId) {
-      // Blocca l'apertura del modale di assegnazione e lancia il Warning
+      
       this.isWarningAssignModalOpen.set(true);
     } else {
-      // Procede normalmente se il bug è "libero"
+      
       this.proceedToAssign();
     }
   }
 
-  /**
-   * Apre effettivamente il modale con la tendina degli utenti.
-   */
+  
+
+
   proceedToAssign(): void {
-    this.isWarningAssignModalOpen.set(false); // Chiude l'avviso se era aperto
+    this.isWarningAssignModalOpen.set(false); 
     this.isAssignModalOpen.set(true);
     
     if (this.usersList().length === 0) {
@@ -188,15 +208,15 @@ canModify(): boolean {
     }
   }
 
-  /**
-   * Invia il comando di assegnazione al Server ed elabora il Feedback Visivo.
-   */
+  
+
+
 executeAssignment(): void {
     const selectedVal = this.selectedUserId();
     const currentIssue = this.issue();
     
     if (selectedVal !== null && currentIssue) {
-      // Se il valore è -1, lo trasformiamo in null per comunicare al back-end di rimuovere l'assegnazione
+      
       const assigneeIdToSubmit = Number(selectedVal) === -1 ? null : Number(selectedVal);
 
       this.issueService.assignBug(currentIssue.id, { assigneeId: assigneeIdToSubmit }).subscribe({
@@ -230,10 +250,12 @@ executeAssignment(): void {
     }
   }
 
-  // ==========================================================================
-  // ELIMINAZIONE
-  // ==========================================================================
-
+  
+  
+  
+  // ----------------------------------------------------------------
+  // Eliminazione e aggiornamento della priorità
+  // ----------------------------------------------------------------
   openDeleteModal(): void {
     this.isDeleteModalOpen.set(true);
   }
@@ -258,26 +280,26 @@ executeAssignment(): void {
     }
   }
 
-  // ==========================================================================
-  // INNALZAMENTO PRIORITÀ (Admin UX)
-  // ==========================================================================
+  
+  
+  
   raisePriority(): void {
     const currentIssue = this.issue();
     if (!currentIssue) return;
 
-    // Definiamo la gerarchia dell'Enum
+    
     const priorityHierarchy: IssuePriority[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
     
-    let nextPriority: IssuePriority = 'LOW'; // Se era null/Non assegnata, parte da LOW
+    let nextPriority: IssuePriority = 'LOW'; 
     
     if (currentIssue.priority) {
       const currentIndex = priorityHierarchy.indexOf(currentIssue.priority);
-      // Evitiamo errori se è già CRITICAL
+      
       if (currentIndex >= priorityHierarchy.length - 1) return; 
       nextPriority = priorityHierarchy[currentIndex + 1];
     }
 
-    // Costruiamo il DTO di aggiornamento mantenendo i vecchi valori, ma alterando la priorità
+    
     const updatePayload = {
       title: currentIssue.title,
       description: currentIssue.description,
@@ -287,13 +309,13 @@ executeAssignment(): void {
 
     this.issueService.updateIssue(currentIssue.id, updatePayload).subscribe({
       next: () => {
-        // Feedback visivo di Successo usando i modali già pronti
+        
         this.resultModalTitle.set('Priorità Aggiornata');
         this.resultModalMessage.set(`La priorità è stata innalzata con successo a ${nextPriority}.`);
         this.resultModalType.set('info');
         this.isResultModalOpen.set(true);
         
-        // Ricarichiamo i dettagli per far aggiornare l'UI (storico incluso)
+        
         this.loadIssueDetail(currentIssue.id);
       },
       error: (err: any) => {
@@ -306,11 +328,11 @@ executeAssignment(): void {
   }
 
 
-  // ==========================================================================
-  // NAVIGAZIONE
-  // ==========================================================================
+  
+  
+  
 
-  // Lasciamo il metodo goBack() per compatibilità, ma aggiungiamo navigateToList() per sicurezza
+  
   goBack(): void {
    this.location.back();
   }

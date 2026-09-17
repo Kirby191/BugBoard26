@@ -4,6 +4,10 @@ import com.bugboard26.core.query_view.dto.NotificationDTO;
 import com.bugboard26.core.query_view.service.NotificationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.bugboard26.core.shared.security.AuthenticatedUserProvider;
+import com.bugboard26.core.shared.sse.SseConnectionManager;
+import org.springframework.http.MediaType;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -16,10 +20,16 @@ import java.util.List;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final AuthenticatedUserProvider userProvider;
+    private final SseConnectionManager sseConnectionManager;
 
     // Iniezione della dipendenza verso l'astrazione del servizio
-    public NotificationController(NotificationService notificationService) {
+    public NotificationController(NotificationService notificationService,
+                                  AuthenticatedUserProvider userProvider,
+                                  SseConnectionManager sseConnectionManager) {
         this.notificationService = notificationService;
+        this.userProvider = userProvider;
+        this.sseConnectionManager = sseConnectionManager;
     }
 
     /**
@@ -46,5 +56,14 @@ public class NotificationController {
     public ResponseEntity<Void> markAsRead(@PathVariable Long id) {
         notificationService.markAsRead(id);
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Endpoint per l'iscrizione al flusso Server-Sent Events (SSE).
+     */
+    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter streamNotifications() {
+        Long currentUserId = userProvider.getCurrentUserId();
+        return sseConnectionManager.createConnection(currentUserId);
     }
 }

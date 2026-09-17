@@ -33,5 +33,7 @@ public interface NotificationService {
      * @param notificationId L'ID della notifica da aggiornare.
      */
     void markAsRead(Long notificationId);
+
+    void handleUnassignment(Long previousAssigneeId, Long bugId);
 }
 

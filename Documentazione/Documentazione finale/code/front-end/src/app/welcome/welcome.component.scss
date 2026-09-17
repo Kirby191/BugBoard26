@@ -1,9 +1,16 @@
+// ------------------------------------------------
+// APP / WELCOME / WELCOME
+// ------------------------------------------------
+
 .welcome-container {
   max-width: 900px;
   margin: 40px auto;
   padding: 0 20px;
   animation: fadeIn 0.5s ease-out forwards;
 
+  // --------------------------------------------------------------
+  // Hero, autori e call to action
+  // --------------------------------------------------------------
   .card {
     background-color: #ffffff;
     border-radius: 12px;
@@ -12,7 +19,7 @@
     overflow: hidden;
   }
 
-  // --- HEADER ACCADEMICO E HERO ---
+  
   .academic-hero {
     text-align: center;
     padding: 50px 30px;
@@ -99,7 +106,10 @@
     }
   }
 
-  // --- ACCORDION (IL DIETRO LE QUINTE) ---
+  
+  // --------------------------------------------------------------
+  // Accordion editoriale
+  // --------------------------------------------------------------
   .presentation-accordion {
     .section-heading {
       font-size: 1.8rem;
@@ -127,13 +137,13 @@
             color: #0d6efd;
           }
 
-          // Quando è aperto, il body occupa "1 frazione" di spazio e appare
+          
           .accordion-body-wrapper {
             grid-template-rows: 1fr;
             opacity: 1;
           }
           
-          // Aggiungiamo padding dinamicamente solo da aperto per non creare spazi morti da chiuso
+          
           .accordion-body {
             padding: 15px 25px 25px 25px; 
           }
@@ -178,14 +188,14 @@
           transition: grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
           
           .accordion-body {
-            overflow: hidden; // Nasconde il contenuto che fuoriesce durante l'animazione
-            padding: 0 25px; // Nessun padding superiore/inferiore da chiuso
+            overflow: hidden; 
+            padding: 0 25px; 
             transition: padding 0.4s ease;
             color: #495057;
             font-size: 1rem;
             line-height: 1.6;
 
-            // Stili per l'HTML iniettato
+            
             ::ng-deep {
               p { margin-top: 0; margin-bottom: 15px; }
               ul { margin-top: 0; padding-left: 20px; margin-bottom: 15px; }

@@ -1,10 +1,14 @@
+// -----------------------------------------------------
+// APP / AUTH / COMPONENTS / REGISTER / REGISTER
+// -----------------------------------------------------
+
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { UserRegistration } from '../../models/auth-dtos';
 import { UserRole } from '../../../shared/models/enums';
-// Aggiunta importazione del Modale
+
 import { ModalComponent, ModalType } from '../../../shared/components/modal/modal.component';
 
 @Component({
@@ -16,14 +20,19 @@ import { ModalComponent, ModalType } from '../../../shared/components/modal/moda
 })
 export class RegisterComponent {
   private readonly authService = inject(AuthService);
-  
+
+  // ----------------------------------------------------------------
+  // Stato della form e feedback dell'operazione
+  // ----------------------------------------------------------------
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isSubmitting = signal<boolean>(false);
   protected readonly isPasswordFocused = signal<boolean>(false);
   protected readonly isPasswordVisible = signal<boolean>(false);
   protected readonly roles: UserRole[] = ['UTENTE', 'ADMIN'];
 
-  // --- STATO DEL MODALE DI FEEDBACK ---
+  // ----------------------------------------------------------------
+  // Modal di esito
+  // ----------------------------------------------------------------
   protected readonly isResultModalOpen = signal<boolean>(false);
   protected readonly resultModalTitle = signal<string>('');
   protected readonly resultModalMessage = signal<string>('');
@@ -42,13 +51,18 @@ export class RegisterComponent {
     role: new FormControl<UserRole | null>(null, [Validators.required])
   });
 
-  // ... (Getters per la checklist dinamica rimangono invariati) ...
+  // ----------------------------------------------------------------
+  // Regole di validazione della password
+  // ----------------------------------------------------------------
   get pwdValue(): string { return this.registerForm.get('password')?.value || ''; }
   get hasMinLength(): boolean { return this.pwdValue.length >= 8; }
   get hasUpper(): boolean { return /[A-Z]/.test(this.pwdValue); }
   get hasNumber(): boolean { return /[0-9]/.test(this.pwdValue); }
   get hasSpecial(): boolean { return /[\W_]/.test(this.pwdValue); }
 
+  // ----------------------------------------------------------------
+  // Invio della registrazione
+  // ----------------------------------------------------------------
   register() {
     this.errorMessage.set(null);
 
@@ -67,9 +81,10 @@ export class RegisterComponent {
       role: this.registerForm.value.role!
     };
 
+    // Il modal viene aggiornato sia in caso di successo sia in caso di errore del backend.
     this.authService.register(request).subscribe({
       next: (response) => {
-        // Feedback Positivo tramite Modale
+        
         this.resultModalTitle.set('Operazione Completata');
         this.resultModalMessage.set(`✅ L'utente ${response.username} è stato creato con successo nel sistema.`);
         this.resultModalType.set('info');
@@ -79,7 +94,7 @@ export class RegisterComponent {
         this.isSubmitting.set(false);
       },
       error: (err) => {
-        // Feedback Negativo tramite Modale
+        
         this.resultModalTitle.set('Errore di Creazione');
         this.resultModalMessage.set(`❌ C'è stato un problema: ${err.error?.message || 'Errore imprevisto dal server.'}`);
         this.resultModalType.set('danger');
@@ -90,6 +105,7 @@ export class RegisterComponent {
     });
   }
 
+  // La visibilità è solo uno stato locale: non modifica il valore della form.
   togglePasswordVisibility(): void {
     this.isPasswordVisible.update(v => !v);
   }

@@ -1,3 +1,7 @@
+// ------------------------------------------------
+// APP / AUTH / SERVICES / AUTH.SERVICE
+// ------------------------------------------------
+
 import { TestBed } from '@angular/core/testing';
 import { AuthService } from './auth.service';
 import { provideHttpClient } from '@angular/common/http';
@@ -17,7 +21,7 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         provideHttpClient(),
-        provideHttpClientTesting(), // API Moderna di Angular per testare HttpClient
+        provideHttpClientTesting(), 
         { provide: Router, useValue: routerMock }
       ]
     });
@@ -25,14 +29,14 @@ describe('AuthService', () => {
     service = TestBed.inject(AuthService);
     httpMock = TestBed.inject(HttpTestingController);
 
-    // Mock globale del localStorage per isolare il test dall'ambiente reale
+    
     vi.spyOn(Storage.prototype, 'setItem');
     vi.spyOn(Storage.prototype, 'removeItem');
     vi.spyOn(Storage.prototype, 'getItem');
   });
 
   afterEach(() => {
-    httpMock.verify(); // Assicura che non ci siano chiamate HTTP pendenti o impreviste
+    httpMock.verify(); 
     vi.restoreAllMocks();
   });
 
@@ -48,13 +52,13 @@ describe('AuthService', () => {
       expect(response).toEqual(mockResponse);
     });
 
-    // Intercettiamo la chiamata HTTP uscente
+    
     const req = httpMock.expectOne('http://localhost:8081/api/auth/login');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(mockRequest);
-    req.flush(mockResponse); // Simuliamo la risposta del server (back-end mockato)
+    req.flush(mockResponse); 
 
-    // Verifichiamo i side-effects sul localStorage stabiliti nell'operatore tap() 3]
+    
     expect(localStorage.setItem).toHaveBeenCalledWith('jwt_token', 'fake-jwt');
     expect(localStorage.setItem).toHaveBeenCalledWith('user_role', 'ADMIN');
     expect(localStorage.setItem).toHaveBeenCalledWith('user_id', '1');

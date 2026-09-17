@@ -1,26 +1,31 @@
+<!-- ----------------------------------------------------------
+     APP / ISSUE / COMPONENTS / ISSUE FORM / ISSUE FORM
+     ----------------------------------------------------------
+ -->
+
 <div class="form-container card">
   <div class="card-header">
-    <!-- Titolo dinamico basato sul Signal isEditMode() -->
+    
     <h2>{{ isEditMode() ? 'Modifica Segnalazione #' + issueId() : 'Nuova Segnalazione' }}</h2>
   </div>
 
   <div class="card-body">
-    <!-- Gestione errori globali/server -->
+    
     @if (errorMessage()) {
       <div class="alert alert-danger">
         {{ errorMessage() }}
       </div>
     }
 
-    <!-- Form Reattivo -->
+    
     <form [formGroup]="issueForm" (ngSubmit)="onSubmit()">
       
-      <!-- 1. SELEZIONE PROGETTO (Dropdown popolato dal Query Layer) -->
+      
       <div class="form-group">
         <label for="projectId">Progetto di appartenenza</label>
         <select id="projectId" formControlName="projectId" class="form-control">
           <option [ngValue]="null" disabled>-- Seleziona un progetto --</option>
-          <!-- Iterazione sui progetti caricati dal DB -->
+          
           @for (project of projects(); track project.id) {
             <option [value]="project.id">{{ project.name }}</option>
           }
@@ -30,7 +35,7 @@
         }
       </div>
 
-      <!-- 2. TITOLO E TIPO (Disabilitato in edit dal TS) -->
+      <!-- In modifica lo stato può disattivare la scadenza quando la issue è completata. -->
       <div class="form-row">
         <div class="form-group half-width">
           <label for="title">Titolo</label>
@@ -54,12 +59,12 @@
         </div>
       </div>
 
-      <!-- 3. DESCRIZIONE -->
+      
       <div class="form-group">
         <label for="description">Descrizione dettagliata</label>
         <textarea id="description" formControlName="description" class="form-control" rows="5" placeholder="Descrivi il problema o la richiesta..."></textarea>
         
-        <!-- Counter a comparsa (appare solo oltre il 90%) -->
+        
         @if (showCharCounter) {
           <div class="char-counter" 
                [ngClass]="{'text-danger': remainingChars < 0}"
@@ -68,15 +73,15 @@
           </div>
         }
 
-        <!-- Errore locale solo se vuoto -->
+        
         @if (issueForm.get('description')?.invalid && issueForm.get('description')?.touched) {
           <small class="error-text">La descrizione è obbligatoria.</small>
         }
       </div>
 
-      <!-- 4. STATO E PRIORITÀ -->
+      
       <div class="form-row">
-        <!-- Lo stato si mostra SOLO in modifica. In creazione è 'TODO' di default -->
+        
         @if (isEditMode()) {
           <div class="form-group half-width">
             <label for="status">Stato della segnalazione *</label>
@@ -99,7 +104,7 @@
         </div>
       </div>
 
-     <!-- 5. SCADENZA - VISIBILE SOLO AGLI ADMIN -->
+    <!-- Il calendario nativo aggiorna gli stessi signal degli input testuali. -->
       @if (isAdmin()) {
         <div class="form-group" [style.opacity]="isStatusDone() ? '0.6' : '1'">
           <label>
@@ -108,7 +113,7 @@
           </label>
           
           <div class="custom-date-picker-wrapper" [style.background-color]="isStatusDone() ? '#e9ecef' : '#fff'">
-            <!-- 3 Campi manuali -->
+            
             <div class="date-inputs-container">
               <input type="text" maxlength="2" placeholder="gg" [value]="dateDay()" (input)="onCustomDateInput('day', $event)" class="date-part-input" [disabled]="isStatusDone()" />
               <span class="slash">/</span>
@@ -117,7 +122,7 @@
               <input type="text" maxlength="4" placeholder="aaaa" [value]="dateYear()" (input)="onCustomDateInput('year', $event)" class="date-part-input year-input" [disabled]="isStatusDone()" />
             </div>
 
-            <!-- Icona Calendario (nascosta se DONE) -->
+            
             @if (!isStatusDone()) {
               <div class="calendar-btn-container">
                 <input type="date" class="hidden-native-date" [value]="issueForm.get('dueDate')?.value || ''" (change)="onNativeDateSelect($event)" />
@@ -133,13 +138,13 @@
         </div>
       }
 
-      <!-- 6. ALLEGATO IMMAGINE -->
+      
       <div class="form-group">
         <label>
           {{ isEditMode() ? "Aggiorna l'immagine (Opzionale - sovrascriverà l'esistente)" : "Allega un'immagine (Opzionale)" }}
         </label>
         
-        <!-- STATO 1: Area Drag & Drop Integrata nel Form -->
+        <!-- Mostriamo una sola modalità alla volta: zona di upload oppure file già selezionato. -->
         @if (!selectedFile()) {
           <div class="drag-drop-zone inline-dropzone" 
                [ngClass]="{'drag-over': isDragging()}"
@@ -165,7 +170,7 @@
           </div>
         }
 
-        <!-- STATO 2: File Selezionato -->
+        
         @if (selectedFile(); as file) {
           <div class="uploaded-file-row">
             <div class="file-info">
@@ -192,7 +197,7 @@
 
       <hr>
 
-      <!-- BOTTONI AZIONE -->
+      
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="navigateBack()" [disabled]="isSubmitting()">Annulla</button>
         <button type="submit" class="btn btn-primary" [disabled]="isSubmitting() || issueForm.invalid">
@@ -204,9 +209,14 @@
   </div>
 </div>
 
-<!-- ========================================================================= -->
-<!-- MODALE: Dati non salvati -->
- <!-- ========================================================================= -->
+
+
+ 
+<!-- ============================================================
+  MODALI / USCITA DALLA FORM
+  ============================================================
+  Protegge le modifiche locali quando l'utente abbandona la pagina.
+  ============================================================ -->
 <app-modal 
   [(isOpen)]="isModalOpen" 
   title="Attenzione: Dati non salvati" 
@@ -217,21 +227,28 @@
   (confirm)="forceNavigateBack()">
 </app-modal>
 
-<!-- ========================================================================= -->
-<!-- MODALE: VALIDAZIONE AGGREGATA (Testo Dinamico e Multi-Errore) -->
- <!-- ========================================================================= -->
+
+
+ 
+<!-- ============================================================
+  MODALI / VALIDAZIONE DATI
+  ============================================================
+  Raccoglie gli errori della form in un unico messaggio.
+  ============================================================ -->
 <app-modal 
   [(isOpen)]="isValidationModalOpen" 
   [title]="validationModalTitle()" 
   type="info"
   confirmText="Ho capito">
-  <!-- Iniettiamo il messaggio qui per forzare i ritorni a capo -->
+  
   <p style="white-space: pre-wrap; margin: 0; color: #495057; line-height: 1.5;">{{ validationModalMessage() }}</p>
 </app-modal>
 
-<!-- ========================================================================= -->
-<!-- MODALE: ERRORE CARICAMENTO FILE -->
-<!-- ========================================================================= -->
+<!-- ============================================================
+  MODALI / VALIDAZIONE ALLEGATO
+  ============================================================
+  Mostra il motivo per cui un file non può essere accettato.
+  ============================================================ -->
 <app-modal 
   [(isOpen)]="isFileErrorModalOpen" 
   title="Errore File" 

@@ -1,3 +1,7 @@
+// --------------------------------------------------------------
+// APP / ISSUE / COMPONENTS / PROJECT FORM / PROJECT FORM
+// --------------------------------------------------------------
+
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -21,27 +25,32 @@ export class ProjectFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
 
-  // --- STATO DEL LIMITE CARATTERI ---
+  // ----------------------------------------------------------------
+  // Limiti del testo e modali
+  // ----------------------------------------------------------------
   protected readonly MAX_DESC_LENGTH = 800;
-  protected readonly DESC_THRESHOLD = 720; // 90% di 800
+  protected readonly DESC_THRESHOLD = 720; 
   protected readonly isLimitModalOpen = signal<boolean>(false);
 
-  // --- STATO DEL FORM ---
-
+  
+  // ----------------------------------------------------------------
+  // Stato della form
+  // ----------------------------------------------------------------
   protected readonly isEditMode = signal<boolean>(false);
   protected readonly projectId = signal<number | null>(null);
   protected readonly isSubmitting = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
   
-  // --- STATO DEL MODALE DI AVVISO ---
+  
   protected readonly isModalOpen = signal<boolean>(false);
 
   projectForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(150)]),
-    description: new FormControl('') // Opzionale, validato custom nell'onSubmit
+    description: new FormControl('') 
   });
 
   ngOnInit(): void {
+    // La presenza dell'id distingue la modifica dalla creazione di un nuovo progetto.
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
       this.isEditMode.set(true);
@@ -63,10 +72,10 @@ export class ProjectFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    // 1. Controllo custom del limite di caratteri PRIMA della validazione standard
+    // Il limite della descrizione viene gestito con un modal dedicato prima della validazione API.
     if (this.descriptionLength > this.MAX_DESC_LENGTH) {
       this.isLimitModalOpen.set(true);
-      return; // Interrompe il flusso: non invia dati al backend
+      return; 
     }
 
     if (this.projectForm.invalid) return;
@@ -76,6 +85,7 @@ export class ProjectFormComponent implements OnInit {
 
     const formValues = this.projectForm.getRawValue();
 
+    // Le due operazioni condividono la form, ma usano DTO e endpoint diversi.
     if (this.isEditMode()) {
       const request: UpdateProject = { name: formValues.name!, description: formValues.description! };
       this.projectCommandService.updateProject(this.projectId()!, request).subscribe({
@@ -97,7 +107,9 @@ export class ProjectFormComponent implements OnInit {
     }
   }
 
-  // --- GETTERS PER L'INTERFACCIA ---
+  // ----------------------------------------------------------------
+  // Contatore descrizione e navigazione protetta
+  // ----------------------------------------------------------------
   get descriptionLength(): number {
     return this.projectForm.get('description')?.value?.length || 0;
   }
@@ -110,10 +122,10 @@ export class ProjectFormComponent implements OnInit {
     return this.descriptionLength >= this.DESC_THRESHOLD;
   }
 
-  // --- NAVIGAZIONE INDIETRO CON MODALE DI AVVISO ---
+  
 
   navigateBack(): void {
-    // Intercetta se l'utente ha scritto qualcosa
+    // Le modifiche non salvate richiedono una conferma esplicita prima di tornare indietro.
     if (this.projectForm.dirty) {
       this.isModalOpen.set(true);
     } else {

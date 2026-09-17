@@ -7,6 +7,7 @@ import com.bugboard26.core.query_view.repository.NotificationRepository;
 import com.bugboard26.core.shared.model.UserReference;
 import com.bugboard26.core.shared.security.AuthenticatedUserProvider;
 import jakarta.persistence.EntityManager;
+import com.bugboard26.core.shared.sse.SseConnectionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,13 +19,16 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final AuthenticatedUserProvider userProvider;
     private final EntityManager entityManager;
+    private final SseConnectionManager sseConnectionManager;
 
     public NotificationServiceImpl(NotificationRepository notificationRepository,
                                    AuthenticatedUserProvider userProvider,
-                                   EntityManager entityManager) {
+                                   EntityManager entityManager,
+                                   SseConnectionManager sseConnectionManager) {
         this.notificationRepository = notificationRepository;
         this.userProvider = userProvider;
         this.entityManager = entityManager;
+        this.sseConnectionManager = sseConnectionManager;
     }
 
     @Override
@@ -40,6 +44,14 @@ public class NotificationServiceImpl implements NotificationService {
                 .build();
 
         notificationRepository.save(notification);
+
+        // Invia la notifica in tempo reale tramite SSE se l'utente è connesso
+        sseConnectionManager.pushToUser(assigneeId, new NotificationDTO(
+                notification.getId(),
+                notification.getMessage(),
+                notification.getTimestamp(),
+                notification.isRead()
+        ));
     }
 
     @Override
@@ -74,5 +86,16 @@ public class NotificationServiceImpl implements NotificationService {
 
         notification.markAsRead();
         notificationRepository.save(notification);
+    }
+
+    @Override
+    @Transactional
+    public void handleUnassignment(Long previousAssigneeId, Long bugId) {
+        // 1. Pulisce la vecchia notifica "Ti è stato assegnato..." se non è stata ancora letta
+        notificationRepository.deleteUnreadByRecipientAndBugId(previousAssigneeId, bugId);
+
+        // 2. Genera una nuova notifica per avvisare l'utente della rimozione
+        String message = "L'assegnazione del Bug #" + bugId + " è stata annullata dall'Amministratore.";
+        createNotification(previousAssigneeId, bugId, message);
     }
 }

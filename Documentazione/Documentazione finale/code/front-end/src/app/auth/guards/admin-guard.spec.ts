@@ -1,14 +1,19 @@
+// ------------------------------------------------
+// APP / AUTH / GUARDS / ADMIN GUARD
+// ------------------------------------------------
+
 import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree } from '@angular/router';
 import { adminGuard } from './admin-guard';
 import { AuthService } from '../services/auth.service';
 
 describe('AdminGuard', () => {
+  /* La guardia richiede entrambe le condizioni: sessione valida e ruolo ADMIN. */
   let authServiceMock: any;
   let routerMock: any;
 
   beforeEach(() => {
-    TestBed.resetTestingModule(); // Previene crash con Vitest
+    TestBed.resetTestingModule(); 
     
     authServiceMock = { isLoggedIn: vi.fn() };
     routerMock = { createUrlTree: vi.fn().mockReturnValue({} as UrlTree) };

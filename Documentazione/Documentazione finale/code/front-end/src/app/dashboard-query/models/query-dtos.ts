@@ -1,5 +1,15 @@
+// ---------------------------------------------------
+// APP / DASHBOARD QUERY / MODELS / QUERY DTOS
+// ---------------------------------------------------
+
 import { IssueType, IssuePriority, IssueStatus, AuditAction, UserRole } from '../../shared/models/enums';
 
+/* ============================================================
+    MODELLI DEL QUERY LAYER
+    ============================================================
+    I modelli separano i dati ottimizzati per liste e dashboard
+    dal dettaglio completo delle singole issue.
+    ============================================================ */
 export interface BugHistory {
     id: number;
     bugId: number;
@@ -9,6 +19,7 @@ export interface BugHistory {
     details: string;
 }
 
+// Notifica persistente o ricevuta tramite stream live.
 export interface NotificationDTO {
     id: number;
     message: string;
@@ -16,6 +27,7 @@ export interface NotificationDTO {
     isRead: boolean;
 }
 
+// Contatori già aggregati dal backend per le card della dashboard.
 export interface DashboardStats {
     totalIssues: number;
     todoCount: number;
@@ -27,6 +39,7 @@ export interface DashboardStats {
     unassignedBugCount: number;
 }
 
+// Filtri inviabili all'endpoint di ricerca delle issue.
 export interface IssueFilter {
     projectId?: number;
     status?: IssueStatus;
@@ -35,9 +48,10 @@ export interface IssueFilter {
     assigneeId?: number;
     titleQuery?: string;
     sortBy?: 'createdAt' | 'dueDate' | 'priority';
-    sortDirection?: 'asc' | 'desc'; // dichiarate qui per limitato utilizzo nel progetto corrente.
+    sortDirection?: 'asc' | 'desc'; 
 }
 
+// Payload leggero per tabelle e liste.
 export interface IssueSummary {
   id: number;
   title: string;
@@ -51,9 +65,10 @@ export interface IssueSummary {
   assigneeId?: number;
 }
 
-/**
- * DTO completo per la visualizzazione di dettaglio
- */
+
+
+
+// Payload completo per dettaglio, modifica e storico.
 export interface IssueDetailed {
   id: number;
   projectId: number;
@@ -64,7 +79,7 @@ export interface IssueDetailed {
   type: IssueType;
   priority?: IssuePriority;
   dueDate?: string;
-  attachmentUrl?: string; // Se presente un allegato
+  attachmentUrl?: string; 
   creatorEmail: string;
   assigneeEmail?: string;
   assigneeId?: number;

@@ -1,17 +1,21 @@
+// ----------------------------------------------------------
+// APP / ISSUE / COMPONENTS / ISSUE FORM / ISSUE FORM
+// ----------------------------------------------------------
+
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
-// Servizi
+
 import { IssueService } from '../../services/issue.service';
 import { DashboardService } from '../../../dashboard-query/services/dashboard.service';
 import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service';
 
-// Componente Condiviso (Modale)
+
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 
-// DTO e Types
+
 import { CreateIssue, UpdateIssue } from '../../models/issue-dtos';
 import { IssueType, IssuePriority, IssueStatus } from '../../../shared/models/enums';
 import { ProjectState } from '../../../shared/models/shared-dtos';
@@ -32,6 +36,9 @@ export class IssueFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
 
+  // ----------------------------------------------------------------
+  // Opzioni e stato della form
+  // ----------------------------------------------------------------
   protected readonly issueTypes: IssueType[] = ['BUG', 'FEATURE', 'QUESTION', 'DOCUMENTATION'];
   protected readonly issuePriorities: IssuePriority[] = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
   protected readonly issueStatuses: IssueStatus[] = ['TODO', 'IN_PROGRESS', 'DONE'];
@@ -42,33 +49,41 @@ export class IssueFormComponent implements OnInit {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly projects = signal<ProjectState[]>([]);
 
-  // --- STATO DRAG & DROP E VALIDAZIONE FILE ---
+  // ----------------------------------------------------------------
+  // Allegato e drag and drop
+  // ----------------------------------------------------------------
   protected readonly selectedFile = signal<File | null>(null);
-  protected readonly isDragging = signal<boolean>(false); // Per l'effetto hover quando il file è sopra l'area
+  protected readonly isDragging = signal<boolean>(false); 
   
   protected readonly isFileErrorModalOpen = signal<boolean>(false);
   protected readonly fileErrorMessage = signal<string>('');
 
   
-  // STATO DEL MODALE DI AVVISO
+  // ----------------------------------------------------------------
+  // Autorizzazione e modali di conferma
+  // ----------------------------------------------------------------
   protected readonly isModalOpen = signal<boolean>(false);
   protected readonly isAdmin = signal<boolean>(false);
 
-  // --- STATO DEL LIMITE CARATTERI ISSUE (RD-07: MAX 500) ---
+  // ----------------------------------------------------------------
+  // Contatore descrizione e validazione
+  // ----------------------------------------------------------------
   protected readonly MAX_DESC_LENGTH = 500;
-  protected readonly DESC_THRESHOLD = 450; // 90% di 500
+  protected readonly DESC_THRESHOLD = 450; 
 
-  // Signals per il Modale di Validazione Aggregata
+  
   protected readonly isValidationModalOpen = signal<boolean>(false);
   protected readonly validationModalTitle = signal<string>('Attenzione');
   protected readonly validationModalMessage = signal<string>('');
 
-  // --- SIGNALS PER CUSTOM DATE PICKER ---
+  // ----------------------------------------------------------------
+  // Input data e stato della issue
+  // ----------------------------------------------------------------
   protected readonly dateDay = signal<string>('');
   protected readonly dateMonth = signal<string>('');
   protected readonly dateYear = signal<string>('');
 
-  // --- SIGNALS PER IL MODALE DI STATUS DONE ---
+  
   protected readonly isStatusDone = signal<boolean>(false);
 
   issueForm = new FormGroup({
@@ -81,6 +96,9 @@ export class IssueFormComponent implements OnInit {
     dueDate: new FormControl<string | null>(null)
   });
 
+  // ----------------------------------------------------------------
+  // Inizializzazione: nuova issue o modifica di una esistente
+  // ----------------------------------------------------------------
   ngOnInit(): void {
     const role = localStorage.getItem('user_role');
     this.isAdmin.set(role === 'ADMIN');
@@ -101,10 +119,10 @@ if (idParam) {
       this.issueId.set(Number(idParam));
       this.prepareEditMode(this.issueId()!);
     } else {
-      // In creazione lo status non serve, è TODO di default nel back-end
+      
       this.issueForm.controls.status.disable();
 
-      // Leggiamo la query string per capire se l'utente proviene dalla pagina di un progetto
+      
       const preselectedProjectId = this.route.snapshot.queryParamMap.get('projectId');
       if (preselectedProjectId) {
         this.issueForm.patchValue({ projectId: Number(preselectedProjectId) });
@@ -112,7 +130,7 @@ if (idParam) {
     }
   }
 
-  // --- GETTERS PER L'INTERFACCIA ---
+  
   get descriptionLength(): number {
     return this.issueForm.get('description')?.value?.length || 0;
   }
@@ -125,8 +143,10 @@ if (idParam) {
     return this.descriptionLength >= this.DESC_THRESHOLD;
   }
 
-  // --- METODI PRIVATI ---
-
+  // Il contatore è calcolato dal valore corrente, quindi non richiede un signal separato.
+  // ----------------------------------------------------------------
+  // Caricamento e preparazione dei dati
+  // ----------------------------------------------------------------
   private loadProjects(): void {
     this.projectQueryService.getProjects().subscribe({
       next: (projs) => this.projects.set(projs),
@@ -135,6 +155,7 @@ if (idParam) {
   }
 
   private prepareEditMode(id: number): void {
+    // In modifica progetto e tipologia restano fissi per preservare l'identità della issue.
     this.issueForm.controls.projectId.disable();
     this.issueForm.controls.type.disable();
     this.issueForm.controls.status.setValidators([Validators.required]);
@@ -151,13 +172,13 @@ if (idParam) {
           dueDate: data.dueDate || null
         });
 
-        // Impostiamo il signal iniziale per la vista
+        
         if (data.status === 'DONE') {
           this.isStatusDone.set(true);
           this.issueForm.get('dueDate')?.disable();
         }
 
-        // Popoliamo i campi visivi se c'è una data dal server
+        
         if (data.dueDate) {
           this.syncToCustomDateInputs(data.dueDate);
         }
@@ -166,19 +187,22 @@ if (idParam) {
     });
   }
 
-  /**
-   * Valida semanticamente la data inserita a mano.
-   * Controlla completezza, validità di calendario (es. no 30 Febbraio) e che non sia nel passato.
-   */
+  
+
+
+  // ----------------------------------------------------------------
+  // Validazione e invio
+  // ----------------------------------------------------------------
   private validateCustomDate(): string | null {
+    // I tre input testuali vengono validati come una data reale prima di finire nel form ISO.
     const d = this.dateDay();
     const m = this.dateMonth();
     const y = this.dateYear();
 
-    // Se è tutto vuoto, va bene (la scadenza è opzionale)
+    
     if (!d && !m && !y) return null;
 
-    // Se è compilata a metà
+    
     if (!d || !m || y.length !== 4) {
       return "La data è incompleta. Usa il formato 'gg / mm / aaaa' oppure selezionala comodamente dall'icona del calendario a destra.";
     }
@@ -187,40 +211,41 @@ if (idParam) {
     const month = parseInt(m, 10);
     const year = parseInt(y, 10);
 
-    // Verifica logica del calendario (es. 31/02/2026 diventa automaticamente Marzo per JS. Se il mese cambia, la data era finta)
+    
     const dateObj = new Date(year, month - 1, day);
     if (dateObj.getFullYear() !== year || dateObj.getMonth() !== month - 1 || dateObj.getDate() !== day) {
       return "La data inserita non esiste sul calendario. Verifica i valori o utilizza l'icona del calendario.";
     }
 
-    // Verifica invariante di dominio: non può essere nel passato
+    
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (dateObj < today) {
       return "La data di scadenza non può essere impostata nel passato.";
     }
 
-    return null; // Nessun errore
+    return null; 
   }
   
-  /**
-   * Gestisce l'invio del form.
-   */
+  
+
+
   onSubmit(): void {
     if (this.issueForm.invalid) {
       this.issueForm.markAllAsTouched();
       return;
     }
 
+    // Accorpiamo gli errori in un solo modal per evitare una sequenza di messaggi interruttivi.
     const errors: string[] = [];
     const formValues = this.issueForm.getRawValue();
 
-    // 1. Controllo Limite Descrizione (RD-07)
+    
     if (formValues.description && formValues.description.length > 500) {
       errors.push("• La descrizione supera il limite massimo di 500 caratteri. Sintetizza il testo.");
     }
 
-    // 2. Controllo Data (Solo per Admin)
+    
     if (this.isAdmin()) {
       const dateError = this.validateCustomDate();
       if (dateError) {
@@ -228,13 +253,13 @@ if (idParam) {
       }
     }
 
-    // 3. UX CONCORRENZA: Se ci sono uno o più errori, mostriamo UN SOLO modale aggregato
+    
     if (errors.length > 0) {
       this.validationModalTitle.set(errors.length > 1 ? 'Multipli Errori Rilevati' : 'Attenzione');
-      // Unisce l'array in una stringa formattata con ritorni a capo
+      
       this.validationModalMessage.set("Per procedere con il salvataggio, risolvi i seguenti problemi:\n\n" + errors.join('\n\n'));
       this.isValidationModalOpen.set(true);
-      return; // Blocca l'invio HTTP!
+      return; 
     }
     
     this.isSubmitting.set(true);
@@ -246,6 +271,7 @@ if (idParam) {
   }
 
   private handleCreate(): void {
+    // La creazione usa il multipart per inviare insieme dati JSON e allegato opzionale.
     const formValues = this.issueForm.getRawValue();
     const request: CreateIssue = {
       projectId: Number(formValues.projectId),
@@ -253,10 +279,10 @@ if (idParam) {
       description: formValues.description!,
       type: formValues.type as IssueType,
       priority: formValues.priority as IssuePriority || undefined,
-      // La data di scadenza (opzionale) in creazione
+      
     };
     if (formValues.dueDate) {
-        (request as any).dueDate = formValues.dueDate; // Aggiunta per retrocompatibilità
+        (request as any).dueDate = formValues.dueDate; 
     }
 
     const file = this.selectedFile() || undefined;
@@ -272,10 +298,11 @@ if (idParam) {
     });
   }
 
-  /**
-   * Gestisce l'aggiornamento di una issue.
-   */
+  
+
+
   private handleUpdate(): void {
+    // L'aggiornamento della scadenza viene completato dopo la PUT principale.
     const formValues = this.issueForm.getRawValue();
     const id = this.issueId()!;
 
@@ -286,13 +313,13 @@ if (idParam) {
       priority: formValues.priority as IssuePriority || undefined
     };
 
-    // Estraiamo il file selezionato (se presente)
+    // L'aggiornamento della scadenza è una chiamata separata rispetto al multipart della issue.
     const file = this.selectedFile() || undefined;
 
-    // Passiamo anche il file alla nuova firma di updateIssue
+    
     this.issueService.updateIssue(id, request, file).subscribe({
       next: () => {
-        // Se c'è una data di scadenza, la aggiorniamo con una seconda chiamata (Funzionalità 18)
+        
         if (formValues.dueDate) {
            this.issueService.setDueDate(id, formValues.dueDate).subscribe({
              next: () => this.forceNavigateBack(),
@@ -309,13 +336,15 @@ if (idParam) {
     });
   }
 
-  // ==========================================
-  // GESTIONE CUSTOM DATE PICKER
-  // ==========================================
+  
+  
+  
 
-  // Chiamato dall'HTML quando l'utente digita a mano nei 3 campi
+  // ----------------------------------------------------------------
+  // Data e allegati
+  // ----------------------------------------------------------------
   onCustomDateInput(type: 'day' | 'month' | 'year', event: Event): void {
-    const value = (event.target as HTMLInputElement).value.replace(/\D/g, ''); // Solo numeri
+    const value = (event.target as HTMLInputElement).value.replace(/\D/g, ''); 
     if (type === 'day') this.dateDay.set(value);
     if (type === 'month') this.dateMonth.set(value);
     if (type === 'year') this.dateYear.set(value);
@@ -323,15 +352,15 @@ if (idParam) {
     this.syncToFormControl();
   }
 
-  // Chiamato quando l'utente seleziona la data dal Calendario Nativo (icona a destra)
+  
   onNativeDateSelect(event: Event): void {
-    const value = (event.target as HTMLInputElement).value; // Arriva in formato YYYY-MM-DD
+    const value = (event.target as HTMLInputElement).value; 
     if (value) {
       this.syncToCustomDateInputs(value);
       this.issueForm.get('dueDate')?.setValue(value);
       this.issueForm.get('dueDate')?.markAsDirty();
     } else {
-      // Se l'utente clicca "Cancella" nel calendario nativo
+      
       this.dateDay.set('');
       this.dateMonth.set('');
       this.dateYear.set('');
@@ -339,7 +368,7 @@ if (idParam) {
     }
   }
 
-  // Converte YYYY-MM-DD nei tre signal separati
+  
   private syncToCustomDateInputs(isoDate: string): void {
     const parts = isoDate.split('-');
     if (parts.length === 3) {
@@ -349,14 +378,14 @@ if (idParam) {
     }
   }
 
-  // Prende i tre signal e aggiorna il form in formato YYYY-MM-DD
+  
   private syncToFormControl(): void {
     const d = this.dateDay();
     const m = this.dateMonth();
     const y = this.dateYear();
 
     if (d.length >= 1 && m.length >= 1 && y.length === 4) {
-      // Formatta con zero-padding (es: 5 -> 05)
+      
       const dayStr = d.padStart(2, '0');
       const monthStr = m.padStart(2, '0');
       const isoDate = `${y}-${monthStr}-${dayStr}`;
@@ -367,11 +396,11 @@ if (idParam) {
     }
   }
 
-  // ==========================================
-  // GESTIONE DRAG & DROP E FILE
-  // ==========================================
+  
+  
+  
 
-// Chiamato quando si clicca "Browse" 
+
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -403,7 +432,7 @@ if (idParam) {
 
   private processFile(file: File): void {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024; 
 
     if (!allowedTypes.includes(file.type)) {
       this.fileErrorMessage.set('Formato non supportato. Per favore carica solo file .jpg, .png o .gif.');
@@ -425,14 +454,14 @@ if (idParam) {
     this.selectedFile.set(null);
   }
 
-  // ==========================================
-  // NAVIGAZIONE INDIETRO CON AVVISO
-  // ==========================================
+  
+  
+  
 
-  /**
-   * Intercetta il tasto "Annulla". Se il form ha modifiche non salvate (dirty),
-   * mostra l'avviso. Altrimenti esce subito.
-   */
+  
+
+
+
   navigateBack(): void {
     if (this.issueForm.dirty) {
       this.isModalOpen.set(true);

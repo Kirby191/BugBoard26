@@ -1,7 +1,12 @@
+// -------------------------------------------------------------------------
+// APP / SHARED / COMPONENTS / STATUS BADGE / STATUS BADGE.COMPONENT
+// -------------------------------------------------------------------------
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { StatusBadgeComponent } from './status-badge.component';
 
 describe('StatusBadgeComponent (Shared UI)', () => {
+  /* Il componente deve mantenere separati valore di dominio, testo mostrato e classe CSS. */
   let component: StatusBadgeComponent;
   let fixture: ComponentFixture<StatusBadgeComponent>;
 
@@ -15,7 +20,7 @@ describe('StatusBadgeComponent (Shared UI)', () => {
   });
 
   it('should create the component', () => {
-    // Inizializza l'input obbligatorio prima di chiamare detectChanges()
+    
     fixture.componentRef.setInput('value', 'TODO');
     fixture.detectChanges();
     expect(component).toBeTruthy();

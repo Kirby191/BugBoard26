@@ -1,6 +1,7 @@
 package com.bugboard26.core.query_view.listener;
 
 import com.bugboard26.core.issue_management.event.BugAssignedEvent;
+import com.bugboard26.core.issue_management.event.BugUnassignedEvent;
 import com.bugboard26.core.query_view.service.NotificationService;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -39,5 +40,14 @@ public class NotificationEventListener {
 
         // 3. Delegazione al NotificationService locale per la persistenza della notifica 2, 4]
         notificationService.createNotification(assigneeId, bugId, message);
+    }
+
+    /**
+     * Reagisce alla rimozione di un'assegnazione.
+     */
+    @EventListener
+    @Async
+    public void handleBugUnassigned(BugUnassignedEvent event) {
+        notificationService.handleUnassignment(event.previousAssigneeId(), event.bugId());
     }
 }

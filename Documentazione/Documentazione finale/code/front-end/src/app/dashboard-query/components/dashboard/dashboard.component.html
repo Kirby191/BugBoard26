@@ -1,7 +1,13 @@
+<!-- ------------------------------------------------------------------
+     APP / DASHBOARD QUERY / COMPONENTS / DASHBOARD / DASHBOARD
+     ------------------------------------------------------------------
+ -->
+
 <div class="dashboard-container">
+  <!-- Intestazione e accesso rapido alla lista completa. -->
   <div class="header-actions">
     <h2>Centro di Controllo (Dashboard)</h2>
-    <!-- Pulsante generico: va alla lista senza filtri -->
+    
     <button class="btn btn-primary" (click)="goToFilteredList()">Vai a Tutte le Segnalazioni</button>
   </div>
 
@@ -9,35 +15,37 @@
     <div class="alert alert-danger">{{ errorMessage() }}</div>
   }
 
+  <!-- La dashboard mostra uno stato esplicito mentre le metriche vengono caricate. -->
   @if (isLoading()) {
     <div class="loading-spinner"><p>Aggiornamento metriche in corso...</p></div>
   } @else if (stats(); as s) {
     
+    <!-- Metriche operative: ogni card porta alla lista già filtrata. -->
     <h3 class="section-title">Attenzione Richiesta</h3>
     <div class="stats-grid">
       
-      <!-- Cliccando qui, filtro per assigneeId = mioID -->
+      
       <div class="stat-card primary-border" style="cursor: pointer;" (click)="goToMyIssues()">
         <div class="stat-title">Assegnate a me</div>
         <div class="stat-value">{{ s.assignedToMeCount }}</div>
         <div class="stat-desc">Task in carico al tuo utente</div>
       </div>
 
-      <!-- Scadute  -->
+      
       <div class="stat-card warning-border" style="cursor: pointer;" (click)="goToFilteredList({ localFilter: 'overdue' })">
         <div class="stat-title">Scadute o In Scadenza</div>
         <div class="stat-value text-warning">{{ s.overdueCount }}</div>
         <div class="stat-desc">Richiedono intervento immediato</div>
       </div>
 
-      <!-- Cliccando qui, filtro per priority = CRITICAL -->
+      
       <div class="stat-card danger-border" style="cursor: pointer;" (click)="goToFilteredList({ priority: 'CRITICAL' })">
         <div class="stat-title">Priorità CRITICAL</div>
         <div class="stat-value text-danger">{{ s.criticalCount }}</div>
         <div class="stat-desc">Bug che bloccano il sistema</div>
       </div>
 
-     <!-- Bug non assegnati (Filtriamo 'BUG' da back-end, e i non assegnati da front-end) -->
+     
       <div class="stat-card info-border" style="cursor: pointer;" (click)="goToFilteredList({ type: 'BUG', localFilter: 'unassigned' })">
         <div class="stat-title">Bug Non Assegnati</div>
         <div class="stat-value text-info">{{ s.unassignedBugCount }}</div>
@@ -45,10 +53,11 @@
       </div>
     </div>
 
+    <!-- Distribuzione delle issue lungo il workflow. -->
     <h3 class="section-title mt-4">Avanzamento Globale (Totale: {{ s.totalIssues }})</h3>
     <div class="stats-grid three-cols">
       
-      <!-- Filtri di Stato -->
+      
       <div class="stat-card workflow-card" style="cursor: pointer;" (click)="goToFilteredList({ status: 'TODO' })">
         <div class="stat-title">TODO</div>
         <div class="stat-value">{{ s.todoCount }}</div>
