@@ -131,13 +131,13 @@ public class IssueQueryServiceImpl implements IssueQueryService {
             List<Predicate> predicates = new ArrayList<>();
 
             Predicate rbacPredicate = IssueVisibilityHelper.buildRbacPredicate(root, criteriaBuilder, currentUserId, isAdmin);
-            ApplyFilters(filter, root, criteriaBuilder, rbacPredicate, predicates);
+            applyFilters(filter, root, criteriaBuilder, rbacPredicate, predicates);
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
 
-    private static void ApplyFilters(IssueFilter filter, Root<Issue> root, CriteriaBuilder criteriaBuilder, Predicate rbacPredicate, List<Predicate> predicates) {
+    private static void applyFilters(IssueFilter filter, Root<Issue> root, CriteriaBuilder criteriaBuilder, Predicate rbacPredicate, List<Predicate> predicates) {
         if (rbacPredicate != null) {
             predicates.add(rbacPredicate);
         }
