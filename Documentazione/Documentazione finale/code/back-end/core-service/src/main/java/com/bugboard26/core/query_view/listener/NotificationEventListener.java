@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
  * Listener del Query & View Subsystem che intercetta gli eventi di assegnazione bug.
  * Isola la logica di notifica dal Command Layer garantendo il Low Coupling.
  */
-/** Trasforma gli eventi di dominio in notifiche persistite per gli utenti. */
 @Component
 public class NotificationEventListener {
 

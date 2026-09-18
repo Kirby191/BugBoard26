@@ -24,9 +24,6 @@ public class ProjectController {
     }
 
     /**
-     * Crea un nuovo progetto (Solo Admin).
-     */
-    /**
      * Riceve i dati del nuovo progetto e delega la persistenza al command service.
      *
      * @param request dati validati del progetto
@@ -38,9 +35,6 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * Aggiorna nome o descrizione di un progetto esistente (Solo Admin).
-     */
     /**
      * Applica un aggiornamento parziale al progetto indicato.
      *
@@ -57,9 +51,6 @@ public class ProjectController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Elimina un progetto e, a cascata (ON DELETE CASCADE), le issue collegate.
-     */
     /**
      * Elimina il progetto indicato e lascia al database la gestione delle relazioni a cascata.
      *

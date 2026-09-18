@@ -6,7 +6,6 @@ import com.bugboard26.core.history.model.AuditAction;
 /**
  * DTO per la rappresentazione della cronologia dei bug.
  */
-/** Evento storico esposto nella cronologia di una issue. */
 public record BugHistory(
     Long id,
     Long bugId,

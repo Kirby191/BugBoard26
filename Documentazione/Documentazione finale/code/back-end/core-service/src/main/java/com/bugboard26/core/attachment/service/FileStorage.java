@@ -7,7 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
  * Consente al modulo chiamante di richiedere il salvataggio di un allegato
  * rimanendo completamente disaccoppiato dalle implementazioni di storage fisiche.
  */
-/** Contratto minimo usato dall'issue management per salvare allegati. */
 public interface FileStorage {
 
     /**

@@ -9,7 +9,6 @@ import java.util.List;
  * Interfaccia esposta del sottosistema History.
  * Definisce i contratti per la consultazione e il tracciamento dei log.
  */
-/** Legge e registra gli eventi immutabili della cronologia delle issue. */
 public interface HistoryService {
 
     List<BugHistory> getHistoryForBug(Long bugId);

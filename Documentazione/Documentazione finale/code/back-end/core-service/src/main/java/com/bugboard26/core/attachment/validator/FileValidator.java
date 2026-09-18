@@ -11,7 +11,6 @@ import java.util.List;
  * Validatore per i file multimediali in ingresso.
  * Previene l'upload di file non consentiti o eccessivamente grandi.
  */
-/** Verifica dimensione e tipo MIME prima della persistenza di un allegato. */
 @Component
 public class FileValidator {
 

@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
  * Implementa idealmente un'interfaccia BugEvent e permette di disaccoppiare
  * l'Issue Management (scrittura) da Query & View (notifiche)
  */
-/** Evento emesso quando un bug viene assegnato a un utente. */
 public record BugAssignedEvent(
         Long bugId,
         Long assigneeId,

@@ -24,7 +24,6 @@ import java.time.ZoneId;
 /**
  * Coordina assegnazione, audit e notifiche delle segnalazioni.
  */
-/** Coordina assegnazione, audit e notifiche delle segnalazioni. */
 @Service
 public class AssignBugServiceImpl implements AssignBugService {
 

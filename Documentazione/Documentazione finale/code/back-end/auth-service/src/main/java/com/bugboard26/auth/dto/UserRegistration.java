@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-/** Dati validati per la registrazione di un nuovo utente. */
 /** Dati necessari per registrare un nuovo utente. */
 public record UserRegistration(
         @NotBlank(message = "L'email non può essere vuota")

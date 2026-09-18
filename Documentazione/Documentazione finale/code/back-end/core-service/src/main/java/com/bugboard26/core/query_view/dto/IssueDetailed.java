@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
  * DTO completo per la visualizzazione di dettaglio di una singola segnalazione.
  * Include campi pesanti (descrizione, URL allegato) e tutti i metadati temporali.
  */
-/** Rappresentazione completa di una issue per le viste di consultazione. */
 public record IssueDetailed(
         Long id,
         Long projectId,
