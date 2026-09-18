@@ -13,7 +13,9 @@ import com.bugboard26.core.shared.model.UserReference;
 import com.bugboard26.core.query_view.repository.UserReadRepository;
 import com.bugboard26.core.shared.security.AuthenticatedUserProvider;
 import com.bugboard26.core.query_view.util.IssueVisibilityHelper;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -129,37 +131,40 @@ public class IssueQueryServiceImpl implements IssueQueryService {
             List<Predicate> predicates = new ArrayList<>();
 
             Predicate rbacPredicate = IssueVisibilityHelper.buildRbacPredicate(root, criteriaBuilder, currentUserId, isAdmin);
-            if (rbacPredicate != null) {
-                predicates.add(rbacPredicate);
-            }
-
-            if (filter.projectId() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("projectId"), filter.projectId()));
-            }
-            if (filter.status() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("status"), filter.status()));
-            }
-            if (filter.type() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("type"), filter.type()));
-            }
-            if (filter.priority() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("priority"), filter.priority()));
-            }
-            if (filter.assigneeId() != null) {
-                if (filter.assigneeId().equals(-1L)) {
-                    predicates.add(criteriaBuilder.isNull(root.get("assigneeId")));
-                } else {
-                    predicates.add(criteriaBuilder.equal(root.get("assigneeId"), filter.assigneeId()));
-                }
-            }
-            if (filter.titleQuery() != null && !filter.titleQuery().isBlank()) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("title")),
-                        "%" + filter.titleQuery().toLowerCase() + "%"
-                ));
-            }
+            ApplyFilters(filter, root, criteriaBuilder, rbacPredicate, predicates);
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
+    }
+
+    private static void ApplyFilters(IssueFilter filter, Root<Issue> root, CriteriaBuilder criteriaBuilder, Predicate rbacPredicate, List<Predicate> predicates) {
+        if (rbacPredicate != null) {
+            predicates.add(rbacPredicate);
+        }
+        if (filter.projectId() != null) {
+            predicates.add(criteriaBuilder.equal(root.get("projectId"), filter.projectId()));
+        }
+        if (filter.status() != null) {
+            predicates.add(criteriaBuilder.equal(root.get("status"), filter.status()));
+        }
+        if (filter.type() != null) {
+            predicates.add(criteriaBuilder.equal(root.get("type"), filter.type()));
+        }
+        if (filter.priority() != null) {
+            predicates.add(criteriaBuilder.equal(root.get("priority"), filter.priority()));
+        }
+        if (filter.assigneeId() != null) {
+            if (filter.assigneeId().equals(-1L)) {
+                predicates.add(criteriaBuilder.isNull(root.get("assigneeId")));
+            } else {
+                predicates.add(criteriaBuilder.equal(root.get("assigneeId"), filter.assigneeId()));
+            }
+        }
+        if (filter.titleQuery() != null && !filter.titleQuery().isBlank()) {
+            predicates.add(criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("title")),
+                    "%" + filter.titleQuery().toLowerCase() + "%"
+            ));
+        }
     }
 }
