@@ -98,9 +98,9 @@ describe('RegisterComponent', () => {
     expect(authServiceMock.register).toHaveBeenCalled();
 
     
-    const successAlert = fixture.nativeElement.querySelector('.alert-success');
-    expect(successAlert).toBeTruthy();
-    expect(successAlert.textContent).toContain('creato con successo');
+    const resultModal = fixture.nativeElement.querySelector('.modal-content');
+    expect(resultModal).toBeTruthy();
+    expect(resultModal.textContent).toContain('successo');
     
     
     expect(component.registerForm.get('email')?.value).toBeNull();
@@ -122,8 +122,8 @@ describe('RegisterComponent', () => {
     component.register();
     fixture.detectChanges();
 
-    const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
-    expect(errorAlert).toBeTruthy();
-    expect(errorAlert.textContent).toContain('è in uso');
+    const resultModal = fixture.nativeElement.querySelector('.modal-content');
+    expect(resultModal).toBeTruthy();
+    expect(resultModal.textContent).toContain('è in uso');
   });
 });

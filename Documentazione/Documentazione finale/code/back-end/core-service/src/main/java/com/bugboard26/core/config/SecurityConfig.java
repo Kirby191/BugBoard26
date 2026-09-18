@@ -18,13 +18,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthFilter) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                // Imposta la gestione delle sessioni come STATELESS
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Permettiamo il download pubblico degli allegati, altrimenti i normali tag <img>
-                        // nel front-end di Angular verrebbero bloccati
+                    // Gli allegati sono richiesti direttamente dal browser tramite URL.
                         .requestMatchers("/api/attachments/**").permitAll()
-                        // Tutte le altre rotte (projects, issues, history, ecc.) richiedono il token
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

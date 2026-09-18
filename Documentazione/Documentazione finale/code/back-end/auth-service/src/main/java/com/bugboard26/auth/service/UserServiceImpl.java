@@ -7,6 +7,7 @@ import com.bugboard26.auth.dto.UserResponse;
 import com.bugboard26.auth.exception.EmailAlreadyExistsException;
 import com.bugboard26.auth.exception.InvalidCredentialsException;
 import com.bugboard26.auth.jwt.TokenProvider;
+import com.bugboard26.auth.model.Role;
 import com.bugboard26.auth.model.User;
 import com.bugboard26.auth.repository.UserRepository;
 import jakarta.annotation.Nonnull;
@@ -32,7 +33,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
-    // L'aggiunta di @Lazy spezza il ciclo nativo di Spring Security mantenendo l'UML invariato
     public UserServiceImpl(UserRepository userRepository,
                            TokenProvider tokenProvider,
                            @Lazy PasswordEncoder passwordEncoder,
@@ -49,20 +49,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public JwtResponse authenticate(LoginRequest request) {
         try {
-            // 1. Deleghiamo a Spring Security la validazione delle credenziali.
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.email(), request.password()));
         } catch (AuthenticationException e) {
             throw new InvalidCredentialsException("Credenziali non valide per l'email: " + request.email());
         }
 
-        // 2. Se l'autenticazione va a buon fine, recuperiamo l'utente
         User user = findByEmail(request.email());
 
-        // 3. Generiamo il token JWT tramite il TokenProvider
         String token = tokenProvider.generateToken(user);
 
-        // 4. Costruiamo e restituiamo la risposta mappando i campi del DTO JwtResponse
         return new JwtResponse(
                 token,
                 "Bearer",
@@ -78,23 +74,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public UserResponse createUser(UserRegistration request) {
-        // 1. Verifichiamo se l'email esiste già nel database
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException("L'email " + request.email() + " è già in uso.");
         }
 
-        // 2. Creiamo l'Entity User cifrando la password con BCrypt
         User user = User.builder()
                 .email(request.email())
                 .passwordHash(passwordEncoder.encode(request.password()))
                 .username(request.username())
-                .role(request.role())
+            // Il ruolo inviato dal client non è attendibile: la registrazione pubblica crea utenti ordinari.
+            .role(Role.UTENTE)
                 .build();
 
-        // 3. Salviamo l'utente nel database
         User savedUser = userRepository.save(user);
 
-        // 4. Trasformiamo l'Entity salvata in un UserResponse nascondendo la password
         return new UserResponse(
                 savedUser.getId(),
                 savedUser.getEmail(),

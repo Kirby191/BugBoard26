@@ -9,11 +9,13 @@ import { Router } from '@angular/router';
 
 import { DashboardService } from '../../services/dashboard.service';
 import { DashboardStats } from '../../models/query-dtos';
+import { ServerErrorStateComponent } from '../../../shared/components/server-error-state/server-error-state.component';
+import { getServerErrorDetails, ServerErrorDetails } from '../../../shared/components/server-error-state/server-error-details';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ServerErrorStateComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
@@ -28,6 +30,7 @@ export class DashboardComponent implements OnInit {
   protected readonly stats = signal<DashboardStats | null>(null);
   protected readonly isLoading = signal<boolean>(true);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly errorData = signal<ServerErrorDetails | null>(null);
 
   ngOnInit(): void {
     this.loadStatistics();
@@ -43,10 +46,15 @@ export class DashboardComponent implements OnInit {
       },
       error: (err) => {
         console.error('Errore durante il caricamento della dashboard', err);
-        this.errorMessage.set('Impossibile caricare le metriche. Il server potrebbe essere irraggiungibile.');
+        this.errorData.set(getServerErrorDetails(err, 'Impossibile caricare le metriche.'));
         this.isLoading.set(false);
       }
     });
+  }
+
+  retryStatistics(): void {
+    this.errorData.set(null);
+    this.loadStatistics();
   }
 
 

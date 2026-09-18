@@ -6,16 +6,16 @@ import com.bugboard26.core.issue_management.model.enums.IssueType;
 import com.bugboard26.core.query_view.dto.DashboardStats;
 import com.bugboard26.core.query_view.repository.IssueReadRepository;
 import com.bugboard26.core.shared.security.AuthenticatedUserProvider;
+import com.bugboard26.core.query_view.util.IssueVisibilityHelper;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Implementazione del Query Layer per il calcolo delle metriche della Dashboard.
- * Applica le regole RBAC per segmentare le viste tra Admin e Utente.
- */
 @Service
 public class DashboardServiceImpl implements DashboardService {
 
@@ -31,44 +31,79 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     @Transactional(readOnly = true)
     public DashboardStats getDashboardStats() {
-        // 1. Calcolo metriche globali tramite conteggi ottimizzati a DB
-        int todoCount = issueRepository.countByStatus(IssueStatus.TODO);
-        int inProgressCount = issueRepository.countByStatus(IssueStatus.IN_PROGRESS);
-        int doneCount = issueRepository.countByStatus(IssueStatus.DONE);
+        Long currentUserId = userProvider.getCurrentUserId();
+        boolean isAdmin = userProvider.isCurrentAdmin();
+
+        int todoCount = countByStatusForUser(IssueStatus.TODO, currentUserId, isAdmin);
+        int inProgressCount = countByStatusForUser(IssueStatus.IN_PROGRESS, currentUserId, isAdmin);
+        int doneCount = countByStatusForUser(IssueStatus.DONE, currentUserId, isAdmin);
         int totalIssues = todoCount + inProgressCount + doneCount;
 
-        int criticalCount = issueRepository.countByPriority(IssuePriority.CRITICAL);
+        int criticalCount = countCriticalForUser(currentUserId, isAdmin);
 
-        // Calcolo la data di scadenza target (7 giorni da oggi)
         LocalDate targetDate = LocalDate.now(ZoneId.systemDefault()).plusDays(7);
+        int overdueCount = (int) issueRepository.count((root, query, cb) -> {
+            List<Predicate> preds = new ArrayList<>();
+            preds.add(cb.lessThanOrEqualTo(root.get("dueDate"), targetDate));
+            preds.add(cb.notEqual(root.get("status"), IssueStatus.DONE));
 
-        // Calcola quante segnalazioni sono scadute e non ancora completate
-        int overdueCount = issueRepository.countByDueDateLessThanEqualAndStatusNot(targetDate, IssueStatus.DONE);
+            Predicate rbacPredicate = IssueVisibilityHelper.buildRbacPredicate(root, cb, currentUserId, isAdmin);
+            if (rbacPredicate != null) {
+                preds.add(rbacPredicate);
+            }
 
-        // 2. Metriche Sensibili al Contesto (RBAC & Identità)
-        Long currentUserId = userProvider.getCurrentUserId();
+            return cb.and(preds.toArray(new Predicate[0]));
+        });
 
-        // Uso JpaSpecificationExecutor per calcolare i task assegnati senza toccare il Repository base
         long assignedToMeLong = issueRepository.count((root, query, cb) ->
                 cb.equal(root.get("assigneeId"), currentUserId));
 
         int unassignedBugCount = 0;
-
-        // Se l'utente è Admin, calcoliamo anche i bug non assegnati da smistare
-        if (userProvider.isCurrentAdmin()) {
+        if (isAdmin) {
             unassignedBugCount = issueRepository.countByTypeAndAssigneeIdIsNull(IssueType.BUG);
         }
 
-        // 3. Generazione DTO finale 4]
         return new DashboardStats(
                 totalIssues,
                 todoCount,
                 inProgressCount,
                 doneCount,
-                (short) assignedToMeLong, // Il cast a short ottimizza il payload
+                (short) assignedToMeLong,
                 criticalCount,
                 overdueCount,
                 unassignedBugCount
         );
+    }
+
+    // =========================================================================
+    // METODI PRIVATI DI UTILITÀ PER IL CONTEGGIO CON RBAC
+    // =========================================================================
+
+    private int countByStatusForUser(IssueStatus status, Long userId, boolean isAdmin) {
+        return (int) issueRepository.count((root, query, cb) -> {
+            List<Predicate> preds = new ArrayList<>();
+            preds.add(cb.equal(root.get("status"), status));
+
+            Predicate rbacPredicate = IssueVisibilityHelper.buildRbacPredicate(root, cb, userId, isAdmin);
+            if (rbacPredicate != null) {
+                preds.add(rbacPredicate);
+            }
+            return cb.and(preds.toArray(new Predicate[0]));
+        });
+    }
+
+    private int countCriticalForUser(Long userId, boolean isAdmin) {
+        return (int) issueRepository.count((root, query, cb) -> {
+            List<Predicate> preds = new ArrayList<>();
+
+            // Fissiamo il valore CRITICAL
+            preds.add(cb.equal(root.get("priority"), IssuePriority.CRITICAL));
+
+            Predicate rbacPredicate = IssueVisibilityHelper.buildRbacPredicate(root, cb, userId, isAdmin);
+            if (rbacPredicate != null) {
+                preds.add(rbacPredicate);
+            }
+            return cb.and(preds.toArray(new Predicate[0]));
+        });
     }
 }

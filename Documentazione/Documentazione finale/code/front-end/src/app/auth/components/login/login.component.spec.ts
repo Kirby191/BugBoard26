@@ -5,7 +5,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Login } from './login.component';
 import { AuthService } from '../../services/auth.service';
-import { provideRouter } from '@angular/router';
+import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
 describe('LoginComponent', () => {
@@ -23,7 +23,7 @@ describe('LoginComponent', () => {
     await TestBed.configureTestingModule({
       imports: [Login],
       providers: [
-        provideRouter([]),
+        { provide: Router, useValue: { navigate: vi.fn() } },
         { provide: AuthService, useValue: authServiceMock }
       ]
     }).compileComponents();
@@ -46,9 +46,8 @@ describe('LoginComponent', () => {
     fixture.detectChanges(); 
     
     
-    const localErrors = fixture.nativeElement.querySelectorAll('.error-text');
-    expect(localErrors.length).toBe(2);
-    expect(localErrors[0].textContent).toContain("Si prega di inserire l'email");
+    expect(fixture.nativeElement.querySelector('.login-toast.show')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.login-toast').textContent).toContain('Inserisci');
     
     expect(authServiceMock.login).not.toHaveBeenCalled();
   });
@@ -68,19 +67,19 @@ describe('LoginComponent', () => {
     expect(authServiceMock.login).toHaveBeenCalled();
   });
 
-  it('should handle backend errors and show the global error banner (DOM Testing)', () => {
-    
+  it('should handle backend errors and show the elegant login toast (DOM Testing)', () => {
+    // Il mock simula l'errore del Back-End
     authServiceMock.login.mockReturnValue(throwError(() => ({
-      error: { message: 'Credenziali non trovate a sistema' }
+      error: { message: 'Credenziali errate' }
     })));
-
+    
     component.loginForm.patchValue({ email: 'test@bugboard.com', password: 'wrongpassword' });
     component.login();
     fixture.detectChanges();
-
     
-    const errorBanner = fixture.nativeElement.querySelector('.error-banner');
-    expect(errorBanner).toBeTruthy();
-    expect(errorBanner.textContent).toContain('Credenziali errate');
+    // Controlliamo l'apparizione del nuovo componente toast
+    const errorToast = fixture.nativeElement.querySelector('.login-toast.show');
+    expect(errorToast).toBeTruthy();
+    expect(errorToast.textContent).toContain('Credenziali errate');
   });
 });

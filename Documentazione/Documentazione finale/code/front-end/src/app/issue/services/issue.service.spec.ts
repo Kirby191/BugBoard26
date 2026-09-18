@@ -14,7 +14,7 @@ describe('IssueService', () => {
   let httpMock: HttpTestingController;
 
   
-  const API_ISSUES = 'http://localhost:8080/api/issues';
+  const API_ISSUES = '/api/issues';
 
   beforeEach(() => {
     TestBed.resetTestingModule();
@@ -81,7 +81,9 @@ describe('IssueService', () => {
 
       const req = httpMock.expectOne(`${API_ISSUES}/10`);
       expect(req.request.method).toBe('PUT');
-      expect(req.request.body).toEqual(updateDto); 
+      expect(req.request.body instanceof FormData).toBe(true);
+      expect((req.request.body as FormData).has('issue')).toBe(true);
+      expect((req.request.body as FormData).has('file')).toBe(false);
       
       req.flush({});
     });
@@ -101,7 +103,7 @@ describe('IssueService', () => {
     it('should PUT with HttpParams when setDueDate is called', () => {
       service.setDueDate(10, '2026-12-31').subscribe();
 
-      const req = httpMock.expectOne(request => request.url === `${API_ISSUES}/10/due-date`);
+      const req = httpMock.expectOne(request => request.urlWithParams === `${API_ISSUES}/10/due-date?dueDate=2026-12-31`);
       expect(req.request.method).toBe('PUT');
       
       

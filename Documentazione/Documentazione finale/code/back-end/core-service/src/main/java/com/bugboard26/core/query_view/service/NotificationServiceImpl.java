@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Service // FONDAMENTALE: Dice a Spring di istanziare questa classe e iniettarla nel Listener
+@Service
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -34,27 +34,23 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     @Transactional
     public void createNotification(Long assigneeId, Long bugId, String message) {
-        // Delega la logica al metodo privato per evitare la self-invocation del Proxy Spring
         internalCreateAndPushNotification(assigneeId, bugId, message);
     }
 
     @Override
     @Transactional
     public void handleUnassignment(Long previousAssigneeId, Long bugId) {
-        // 1. Pulisce la vecchia notifica "Ti è stato assegnato..." se non è stata ancora letta
+        // Sostituisce la notifica di assegnazione non letta con quella di revoca.
         notificationRepository.deleteUnreadByRecipientAndBugId(previousAssigneeId, bugId);
 
-        // 2. Genera una nuova notifica per avvisare l'utente della rimozione
         String message = "L'assegnazione del Bug #" + bugId + " è stata annullata dall'Amministratore.";
 
-        // Delega la logica al metodo privato per evitare la self-invocation del Proxy Spring
         internalCreateAndPushNotification(previousAssigneeId, bugId, message);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<NotificationDTO> getUnreadNotificationsForUser() {
-        // Security breach prevention: Usiamo l'ID sicuro dal token JWT
         Long currentUserId = userProvider.getCurrentUserId();
 
         return notificationRepository.findByRecipientIdAndIsReadFalseOrderByTimestampDesc(currentUserId)
@@ -76,7 +72,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new RuntimeException("Notifica non trovata con ID: " + notificationId));
 
-        // Sicurezza: verifica che la notifica appartenga davvero all'utente loggato
+        // L'ID arriva dal token, quindi una notifica non può essere modificata da un altro utente.
         if (!notification.getRecipient().getId().equals(currentUserId)) {
             throw new UnauthorizedActionException("Accesso negato: non puoi modificare le notifiche di un altro utente.");
         }
@@ -85,17 +81,8 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(notification);
     }
 
-    // =========================================================================
-    // METODI PRIVATI
-    // =========================================================================
-
-    /**
-     * Metodo privato che esegue effettivamente la logica.
-     * Essendo private, Spring non lo inserisce nel Proxy AOP,
-     * risolvendo il problema della chiamata transazionale interna.
-     */
     private void internalCreateAndPushNotification(Long assigneeId, Long bugId, String message) {
-        // Usa il proxy (getReference) per evitare una query SELECT inutile a DB
+        // Il riferimento JPA evita di caricare l'utente: serve solo la relazione.
         UserReference recipient = entityManager.getReference(UserReference.class, assigneeId);
 
         Notification notification = Notification.builder()
@@ -106,7 +93,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         notificationRepository.save(notification);
 
-        // Invia la notifica in tempo reale tramite SSE se l'utente è connesso
+        // La persistenza precede il push, così il client riceve una notifica già disponibile.
         sseConnectionManager.pushToUser(assigneeId, new NotificationDTO(
                 notification.getId(),
                 notification.getMessage(),

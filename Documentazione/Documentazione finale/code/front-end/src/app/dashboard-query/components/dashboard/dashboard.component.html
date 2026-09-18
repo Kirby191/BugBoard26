@@ -11,13 +11,17 @@
     <button class="btn btn-primary" (click)="goToFilteredList()">Vai a Tutte le Segnalazioni</button>
   </div>
 
-  @if (errorMessage()) {
-    <div class="alert alert-danger">{{ errorMessage() }}</div>
-  }
-
   <!-- La dashboard mostra uno stato esplicito mentre le metriche vengono caricate. -->
   @if (isLoading()) {
     <div class="loading-spinner"><p>Aggiornamento metriche in corso...</p></div>
+  } @else if (errorData(); as err) {
+    <app-server-error-state
+      context="le metriche della dashboard"
+      [errorCode]="err.status"
+      [errorType]="err.type"
+      [errorDetails]="err.message"
+      (retry)="retryStatistics()">
+    </app-server-error-state>
   } @else if (stats(); as s) {
     
     <!-- Metriche operative: ogni card porta alla lista già filtrata. -->
@@ -28,7 +32,7 @@
       <div class="stat-card primary-border" style="cursor: pointer;" (click)="goToMyIssues()">
         <div class="stat-title">Assegnate a me</div>
         <div class="stat-value">{{ s.assignedToMeCount }}</div>
-        <div class="stat-desc">Task in carico al tuo utente</div>
+        <div class="stat-desc">Task in carico</div>
       </div>
 
       

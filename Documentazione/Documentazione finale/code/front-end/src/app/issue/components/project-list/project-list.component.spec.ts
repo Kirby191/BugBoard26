@@ -5,7 +5,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProjectListComponent } from './project-list.component';
 import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service';
-import { ProjectService } from '../../services/project.service';
 import { Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { ProjectState } from '../../../shared/models/shared-dtos';
@@ -15,7 +14,6 @@ describe('ProjectListComponent', () => {
   let fixture: ComponentFixture<ProjectListComponent>;
   
   let projectQueryServiceMock: any;
-  let projectCommandServiceMock: any;
   let routerMock: any;
 
   const mockProjects: ProjectState[] = [
@@ -30,17 +28,12 @@ describe('ProjectListComponent', () => {
       getProjects: vi.fn().mockReturnValue(of(mockProjects))
     };
     
-    projectCommandServiceMock = {
-      deleteProject: vi.fn().mockReturnValue(of({}))
-    };
-    
     routerMock = { navigate: vi.fn() };
 
     await TestBed.configureTestingModule({
       imports: [ProjectListComponent],
       providers: [
         { provide: ProjectQueryService, useValue: projectQueryServiceMock },
-        { provide: ProjectService, useValue: projectCommandServiceMock },
         { provide: Router, useValue: routerMock }
       ]
     }).compileComponents();
@@ -53,75 +46,25 @@ describe('ProjectListComponent', () => {
     vi.restoreAllMocks();
   });
 
-  
-
-  it('should render the project table correctly (DOM Testing)', () => {
+  it('should render the project folders correctly', () => {
     fixture.detectChanges();
-    const rows = fixture.nativeElement.querySelectorAll('tbody tr');
-    expect(rows.length).toBe(2);
+    const folders = fixture.nativeElement.querySelectorAll('.project-folder');
+    expect(folders.length).toBe(2);
+    expect(folders[0].textContent).toContain('Progetto Alpha');
   });
 
-describe('Modal Integration for Deletion (Black-Box Testing)', () => {
-    
-    it('should open modal and NOT call deleteService immediately when "Elimina" is clicked', () => {
-      fixture.detectChanges(); 
+  it('should navigate to the selected project detail', () => {
+    fixture.detectChanges();
+    fixture.nativeElement.querySelectorAll('.project-folder')[1].click();
 
-      
-      expect(fixture.nativeElement.querySelector('.modal-content')).toBeNull();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/projects', 2]);
+  });
 
-      
-      const deleteBtn = fixture.nativeElement.querySelectorAll('.btn-danger')[0];
-      deleteBtn.click();
-      
-      
-      fixture.detectChanges(); 
+  it('should show the server error state when projects cannot be loaded', () => {
+    projectQueryServiceMock.getProjects.mockReturnValue(throwError(() => new Error('API down')));
+    fixture.detectChanges();
 
-      
-      const modalContent = fixture.nativeElement.querySelector('.modal-content');
-      expect(modalContent).toBeTruthy();
-      
-      
-      expect(projectCommandServiceMock.deleteProject).not.toHaveBeenCalled();
-    });
-
-    it('should call deleteProject with correct ID and close modal when confirmDelete is triggered', () => {
-      fixture.detectChanges(); 
-
-      
-      const deleteBtn = fixture.nativeElement.querySelectorAll('.btn-danger')[0];
-      deleteBtn.click();
-      fixture.detectChanges();
-
-      
-      component.confirmDelete();
-      fixture.detectChanges(); 
-
-      
-      
-      expect(projectCommandServiceMock.deleteProject).toHaveBeenCalledWith(1);
-      
-      
-      
-      expect(fixture.nativeElement.querySelector('.modal-content')).toBeNull();
-    });
-
-    it('should close modal and NOT call deleteProject when cancelDelete is triggered', () => {
-      fixture.detectChanges(); 
-
-      
-      const deleteBtn = fixture.nativeElement.querySelectorAll('.btn-danger')[0];
-      deleteBtn.click();
-      fixture.detectChanges();
-
-      
-      component.cancelDelete();
-      fixture.detectChanges();
-
-      
-      expect(projectCommandServiceMock.deleteProject).not.toHaveBeenCalled();
-      
-      
-      expect(fixture.nativeElement.querySelector('.modal-content')).toBeNull();
-    });
+    expect(fixture.nativeElement.querySelector('app-server-error-state')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.empty-state-container')).toBeNull();
   });
 });

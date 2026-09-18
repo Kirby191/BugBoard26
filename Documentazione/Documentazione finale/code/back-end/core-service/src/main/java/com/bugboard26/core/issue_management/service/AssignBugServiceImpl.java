@@ -22,8 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 /**
- * Servizio isolato per l'assegnazione dei task (Funzionalità 4) 15].
- * Rispetta l'Interface Segregation Principle e orchestra il Command Layer in modo Event-Driven 16].
+ * Coordina assegnazione, audit e notifiche delle segnalazioni.
  */
 @Service
 public class AssignBugServiceImpl implements AssignBugService {
@@ -55,33 +54,28 @@ public class AssignBugServiceImpl implements AssignBugService {
 @Override
     @Transactional
     public IssueResponse assignBug(Long id, AssignBug request) {
-        // 1. Controllo di sicurezza: solo gli amministratori possono assegnare i bug
         accessControlValidator.canManageProjects();
 
-        // 2. Recupero l'entità Issue
         Issue issue = issueRepository.findById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Issue non trovata con ID: " + id));
 
-        // 3. Verifica Invariante di Dominio
         domainValidator.validateAssignable(issue);
 
         Long newAssigneeId = request.assigneeId();
         Long currentAdminId = userProvider.getCurrentUserId();
 
-        // 4. EVITA LOG INUTILI: Se l'assegnatario è lo stesso, non fare nulla
+        // Nessun cambio significa nessun audit e nessuna notifica.
         if (java.util.Objects.equals(issue.getAssigneeId(), newAssigneeId)) {
             return buildResponse(issue);
         }
 
-        // 5. RIMOZIONE ASSEGNAZIONE
         if (newAssigneeId == null) {
-        Long previousAssigneeId = issue.getAssigneeId(); // Cattura l'ID prima di azzerarlo
+        Long previousAssigneeId = issue.getAssigneeId();
         issue.setAssigneeId(null);
         Issue savedIssue = issueRepository.save(issue);
 
         historyService.recordEvent(savedIssue.getId(), currentAdminId, AuditAction.ASSIGNED, "L'amministratore ha rimosso l'assegnazione del task.");
 
-        // Pubblica l'evento per rimuovere le notifiche pendenti e avvisare l'utente
         if (previousAssigneeId != null) {
             eventPublisher.publishEvent(new BugUnassignedEvent(
                     savedIssue.getId(),
@@ -92,7 +86,6 @@ public class AssignBugServiceImpl implements AssignBugService {
         return buildResponse(savedIssue);
     }
 
-        // 6. NUOVA ASSEGNAZIONE / RIASSEGNAZIONE
         if (!userRepository.existsById(newAssigneeId)) {
             throw new UserNotFoundException("Utente assegnatario inesistente con ID: " + newAssigneeId);
         }
@@ -107,7 +100,6 @@ public class AssignBugServiceImpl implements AssignBugService {
                 "Bug assegnato all'utente con ID: " + newAssigneeId
         );
 
-        // Pubblicazione ASINCRONA dell'evento per le Notifiche (Solo se c'è un destinatario fisico)
         eventPublisher.publishEvent(new BugAssignedEvent(
                 savedIssue.getId(),
                 newAssigneeId,
@@ -117,7 +109,6 @@ public class AssignBugServiceImpl implements AssignBugService {
         return buildResponse(savedIssue);
     }
 
-        // Metodo helper
         private IssueResponse buildResponse(Issue savedIssue) {
                 return new IssueResponse(
                         savedIssue.getId(),

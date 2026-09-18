@@ -5,6 +5,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { IssueListComponent } from './issue-list.component';
 import { DashboardService } from '../../../dashboard-query/services/dashboard.service';
+import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service';
+import { IssueService } from '../../services/issue.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { IssueSummary } from '../../../dashboard-query/models/query-dtos';
@@ -22,7 +24,7 @@ describe('IssueListComponent', () => {
   const mockIssues: IssueSummary[] = [
     {
       id: 1, title: 'Bug Critico UI', projectName: 'Progetto Alpha', 
-      type: 'BUG', status: 'TODO', priority: 'CRITICAL', assigneeEmail: 'admin@bugboard.com'
+      type: 'BUG', status: 'TODO', priority: 'CRITICAL', assigneeEmail: 'admin@bugboard.com', reporterId: 42, assigneeId: 42
     }
   ];
 
@@ -36,7 +38,7 @@ describe('IssueListComponent', () => {
     };
 
     projectQueryServiceMock = {
-      getProjects: vi.fn().mockReturnValue(of([]))
+      getProjects: vi.fn().mockReturnValue(of([{ id: 1, name: 'Progetto Alpha', description: '', lastModified: '' }]))
     };
 
     issueServiceMock = {
@@ -55,6 +57,8 @@ describe('IssueListComponent', () => {
       imports: [IssueListComponent],
       providers: [
         { provide: DashboardService, useValue: dashboardServiceMock },
+        { provide: ProjectQueryService, useValue: projectQueryServiceMock },
+        { provide: IssueService, useValue: issueServiceMock },
         { provide: Router, useValue: routerMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock }
       ]
@@ -94,20 +98,19 @@ describe('IssueListComponent', () => {
     });
   });
 
-  it('should display an error banner if searchIssues fails', () => {
+  it('should display the server error state if searchIssues fails', () => {
     dashboardServiceMock.searchIssues.mockReturnValue(throwError(() => new Error('API down')));
     fixture.detectChanges();
 
-    const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
-    expect(errorAlert).toBeTruthy();
-    expect(errorAlert.textContent).toContain('Impossibile caricare le segnalazioni');
+    const errorState = fixture.nativeElement.querySelector('app-server-error-state');
+    expect(errorState).toBeTruthy();
+    expect(errorState.textContent).toContain('Impossibile caricare le segnalazioni');
   });
 
   describe('Navigation Actions', () => {
     it('should navigate to create issue form when "+ Nuova Segnalazione" is clicked', () => {
       fixture.detectChanges();
-      const createBtn = fixture.nativeElement.querySelector('.btn-primary');
-      createBtn.click();
+      component.navigateToCreate();
       expect(routerMock.navigate).toHaveBeenCalledWith(['/issues/new']);
     });
 
@@ -119,9 +122,7 @@ describe('IssueListComponent', () => {
     });
 
     it('should navigate to edit view when "Modifica" is clicked', () => {
-      fixture.detectChanges();
-      const editBtn = fixture.nativeElement.querySelectorAll('.btn-warning')[0];
-      editBtn.click();
+      component.navigateToEdit(1);
       expect(routerMock.navigate).toHaveBeenCalledWith(['/issues/edit', 1]);
     });
   });

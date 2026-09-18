@@ -19,7 +19,6 @@ public class AuthController {
 
     private final UserService userService;
 
-    // Iniezione della dipendenza tramite costruttore
     public AuthController(UserService userService) {
         this.userService = userService;
     }
@@ -30,8 +29,6 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest request) {
-        // Delega la logica di business al Service.
-        // Le eccezioni (es. credenziali errate) sono catturate dal GlobalExceptionHandler.
         JwtResponse response = userService.authenticate(request);
         return ResponseEntity.ok(response);
     }
@@ -42,8 +39,6 @@ public class AuthController {
      */
     @PostMapping("/register")
     public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRegistration request) {
-        // Crea l'utente. Se l'email esiste già, il Service lancerà EmailAlreadyExistsException
-        // che verrà gestita dal GlobalExceptionHandler.
         UserResponse response = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

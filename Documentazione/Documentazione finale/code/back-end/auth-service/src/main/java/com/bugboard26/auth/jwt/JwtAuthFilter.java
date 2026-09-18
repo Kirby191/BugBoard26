@@ -21,7 +21,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private final TokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
 
-    // L'aggiunta di @Lazy spezza la dipendenza circolare con SecurityConfig e UserServiceImpl mantenendo invariato l'UML
     public JwtAuthFilter(TokenProvider tokenProvider, @Lazy UserDetailsService userDetailsService) {
         this.tokenProvider = tokenProvider;
         this.userDetailsService = userDetailsService;

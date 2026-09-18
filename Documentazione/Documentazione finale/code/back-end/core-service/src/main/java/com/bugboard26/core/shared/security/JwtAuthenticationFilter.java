@@ -32,7 +32,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProperties jwtProperties;
 
-    // Iniezione diretta delle proprietà configurate in application.properties
     public JwtAuthenticationFilter(JwtProperties jwtProperties) {
         this.jwtProperties = jwtProperties;
     }
@@ -46,7 +45,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        // 1. Controlla la presenza dell'header Authorization: Bearer
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -55,28 +53,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String token = authHeader.substring(7);
 
         try {
-            // 2. Genera la chiave segreta basandosi sulla stringa condivisa
             SecretKey key = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
 
-            // 3. Valida la firma del token JWT ed estrae il payload
             Claims claims = Jwts.parser()
                     .verifyWith(key)
                     .build()
                     .parseSignedClaims(token)
                     .getPayload();
 
-            // 4. Estrazione dei dati precedentemente inseriti dall'auth-service
             String email = claims.getSubject();
             String role = claims.get("role", String.class);
             Long userId = claims.get("id", Long.class);
 
-            // 5. Se il token è valido e il contesto di Spring è vuoto, autentica la richiesta
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                // Crea i permessi RBAC (Spring richiede solitamente il prefisso "ROLE_")
                 SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role);
 
-                // Usa l'ID utente come "Principal" affinché l'AuthenticatedUserProvider possa leggerlo
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userId,
                         null,
@@ -85,11 +77,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // 6. Popola il SecurityContextHolder come previsto dal diagramma UML
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         } catch (JwtException | IllegalArgumentException ex) {
-            // La gestione in log permette alla SecurityFilterChain di bloccare la richiesta
             logger.error("Firma JWT non valida o token alterato", ex);
         }
 

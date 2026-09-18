@@ -65,9 +65,15 @@
       }
     </div>
   }
-  @else if (errorMessage()) {
-    <div class="alert alert-danger">{{ errorMessage() }}</div>
-  } 
+  @else if (errorData(); as err) {
+    <app-server-error-state 
+      context="i dettagli della segnalazione"
+      [errorCode]="err.status"
+      [errorType]="err.type"
+      [errorDetails]="err.message"
+      (retry)="retryIssue()">
+    </app-server-error-state>
+  }
   @else if (issue(); as i) { 
     
     <!-- Dati principali e metadati della segnalazione. -->
@@ -169,7 +175,15 @@
     @if (i.type === 'BUG') {
       <div class="card history-card">
         <h3>Cronologia Eventi</h3>
-        @if (history().length === 0) {
+        @if (historyErrorData(); as historyErr) {
+          <app-server-error-state
+            context="lo storico della segnalazione"
+            [errorCode]="historyErr.status"
+            [errorType]="historyErr.type"
+            [errorDetails]="historyErr.message"
+            (retry)="retryHistory()">
+          </app-server-error-state>
+        } @else if (history().length === 0) {
           <p>Nessun evento registrato.</p>
         } @else {
           <ul class="timeline">

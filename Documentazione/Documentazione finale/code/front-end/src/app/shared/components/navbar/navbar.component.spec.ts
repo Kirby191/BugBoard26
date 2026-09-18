@@ -53,9 +53,10 @@ describe('NavbarComponent', () => {
       fixture.detectChanges();
 
       const links = fixture.nativeElement.querySelectorAll('.nav-link');
-      expect(links.length).toBe(2);
+      expect(links.length).toBe(3);
       expect(links[0].textContent.trim()).toBe('Progetti');
       expect(links[1].textContent.trim()).toBe('Segnalazioni');
+      expect(links[2].textContent.trim()).toBe('Dashboard');
       
       
       const logoutBtn = fixture.nativeElement.querySelector('.btn-logout');

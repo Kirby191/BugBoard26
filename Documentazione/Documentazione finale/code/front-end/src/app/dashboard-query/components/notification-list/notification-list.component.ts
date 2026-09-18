@@ -5,13 +5,15 @@ import { Router } from '@angular/router';
 import { NotificationService } from '../../services/notification.service';
 import { NotificationDTO } from '../../models/query-dtos';
 import { ModalComponent } from '../../../shared/components/modal/modal.component'; 
+import { ServerErrorStateComponent } from '../../../shared/components/server-error-state/server-error-state.component';
+import { getServerErrorDetails, ServerErrorDetails } from '../../../shared/components/server-error-state/server-error-details';
 
 type ToastNotification = NotificationDTO & { typeClass?: string };
 
 @Component({
   selector: 'app-notification-list',
   standalone: true,
-  imports: [CommonModule, ModalComponent],
+  imports: [CommonModule, ModalComponent, ServerErrorStateComponent],
   templateUrl: './notification-list.component.html',
   styleUrl: './notification-list.component.scss'
 })
@@ -25,6 +27,7 @@ export class NotificationListComponent implements OnInit {
   // ----------------------------------------------------------------
   protected readonly notifications = signal<NotificationDTO[]>([]);
   protected readonly isLoading = signal<boolean>(true);
+  protected readonly errorData = signal<ServerErrorDetails | null>(null);
   protected readonly isPanelOpen = signal<boolean>(false);
   protected readonly unreadCount = computed(() => this.notifications().length);
 
@@ -85,9 +88,15 @@ export class NotificationListComponent implements OnInit {
       },
       error: (err) => {
         console.error('Impossibile caricare le notifiche', err);
+        this.errorData.set(getServerErrorDetails(err, 'Impossibile caricare le notifiche.'));
         this.isLoading.set(false);
       }
     });
+  }
+
+  retryNotifications(): void {
+    this.errorData.set(null);
+    this.loadNotifications();
   }
 
   // ----------------------------------------------------------------

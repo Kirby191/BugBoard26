@@ -24,6 +24,14 @@
       <div class="panel-body">
         @if (isLoading()) {
           <div class="loading-text">Caricamento...</div>
+        } @else if (errorData(); as err) {
+          <app-server-error-state
+            context="le notifiche"
+            [errorCode]="err.status"
+            [errorType]="err.type"
+            [errorDetails]="err.message"
+            (retry)="retryNotifications()">
+          </app-server-error-state>
         } @else if (notifications().length === 0) {
           <div class="empty-state">
             Nessuna nuova notifica.

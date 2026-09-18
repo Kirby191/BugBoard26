@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * Controller REST per il sottosistema History.
- * Espone gli endpoint in sola lettura per la consultazione
- * della cronologia immutabile dei bug (Funzionalità 12).
+ * Espone in sola lettura la cronologia delle segnalazioni.
  */
 @RestController
 @RequestMapping("/api/issues")
@@ -21,7 +19,6 @@ public class HistoryController {
 
     private final HistoryService historyService;
 
-    // Iniezione delle dipendenze tramite costruttore
     public HistoryController(HistoryService historyService) {
         this.historyService = historyService;
     }

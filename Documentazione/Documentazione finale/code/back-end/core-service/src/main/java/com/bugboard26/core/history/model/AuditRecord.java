@@ -38,7 +38,7 @@ public class AuditRecord {
     @Column(name = "timestamp", nullable = false, updatable = false)
     private LocalDateTime timestamp;
 
-    // Relazione mappata sulla FK 'performed_by_user_id' e associata al ruolo 'author' 3, 10]
+    // Relazione verso l'utente che ha prodotto l'evento di audit.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "performed_by_user_id",

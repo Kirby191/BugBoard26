@@ -22,7 +22,7 @@ public class SseConnectionManager {
         SseEmitter emitter = new SseEmitter(1800000L);
         emitters.put(userId, emitter);
 
-        // Pulizia automatica delle risorse in caso di disconnessione del client Angular
+        // Pulizia automatica delle risorse in caso di disconnessione
         emitter.onCompletion(() -> emitters.remove(userId));
         emitter.onTimeout(() -> emitters.remove(userId));
         emitter.onError(e -> emitters.remove(userId));

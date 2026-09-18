@@ -16,8 +16,8 @@ describe('DashboardService', () => {
   let service: DashboardService;
   let httpMock: HttpTestingController;
 
-  const API_ISSUES = 'http://localhost:8080/api/issues';
-  const API_DASHBOARD = 'http://localhost:8080/api/dashboard';
+  const API_ISSUES = '/api/issues';
+  const API_DASHBOARD = '/api/dashboard';
 
   beforeEach(() => {
     TestBed.resetTestingModule(); 
@@ -78,7 +78,7 @@ describe('DashboardService', () => {
     };
 
     service.getIssueDetailed(10).subscribe(issue => {
-      expect(issue).toEqual(mockIssue);
+      expect(issue).toEqual({ ...mockIssue, createdAt: '2026-09-10Z' });
     });
 
     const req = httpMock.expectOne(`${API_ISSUES}/10`);
@@ -107,7 +107,7 @@ describe('DashboardService', () => {
     ];
 
     service.getBugHistory(10).subscribe(history => {
-      expect(history).toEqual(mockHistory);
+      expect(history).toEqual([{ ...mockHistory[0], timestamp: '2026-09-10Z' }]);
     });
 
     const req = httpMock.expectOne(`${API_ISSUES}/10/history`);

@@ -2,6 +2,7 @@ package com.bugboard26.core.attachment.provider;
 
 import com.bugboard26.core.attachment.exception.FileNotFoundException;
 import com.bugboard26.core.attachment.exception.StorageException;
+import com.bugboard26.core.attachment.exception.UnauthorizedFileAccessException;
 import com.bugboard26.core.config.AppStorageProperties;
 import jakarta.annotation.PostConstruct;
 import org.springframework.core.io.Resource;
@@ -27,7 +28,6 @@ public class LocalStorageProviderImpl implements StorageProvider {
     private final Path rootLocation;
     private static final String URI_PREFIX = "/api/attachments/";
 
-    // Inietta la configurazione (es. "./core_uploads") dal file application.properties
     public LocalStorageProviderImpl(AppStorageProperties properties) {
         this.rootLocation = Path.of(properties.getUploadDir()).toAbsolutePath().normalize();
     }
@@ -54,12 +54,10 @@ public class LocalStorageProviderImpl implements StorageProvider {
                 throw new StorageException("Sicurezza: Impossibile salvare il file al di fuori della directory corrente.");
             }
 
-            // Copia il file in ingresso sovrascrivendo eventuali file con lo stesso nome
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);
             }
 
-            // Restituisce il percorso relativo (es. /api/uploads/uuid.png) richiesto dall'architettura
             return URI_PREFIX + uniqueFileName;
 
         } catch (IOException e) {
@@ -70,9 +68,13 @@ public class LocalStorageProviderImpl implements StorageProvider {
     @Override
     public Resource retrieve(String fileUrl) {
         try {
-            // Estrae il nome del file dall'URI salvato nel DB
             String filename = fileUrl.replace(URI_PREFIX, "");
             Path file = rootLocation.resolve(filename).normalize();
+
+            // Anche gli URL pubblici devono restare confinati alla directory degli allegati.
+            if (!file.startsWith(rootLocation)) {
+                throw new UnauthorizedFileAccessException("Accesso al file non autorizzato");
+            }
 
             Resource resource = new UrlResource(file.toUri());
 

@@ -18,7 +18,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     /**
      * Recupera tutte le notifiche non lette per un dato utente, ordinate dalla più recente.
-     * Serve ad alimentare il dropdown delle notifiche (campanellina) nel front-end Angular.
      *
      * @param recipientId L'ID dell'utente destinatario della notifica.
      * @return Lista di notifiche non lette ordinate per timestamp discendente.

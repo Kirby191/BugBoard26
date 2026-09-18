@@ -2,26 +2,24 @@ package com.bugboard26.core.shared.exception;
 
 import com.bugboard26.core.shared.dto.ErrorResponse;
 
-// Import History
 import com.bugboard26.core.history.exception.HistoryNotFoundException;
 
-// Import Issue Management
 import com.bugboard26.core.issue_management.exception.DuplicateProjectException;
 import com.bugboard26.core.issue_management.exception.InvalidIssueDomainException;
 import com.bugboard26.core.issue_management.exception.UnauthorizedActionException;
 
-// Import Attachment
 import com.bugboard26.core.attachment.exception.FileNotFoundException;
 import com.bugboard26.core.attachment.exception.FileSizeExceededException;
 import com.bugboard26.core.attachment.exception.InvalidFileTypeException;
 import com.bugboard26.core.attachment.exception.StorageException;
 import com.bugboard26.core.attachment.exception.UnauthorizedFileAccessException;
 
-// Import Query & View
 import com.bugboard26.core.query_view.exception.InvalidFilterException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -30,6 +28,8 @@ import java.time.ZoneId;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     // -------------------------------------------------------------------------
     // --- ERROR CODES ---
     // -------------------------------------------------------------------------
@@ -42,8 +42,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+        logger.error("Errore inatteso durante la gestione della richiesta", ex);
+
+        // I dettagli restano nei log server-side e non vengono esposti al client.
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Si è verificato un errore inaspettato sul server: " + ex.getMessage());
+            "Si è verificato un errore inaspettato sul server.");
     }
 
     // -------------------------------------------------------------------------

@@ -106,19 +106,21 @@
   }
 
   
-  @if (errorMessage()) {
-    <div class="alert alert-danger">
-      {{ errorMessage() }}
-    </div>
-  }
-
-  
   <!-- Risultati, stato vuoto e caricamento sono mutuamente esclusivi. -->
   @if (isLoading()) {
     <div class="loading-spinner">
       <p>Caricamento segnalazioni in corso...</p>
     </div>
   } 
+  @else if (errorData(); as err) {
+    <app-server-error-state
+      context="le segnalazioni"
+      [errorCode]="err.status"
+      [errorType]="err.type"
+      [errorDetails]="err.message"
+      (retry)="retryIssues()">
+    </app-server-error-state>
+  }
   @else {
 
     @if (issues().length > 0) {

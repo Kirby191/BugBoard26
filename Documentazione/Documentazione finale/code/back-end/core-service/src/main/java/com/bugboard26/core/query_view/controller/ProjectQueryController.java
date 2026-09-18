@@ -25,7 +25,7 @@ public class ProjectQueryController {
     }
 
     /**
-     * Recupera la lista di tutti i progetti per popolare i dropdown del front-end.
+     * Recupera la lista di tutti i progetti
      * Risponde a GET /api/projects
      */
     @GetMapping

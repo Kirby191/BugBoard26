@@ -47,6 +47,7 @@ describe('ModalComponent (Shared UI)', () => {
 
   it('should emit "cancel" event when clicking the secondary button', () => {
     fixture.componentRef.setInput('isOpen', true);
+    fixture.componentRef.setInput('cancelText', 'Annulla');
     fixture.detectChanges();
 
     

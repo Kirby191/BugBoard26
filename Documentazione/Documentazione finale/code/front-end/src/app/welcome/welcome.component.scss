@@ -81,6 +81,70 @@
       }
     }
 
+    .social-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin: 0 0 35px 0;
+
+      .social-label {
+        color: #6c757d;
+        font-size: 0.95rem;
+        font-weight: 500;
+      }
+
+      .social-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .social-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 36px;
+        padding: 6px 14px;
+        border: 1px solid #dfe3e8;
+        border-radius: 999px;
+        color: #6c757d;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, color 0.2s;
+
+        svg {
+          display: block;
+          flex-shrink: 0;
+          width: 16px;
+          height: 16px;
+          fill: currentColor;
+          transition: transform 0.2s ease;
+        }
+
+        &:hover, &:focus-visible {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(44, 62, 80, 0.1);
+          color: #2c3e50;
+          outline: none;
+
+          svg { transform: scale(1.1); }
+        }
+      }
+
+      .github-link:hover, .github-link:focus-visible {
+        border-color: #24292f;
+        color: #24292f;
+      }
+
+      .linkedin-link:hover, .linkedin-link:focus-visible {
+        border-color: #0a66c2;
+        color: #0a66c2;
+      }
+    }
+
     .cta-section {
       .btn-lg {
         padding: 14px 40px;

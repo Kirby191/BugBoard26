@@ -17,11 +17,13 @@ import { IssueStatus, IssueType, IssuePriority } from '../../../shared/models/en
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { ServerErrorStateComponent } from '../../../shared/components/server-error-state/server-error-state.component';
+import { getServerErrorDetails, ServerErrorDetails } from '../../../shared/components/server-error-state/server-error-details';
 
 @Component({
   selector: 'app-issue-list',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, StatusBadgeComponent, ModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, StatusBadgeComponent, ModalComponent, ServerErrorStateComponent],
   templateUrl: './issue-list.component.html',
   styleUrl: './issue-list.component.scss'
 })
@@ -44,6 +46,7 @@ export class IssueListComponent implements OnInit {
   protected readonly isLoading = signal<boolean>(true);
   protected readonly isAdmin = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly errorData = signal<ServerErrorDetails | null>(null);
   protected readonly currentUserId = signal<number | null>(null);
 
   // ----------------------------------------------------------------
@@ -138,15 +141,27 @@ export class IssueListComponent implements OnInit {
 
   // Carica in parallelo i dati necessari ai menu della ricerca avanzata.
   private loadFilterOptions(): void {
-    this.dashboardService.getUsersReference().subscribe(u => this.usersList.set(u));
+    this.dashboardService.getUsersReference().subscribe({
+      next: (users) => this.usersList.set(users),
+      error: (err) => this.errorData.set(getServerErrorDetails(err, 'Impossibile caricare gli sviluppatori.'))
+    });
     
-    this.projectQueryService.getProjects().subscribe(p => this.projects.set(p));
+    this.projectQueryService.getProjects().subscribe({
+      next: (projects) => this.projects.set(projects),
+      error: (err) => this.errorData.set(getServerErrorDetails(err, 'Impossibile caricare i progetti.'))
+    });
+  }
+
+  retryIssues(): void {
+    this.errorData.set(null);
+    this.loadFilterOptions();
+    this.loadIssues(this.filterForm.getRawValue() as IssueFilter);
   }
 
   // Applica prima i filtri del backend e poi quelli locali, come "non assegnate" o "in scadenza".
   private loadIssues(filter: IssueFilter): void {
     this.isLoading.set(true);
-    this.errorMessage.set(null); 
+    this.errorData.set(null); 
     
     this.dashboardService.searchIssues(filter).subscribe({
       next: (data) => {
@@ -183,7 +198,7 @@ export class IssueListComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.errorMessage.set('Impossibile caricare le segnalazioni.');
+        this.errorData.set(getServerErrorDetails(err, 'Impossibile caricare le segnalazioni.'));
         this.isLoading.set(false);
       }
     });
@@ -268,7 +283,7 @@ export class IssueListComponent implements OnInit {
         error: (err) => {
           this.isDeleteModalOpen.set(false);
           this.issueToDelete.set(null);
-          this.errorMessage.set(err.error?.message || 'Errore durante l\'eliminazione della segnalazione.');
+          this.errorData.set(getServerErrorDetails(err, 'Errore durante l\'eliminazione della segnalazione.'));
         }
       });
     }

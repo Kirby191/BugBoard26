@@ -3,48 +3,41 @@
      ------------------------------------------------
  -->
 
-<div class="login-container">
+  <!-- TOAST (Posizionamento Assoluto) -->
+<div class="login-toast" [class.show]="errorMessage()">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"></circle>
+    <line x1="12" y1="8" x2="12" y2="12"></line>
+    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+  </svg>
+  <span>{{ errorMessage() }}</span>
+</div>
   <!-- ============================================================
        FEEDBACK E CREDENZIALI
        ============================================================ -->
+
+<div class="login-container">
   <h1>Login</h1>
-
-  @if (errorMessage()) {
-    <div class="error-banner">
-      {{ errorMessage() }}
-    </div>
-  }
-
+  
   <form [formGroup]="loginForm" (ngSubmit)="login()">
     
     <div class="form-group">
       <label for="email">Email</label>
       <input id="email" type="email" formControlName="email" placeholder="Inserisci email" />
-      
-      @if (loginForm.get('email')?.invalid && loginForm.get('email')?.touched) {
-        <small class="error-text">Si prega di inserire l'email.</small>
-      }
     </div>
 
-    <!-- La visibilità della password cambia solo il tipo dell'input. -->
     <div class="form-group" style="margin-bottom: 25px;">
       <label for="password">Password</label>
       
-      
       <div class="password-wrapper">
-        
         <input id="password" [type]="isPasswordVisible() ? 'text' : 'password'" formControlName="password" placeholder="Inserisci password" />
-        
-        
-       <span class="toggle-eye" (click)="togglePasswordVisibility()" title="Mostra/Nascondi password">
+        <span class="toggle-eye" (click)="togglePasswordVisibility()" title="Mostra/Nascondi password">
           @if (!isPasswordVisible()) {
-            
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
               <line x1="1" y1="1" x2="23" y2="23"></line>
             </svg>
           } @else {
-            
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
               <circle cx="12" cy="12" r="3"></circle>
@@ -52,12 +45,38 @@
           }
         </span>
       </div>
+      
+      <!-- Feedback Visivo: Compare dal terzo errore in poi (ovvero falliti >= 2) -->
+      @if (failedAttempts() >= 2 && failedAttempts() < MAX_ATTEMPTS && !lockoutUntil()) {
+        <small class="warning-text">Attenzione: {{ MAX_ATTEMPTS - failedAttempts() }} tentativi rimasti</small>
+      }
     </div>
-
     
-    <!-- Durante la richiesta il submit resta disabilitato per evitare doppie chiamate. -->
-    <button type="submit" [disabled]="isSubmitting()">
-      {{ isSubmitting() ? 'Accesso in corso...' : 'Log in ➔' }}
+    <button type="submit" [disabled]="isSubmitting() || lockoutUntil() !== null">
+      @if (lockoutUntil()) {
+        Riprova tra {{ remainingLockoutMinutes() }} min
+      } @else if (isSubmitting()) {
+        Accesso in corso...
+      } @else {
+        Log in ➔
+      }
     </button>
   </form>
 </div>
+
+<!-- ============================================================
+     MODALE LOCKOUT / LOGIN
+     ============================================================
+     Questo modal appare solo quando l'utente ha superato il numero massimo di tentativi falliti.
+     ============================================================ -->
+
+<app-modal 
+  [(isOpen)]="isLockdownModalOpen" 
+  title="Accesso Bloccato" 
+  type="danger"
+  confirmText="Ho capito">
+  <p style="margin: 0; line-height: 1.5; color: #495057;">
+    Hai superato il limite massimo di tentativi falliti. Per motivi di sicurezza, il tuo accesso è stato bloccato temporaneamente.<br><br>
+    Ti preghiamo di riprovare tra <strong>{{ remainingLockoutMinutes() }} minuti</strong>.
+  </p>
+</app-modal>

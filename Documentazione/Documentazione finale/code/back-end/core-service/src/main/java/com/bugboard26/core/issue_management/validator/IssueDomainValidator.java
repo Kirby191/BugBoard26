@@ -11,8 +11,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 
 /**
- * Componente dedicato alla convalida delle regole di business e invarianti di dominio.
- * Intercetta le incoerenze logiche prima dell'accesso in scrittura al DB 4, 5].
+ * Valida le regole di dominio prima delle operazioni di scrittura.
  */
 @Component
 public class IssueDomainValidator {
@@ -24,7 +23,7 @@ public class IssueDomainValidator {
     }
 
     /**
-     * Verifica l'esistenza fisica del progetto associato 5].
+    * Verifica l'esistenza del progetto associato.
      *
      * @param projectId L'ID del progetto da verificare.
      * @throws ProjectNotFoundException Se il progetto non esiste nel database.
@@ -37,7 +36,7 @@ public class IssueDomainValidator {
 
     /**
      * Verifica che la segnalazione sia assegnabile a uno sviluppatore.
-     * Regola: Solo le segnalazioni di tipo BUG possono essere assegnate (Funzionalità 4) 4, 5].
+    * Solo le segnalazioni di tipo BUG possono essere assegnate.
      *
      * @param bug L'entità da validare.
      * @throws InvalidIssueDomainException Se il tipo non è BUG.
@@ -49,7 +48,7 @@ public class IssueDomainValidator {
     }
 
     /**
-     * Verifica la coerenza temporale della data di scadenza (Funzionalità 18) 4, 5].
+    * Verifica che la data di scadenza non sia nel passato.
      *
      * @param dueDate La data da validare. Può essere null (opzionale).
      * @throws InvalidIssueDomainException Se la data è nel passato.

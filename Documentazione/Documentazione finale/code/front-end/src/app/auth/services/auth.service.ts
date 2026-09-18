@@ -24,6 +24,7 @@ export class AuthService {
 
   // Il modal viene aperto prima del logout, così l'utente capisce perché la sessione è terminata.
   readonly isSessionExpired = signal<boolean>(false);
+  readonly userRole = signal<string | null>(localStorage.getItem('user_role'));
 
   constructor() {
     
@@ -40,6 +41,7 @@ export class AuthService {
       tap(response => {
         localStorage.setItem('jwt_token', response.token);
         localStorage.setItem('user_role', response.role);
+        this.userRole.set(response.role);
         localStorage.setItem('user_id', response.id.toString());
 
         this.startIdleMonitoring(); 
@@ -54,6 +56,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user_role');
+    this.userRole.set(null);
     localStorage.removeItem('user_id');
     
     this.stopIdleMonitoring(); 
@@ -106,6 +109,7 @@ export class AuthService {
         // 1. WARNING: Distruggiamo immediatamente la sessione a livello fisico
         localStorage.removeItem('jwt_token');
         localStorage.removeItem('user_role');
+        this.userRole.set(null);
         localStorage.removeItem('user_id');
         // 2. Fermiamo il timer per evitare loop
         this.stopIdleMonitoring();

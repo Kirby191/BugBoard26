@@ -10,8 +10,7 @@ import java.util.List;
 public interface UserQueryService {
 
     /**
-     * Recupera la lista di tutti gli utenti registrati per popolare
-     * i menu a tendina (dropdown) sul front-end Angular.
+     * Recupera la lista di tutti gli utenti registrati nel sistema, mappati in DTO di sola lettura.
      *
      * @return Lista di DTO degli utenti in sola lettura.
      */

@@ -14,9 +14,8 @@ import java.util.List;
 @Component
 public class FileValidator {
 
-    // Costanti definite esplicitamente nel Class Diagram dell'Attachment Subsystem
     private static final List<String> ALLOWED_MIME_TYPES = List.of("image/jpeg", "image/png", "image/gif");
-    private static final long MAX_FILE_SIZE = 5242880L; // 5MB
+    private static final long MAX_FILE_SIZE = 5242880L;
 
     /**
      * Esegue i controlli di sicurezza sull'allegato.
@@ -28,12 +27,10 @@ public class FileValidator {
             throw new InvalidFileTypeException("Il file non può essere vuoto");
         }
 
-        // 1. Validazione dimensione
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new FileSizeExceededException("La dimensione del file supera il limite consentito di 5MB");
         }
 
-        // 2. Validazione rigorosa del tipo MIME
         String contentType = file.getContentType();
         if (contentType == null || !ALLOWED_MIME_TYPES.contains(contentType)) {
             throw new InvalidFileTypeException("Tipo di file non supportato. Tipi ammessi: JPEG, PNG, GIF");

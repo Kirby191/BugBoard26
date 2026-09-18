@@ -27,7 +27,6 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     @Transactional(readOnly = true)
     public List<BugHistory> getHistoryForBug(Long bugId) {
-        // Estrae il log in sola lettura interrogando AuditRepository
         return auditRepository.findByBugIdOrderByTimestampDesc(bugId).stream()
                 .map(auditRecord -> new BugHistory(
                         auditRecord.getId(),
@@ -37,14 +36,13 @@ public class HistoryServiceImpl implements HistoryService {
                         auditRecord.getAuthor().getEmail(),
                         auditRecord.getDetails()
                 ))
-                .toList(); // Sintassi snella introdotta in Java 16+
+                .toList();
     }
 
     @Override
     @Transactional
     public void recordEvent(Long bugId, Long authorId, AuditAction action, String details) {
-        // Usa il pattern proxy per collegare l'autore senza eseguire una query SELECT su DB.
-        // Questo rispecchia il metodo getReferenceById(id) mostrato nel diagramma 9].
+        // Serve solo la relazione verso l'autore: non è necessario caricare l'utente.
         UserReference authorRef = entityManager.getReference(UserReference.class, authorId);
 
         AuditRecord auditRecord = AuditRecord.builder()
@@ -55,7 +53,6 @@ public class HistoryServiceImpl implements HistoryService {
                 .timestamp(LocalDateTime.now(ZoneId.systemDefault()))
                 .build();
 
-        // Salva immutabilmente l'evento nel database tramite AuditRepository 9].
         auditRepository.save(auditRecord);
     }
 }

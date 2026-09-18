@@ -25,7 +25,7 @@ describe('JwtInterceptor', () => {
     authServiceMock.getToken.mockReturnValue('fake-token');
     
     
-    const request = new HttpRequest('GET', 'http://localhost:8080/api/issues');
+    const request = new HttpRequest('GET', '/api/issues');
     
     
     const nextFn = vi.fn().mockImplementation((req: HttpRequest<any>) => {
@@ -44,7 +44,7 @@ describe('JwtInterceptor', () => {
 
   it('should NOT add Authorization header if token does not exist', () => {
     authServiceMock.getToken.mockReturnValue(null);
-    const request = new HttpRequest('GET', 'http://localhost:8080/api/issues');
+    const request = new HttpRequest('GET', '/api/issues');
     
     const nextFn = vi.fn().mockImplementation((req: HttpRequest<any>) => {
       

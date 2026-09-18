@@ -20,12 +20,16 @@ describe('AppComponent', () => {
     
     authServiceMock = {
       isLoggedIn: vi.fn().mockReturnValue(true),
-      logout: vi.fn()
+      logout: vi.fn(),
+      confirmSessionExpiration: vi.fn(),
+      isSessionExpired: { set: vi.fn() }
     };
 
     
     notificationServiceMock = {
-      getUnreadNotifications: vi.fn().mockReturnValue(of([]))
+      getUnreadNotifications: vi.fn().mockReturnValue(of([])),
+      listenToLiveNotifications: vi.fn().mockReturnValue(of()),
+      markAsRead: vi.fn().mockReturnValue(of())
     };
 
     await TestBed.configureTestingModule({
@@ -56,7 +60,7 @@ describe('AppComponent', () => {
 
     
     const links = compiled.querySelectorAll('.nav-link');
-    expect(links.length).toBe(2);
+    expect(links.length).toBe(3);
     
     
     expect(links[0].textContent).toContain('Progetti');
@@ -65,6 +69,9 @@ describe('AppComponent', () => {
     
     expect(links[1].textContent).toContain('Segnalazioni');
     expect(links[1].getAttribute('routerLink')).toBe('/issues');
+
+    expect(links[2].textContent).toContain('Dashboard');
+    expect(links[2].getAttribute('routerLink')).toBe('/dashboard');
   });
 
   it('should only render Login link when user is NOT logged in', () => {

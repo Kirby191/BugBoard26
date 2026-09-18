@@ -6,7 +6,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NotificationListComponent } from './notification-list.component';
 import { NotificationService } from '../../services/notification.service';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { NotificationDTO } from '../../models/query-dtos';
 
 describe('NotificationListComponent', () => {
@@ -26,7 +26,8 @@ describe('NotificationListComponent', () => {
 
     notificationServiceMock = {
       getUnreadNotifications: vi.fn().mockReturnValue(of(mockNotifications)),
-      markAsRead: vi.fn().mockReturnValue(of({})) 
+      markAsRead: vi.fn().mockReturnValue(of({})),
+      listenToLiveNotifications: vi.fn().mockReturnValue(of())
     };
 
     routerMock = { navigate: vi.fn() };
@@ -50,6 +51,9 @@ describe('NotificationListComponent', () => {
   it('should create and load notifications on init (DOM Testing)', () => {
     fixture.detectChanges(); 
 
+    fixture.nativeElement.querySelector('.bell-icon-container').click();
+    fixture.detectChanges();
+
     expect(notificationServiceMock.getUnreadNotifications).toHaveBeenCalled();
 
     
@@ -65,15 +69,15 @@ describe('NotificationListComponent', () => {
   it('should call markAsRead and remove item from DOM when clicking check button', () => {
     fixture.detectChanges();
 
-    
-    const readBtn = fixture.nativeElement.querySelectorAll('.btn-read')[0];
-    
+    fixture.nativeElement.querySelector('.bell-icon-container').click();
+    fixture.detectChanges();
+
     
     const mockEvent = new Event('click');
     vi.spyOn(mockEvent, 'stopPropagation');
     
     
-    component.markAsRead(1, mockEvent);
+    component.markAsReadQuick(1, mockEvent);
     fixture.detectChanges(); 
 
     expect(notificationServiceMock.markAsRead).toHaveBeenCalledWith(1);
@@ -90,11 +94,30 @@ describe('NotificationListComponent', () => {
   it('should navigate to issue details when clicking the notification body', () => {
     fixture.detectChanges();
 
+    fixture.nativeElement.querySelector('.bell-icon-container').click();
+    fixture.detectChanges();
+
     
     const notifItem = fixture.nativeElement.querySelectorAll('.notification-item')[0];
     notifItem.click();
+    fixture.detectChanges();
+    const confirmButton = fixture.nativeElement.querySelector('.btn-info');
+    confirmButton.click();
 
     
     expect(routerMock.navigate).toHaveBeenCalledWith(['/issues', '42']);
+  });
+
+  it('should show the server error state for an initial unread-load failure', () => {
+    notificationServiceMock.getUnreadNotifications.mockReturnValue(
+      throwError(() => ({ status: 503, error: { error: 'SERVICE_UNAVAILABLE', message: 'Notifications unavailable' } }))
+    );
+    fixture.detectChanges();
+    fixture.nativeElement.querySelector('.bell-icon-container').click();
+    fixture.detectChanges();
+
+    const errorState = fixture.nativeElement.querySelector('app-server-error-state');
+    expect(errorState).toBeTruthy();
+    expect((component as any).errorData().message).toBe('Notifications unavailable');
   });
 });

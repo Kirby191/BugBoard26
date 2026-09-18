@@ -8,11 +8,13 @@ import { Router } from '@angular/router';
 
 import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service';
 import { ProjectState } from '../../../shared/models/shared-dtos';
+import { ServerErrorStateComponent } from '../../../shared/components/server-error-state/server-error-state.component';
+import { getServerErrorDetails, ServerErrorDetails } from '../../../shared/components/server-error-state/server-error-details';
 
 @Component({
   selector: 'app-project-list',
   standalone: true,
-  imports: [CommonModule], 
+  imports: [CommonModule, ServerErrorStateComponent], 
   templateUrl: './project-list.component.html',
   styleUrl: './project-list.component.scss'
 })
@@ -23,6 +25,7 @@ export class ProjectListComponent implements OnInit {
   protected readonly projects = signal<ProjectState[]>([]);
   protected readonly isLoading = signal<boolean>(true);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly errorData = signal<ServerErrorDetails | null>(null);
 
   // Il ruolo controlla solo la possibilità di creare un nuovo progetto.
   protected readonly isAdmin = signal<boolean>(false);
@@ -41,11 +44,16 @@ export class ProjectListComponent implements OnInit {
         this.projects.set(data);
         this.isLoading.set(false);
       },
-      error: () => {
-        this.errorMessage.set('Impossibile caricare i progetti.');
+      error: (err) => {
+        this.errorData.set(getServerErrorDetails(err, 'Impossibile caricare i progetti.'));
         this.isLoading.set(false);
       }
     });
+  }
+
+  retryProjects(): void {
+    this.errorData.set(null);
+    this.loadProjects();
   }
 
   navigateToCreate(): void {

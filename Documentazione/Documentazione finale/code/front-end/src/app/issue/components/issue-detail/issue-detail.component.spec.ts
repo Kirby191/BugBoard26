@@ -76,9 +76,7 @@ describe('IssueDetailComponent', () => {
     fixture.detectChanges(); 
 
     
-    const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
-    expect(errorAlert).toBeTruthy();
-    expect(errorAlert.textContent).toContain('ID segnalazione non valido');
+    expect((component as any).errorMessage()).toBe('ID della segnalazione mancante nell\'URL.');
     
     
     const loadingIndicator = fixture.nativeElement.querySelector('.loading');
@@ -127,7 +125,7 @@ describe('IssueDetailComponent', () => {
     fixture.detectChanges(); 
 
     
-    const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
+    const errorAlert = fixture.nativeElement.querySelector('.error-state-container, .empty-state-container');
     expect(errorAlert).toBeTruthy();
     expect(errorAlert.textContent).toContain('Impossibile caricare i dettagli');
     

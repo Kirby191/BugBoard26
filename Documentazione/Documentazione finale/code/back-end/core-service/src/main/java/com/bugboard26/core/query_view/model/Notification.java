@@ -45,7 +45,7 @@ public class Notification {
     @Builder.Default
     private boolean isRead = false;
 
-    // Corrisponde al "timestamp: LocalDateTime" dell'UML, mappato su "created_at" a DB
+    // Timestamp di creazione, mappato sulla colonna created_at.
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime timestamp;

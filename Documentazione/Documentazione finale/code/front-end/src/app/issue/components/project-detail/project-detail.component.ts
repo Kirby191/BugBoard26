@@ -14,11 +14,13 @@ import { IssueSummary } from '../../../dashboard-query/models/query-dtos';
 import { ProjectState } from '../../../shared/models/shared-dtos';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component'; 
+import { ServerErrorStateComponent } from '../../../shared/components/server-error-state/server-error-state.component';
+import { getServerErrorDetails, ServerErrorDetails } from '../../../shared/components/server-error-state/server-error-details';
 
 @Component({
   selector: 'app-project-detail',
   standalone: true,
-  imports: [CommonModule, StatusBadgeComponent, ModalComponent], 
+  imports: [CommonModule, StatusBadgeComponent, ModalComponent, ServerErrorStateComponent], 
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
@@ -37,6 +39,8 @@ export class ProjectDetailComponent implements OnInit {
   protected readonly projectIssues = signal<IssueSummary[]>([]);
   protected readonly isLoading = signal<boolean>(true);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly errorData = signal<ServerErrorDetails | null>(null);
+  protected readonly projectIssuesErrorData = signal<ServerErrorDetails | null>(null);
 
   protected readonly isAdmin = signal<boolean>(false);
   protected readonly isDeleteModalOpen = signal<boolean>(false);
@@ -75,7 +79,7 @@ export class ProjectDetailComponent implements OnInit {
         if (err.status === 404 || err.error?.message?.toLowerCase().includes('non trovat')) {
           this.isNotFound.set(true);
         } else {
-          this.errorMessage.set('Impossibile caricare i dettagli del progetto.');
+          this.errorData.set(getServerErrorDetails(err, 'Impossibile caricare i dettagli del progetto.'));
         }
         this.isLoading.set(false);
       }
@@ -88,8 +92,28 @@ export class ProjectDetailComponent implements OnInit {
         this.projectIssues.set(issues);
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: (err) => {
+        this.projectIssuesErrorData.set(getServerErrorDetails(err, 'Impossibile caricare le segnalazioni del progetto.'));
+        this.isLoading.set(false);
+      }
     });
+  }
+
+  retryProject(): void {
+    const projectId = this.requestedId();
+    if (projectId !== null) {
+      this.errorData.set(null);
+      this.projectIssuesErrorData.set(null);
+      this.loadData(projectId);
+    }
+  }
+
+  retryProjectIssues(): void {
+    const projectId = this.requestedId();
+    if (projectId !== null) {
+      this.projectIssuesErrorData.set(null);
+      this.loadProjectIssues(projectId);
+    }
   }
 
   
@@ -152,7 +176,7 @@ export class ProjectDetailComponent implements OnInit {
       this.isDeleteModalOpen.set(false);
       this.projectCommandService.deleteProject(p.id).subscribe({
         next: () => this.router.navigate(['/projects']), 
-        error: (err) => this.errorMessage.set(err.error?.message || 'Errore durante l\'eliminazione.')
+        error: (err) => this.errorData.set(getServerErrorDetails(err, 'Errore durante l\'eliminazione.'))
       });
     }
   }

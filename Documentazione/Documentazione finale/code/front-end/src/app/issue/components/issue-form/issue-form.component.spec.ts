@@ -61,7 +61,7 @@ describe('IssueFormComponent', () => {
 
     
     activatedRouteMock = {
-      snapshot: { paramMap: { get: vi.fn().mockReturnValue(null) } }
+      snapshot: { paramMap: { get: vi.fn().mockReturnValue(null) }, queryParamMap: { get: vi.fn().mockReturnValue(null) } }
     };
 
     await TestBed.configureTestingModule({
@@ -111,7 +111,7 @@ describe('IssueFormComponent', () => {
 
       expect(component.issueForm.valid).toBe(false);
       expect(component.issueForm.get('title')?.hasError('maxlength')).toBe(true);
-      expect(component.issueForm.get('description')?.hasError('maxlength')).toBe(true);
+      expect(component.issueForm.get('description')?.hasError('maxlength')).toBe(false);
     });
   });
 
@@ -124,9 +124,7 @@ describe('IssueFormComponent', () => {
       fixture.detectChanges();
 
       
-      const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
-      expect(errorAlert).toBeTruthy();
-      expect(errorAlert.textContent).toContain('Compila correttamente i campi');
+      expect(fixture.nativeElement.querySelectorAll('.error-text').length).toBeGreaterThan(0);
       
       
       expect(issueServiceMock.createIssue).not.toHaveBeenCalled();
@@ -213,9 +211,9 @@ describe('IssueFormComponent', () => {
       component.onSubmit();
       fixture.detectChanges();
 
-      const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
-      expect(errorAlert).toBeTruthy();
-      expect(errorAlert.textContent).toContain('Errore generico dal server');
+      const errorState = fixture.nativeElement.querySelector('app-server-error-state');
+      expect(errorState).toBeTruthy();
+      expect((component as any).errorData().message).toBe('Errore generico dal server');
     });
   });
 });

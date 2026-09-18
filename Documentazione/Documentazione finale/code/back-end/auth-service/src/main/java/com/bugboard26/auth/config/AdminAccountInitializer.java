@@ -20,7 +20,6 @@ public class AdminAccountInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminAccountInitializer.class);
 
-    // Iniezione dinamica dei valori letti dall'application.properties
     @Value("${app.default-admin.email}")
     private String adminEmail;
 
@@ -33,10 +32,9 @@ public class AdminAccountInitializer {
     @Bean
     public CommandLineRunner initAdminAccount(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            // Verifica l'esistenza dell'account per garantire l'idempotenza ad ogni riavvio del server
+            // Il controllo rende l'inizializzazione idempotente ai riavvii.
             if (!userRepository.existsByEmail(adminEmail)) {
 
-                // Crea l'utente criptando la password in modo sicuro
                 User defaultAdmin = User.builder()
                         .email(adminEmail)
                         .username(adminUsername)

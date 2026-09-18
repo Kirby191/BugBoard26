@@ -49,12 +49,10 @@ public class IssueCommandServiceImpl implements IssueCommandService {
     @Override
     @Transactional
     public IssueResponse createIssue(CreateIssue request, MultipartFile file) {
-        // 1. Validazione di Dominio
         domainValidator.validateProject(request.projectId());
 
         Long authorId = userProvider.getCurrentUserId();
 
-        // 2. Creazione Entità
         Issue issue = Issue.builder()
                 .title(request.title())
                 .description(request.description())
@@ -67,15 +65,12 @@ public class IssueCommandServiceImpl implements IssueCommandService {
 
         Issue savedIssue = issueRepository.save(issue);
 
-        // 3. Gestione Allegato (opzionale)
         if (file != null && !file.isEmpty()) {
             String uploadedFileUrl = fileStorage.storeFile(savedIssue.getId(), file);
-            // Aggiorniamo la issue con l'URL appena generato e facciamo un secondo save
             savedIssue.setAttachmentUrl(uploadedFileUrl);
             savedIssue = issueRepository.save(savedIssue);
         }
 
-        // 4. Record Eventuale History
         if (savedIssue.getType() == IssueType.BUG) {
             historyService.recordEvent(savedIssue.getId(), authorId, AuditAction.CREATED, "Nuovo Bug Creato");
         }
@@ -97,22 +92,17 @@ public class IssueCommandServiceImpl implements IssueCommandService {
     Issue issue = issueRepository.findById(id)
             .orElseThrow(() -> new IssueNotFoundException(INESISTENTE_CON_ID + id));
 
-    // 1. Controllo di Accesso
     accessControlValidator.canModifyIssue(issue);
 
-    // 2. Setup tracciamento modifiche
     boolean isStatusChanged = request.status() != null && request.status() != issue.getStatus();
     IssueStatus oldStatus = issue.getStatus();
     java.util.StringJoiner details = new java.util.StringJoiner(" | ");
 
-    // 3. Gestione Allegato e Campi delegata a metodi privati
     processAttachmentUpdate(issue, file, details);
     applyFieldMutations(issue, request, details);
 
-    // 4. Salvataggio
     Issue savedIssue = issueRepository.save(issue);
 
-    // 5. Registrazione History delegata
     recordHistoryIfBug(savedIssue, isStatusChanged, oldStatus, details);
 
     return mapToResponse(savedIssue);
@@ -142,7 +132,7 @@ public class IssueCommandServiceImpl implements IssueCommandService {
             return mapToResponse(savedIssue);
         }
 
-        // Se le date sono uguali, restituisci l'issue senza toccare il database
+        // Evita una scrittura quando la scadenza non è cambiata.
         return mapToResponse(issue);
     }
 
@@ -156,11 +146,6 @@ public class IssueCommandServiceImpl implements IssueCommandService {
         issueRepository.delete(issue);
     }
 
-    // =========================================================================
-    // METODI PRIVATI DI SUPPORTO
-    // =========================================================================
-
-    // Metodo di utility privato per generare la IssueResponse
     private IssueResponse mapToResponse(Issue issue) {
         return new IssueResponse(
                 issue.getId(),

@@ -149,9 +149,9 @@ describe('ProjectFormComponent', () => {
       fixture.detectChanges();
 
       
-      const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
-      expect(errorAlert).toBeTruthy();
-      expect(errorAlert.textContent).toContain('Errore dal backend');
+      const errorState = fixture.nativeElement.querySelector('app-server-error-state');
+      expect(errorState).toBeTruthy();
+      expect((component as any).errorData().message).toBe('Errore dal backend');
     });
   });
 });

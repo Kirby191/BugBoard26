@@ -6,10 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-/**
- * DTO per la registrazione di un nuovo utente.
- * Mappa la Funzionalità 1 (Creazione Utenze e Ruoli).
- */
+/** Dati validati per la registrazione di un nuovo utente. */
 public record UserRegistration(
         @NotBlank(message = "L'email non può essere vuota")
         @Email(message = "Il formato dell'email non è valido")

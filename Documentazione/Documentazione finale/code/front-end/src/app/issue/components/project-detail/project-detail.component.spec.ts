@@ -6,6 +6,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProjectDetailComponent } from './project-detail.component';
 import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service';
 import { DashboardService } from '../../../dashboard-query/services/dashboard.service';
+import { ProjectService } from '../../services/project.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { of, throwError } from 'rxjs';
@@ -20,6 +21,7 @@ describe('ProjectDetailComponent', () => {
   let dashboardServiceMock: any;
   let routerMock: any;
   let locationMock: any;
+  let projectServiceMock: any;
   let activatedRouteMock: any;
 
   const mockProject: ProjectState = {
@@ -44,6 +46,7 @@ describe('ProjectDetailComponent', () => {
 
     routerMock = { navigate: vi.fn() };
     locationMock = { back: vi.fn() };
+    projectServiceMock = { deleteProject: vi.fn().mockReturnValue(of({})) };
 
     
     activatedRouteMock = {
@@ -55,6 +58,7 @@ describe('ProjectDetailComponent', () => {
       providers: [
         { provide: ProjectQueryService, useValue: projectQueryMock },
         { provide: DashboardService, useValue: dashboardServiceMock },
+        { provide: ProjectService, useValue: projectServiceMock },
         { provide: Router, useValue: routerMock },
         { provide: Location, useValue: locationMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock }
@@ -102,14 +106,14 @@ describe('ProjectDetailComponent', () => {
     expect(issueRow.textContent).toContain('Bug Login');
   });
 
-  it('should show error banner if getProjectById fails', () => {
+  it('should show the server error state if getProjectById fails', () => {
     projectQueryMock.getProjectById.mockReturnValue(throwError(() => new Error('API down')));
     
     fixture.detectChanges();
 
-    const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
-    expect(errorAlert).toBeTruthy();
-    expect(errorAlert.textContent).toContain('Impossibile caricare i dettagli del progetto');
+    const errorState = fixture.nativeElement.querySelector('app-server-error-state');
+    expect(errorState).toBeTruthy();
+    expect(errorState.textContent).toContain('Impossibile caricare i dettagli del progetto');
   });
 
   it('should navigate back when "Torna all\'elenco" is clicked', () => {
@@ -118,12 +122,16 @@ describe('ProjectDetailComponent', () => {
     const backBtn = fixture.nativeElement.querySelector('.btn-secondary');
     backBtn.click();
     
-    expect(locationMock.back).toHaveBeenCalled();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/projects']);
   });
 
   it('should navigate to edit view when "Modifica Progetto" is clicked', () => {
     fixture.detectChanges();
     
+    localStorage.setItem('user_role', 'ADMIN');
+    fixture = TestBed.createComponent(ProjectDetailComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
     const editBtn = fixture.nativeElement.querySelector('.btn-warning');
     editBtn.click();
     

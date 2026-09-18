@@ -16,10 +16,12 @@ import { IssuePriority } from '../../../shared/models/enums';
 import { ModalComponent, ModalType } from '../../../shared/components/modal/modal.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 
+import { ServerErrorStateComponent } from '../../../shared/components/server-error-state/server-error-state.component';
+import { getServerErrorDetails, ServerErrorDetails } from '../../../shared/components/server-error-state/server-error-details';
 @Component({
   selector: 'app-issue-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, StatusBadgeComponent], 
+  imports: [CommonModule, FormsModule, ModalComponent, StatusBadgeComponent, ServerErrorStateComponent], 
   templateUrl: './issue-detail.component.html',
   styleUrl: './issue-detail.component.scss'
 })
@@ -37,7 +39,15 @@ export class IssueDetailComponent implements OnInit {
   protected readonly issue = signal<IssueDetailed | null>(null);
   protected readonly history = signal<BugHistory[]>([]);
   protected readonly isLoading = signal<boolean>(true);
+
+  // ----------------------------------------------------------------
+  // Stato di errore diversificato per tipo di errore (404, 500, ecc.)
+  // ----------------------------------------------------------------
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly errorData = signal<ServerErrorDetails | null>(null);
+  protected readonly historyErrorData = signal<ServerErrorDetails | null>(null);
+
+
   protected readonly currentUserId = signal<number | null>(null);
 
   
@@ -97,7 +107,7 @@ export class IssueDetailComponent implements OnInit {
       this.requestedId.set(Number(idParam));
       this.loadIssueDetail(Number(idParam));
     } else {
-      this.errorMessage.set('ID segnalazione non valido.');
+      this.errorMessage.set('ID della segnalazione mancante nell\'URL.');
       this.isLoading.set(false);
     }
   }
@@ -151,7 +161,8 @@ canModify(): boolean {
         if (err.status === 404 || err.error?.message?.toLowerCase().includes('non trovat')) {
           this.isNotFound.set(true);
         } else {
-          this.errorMessage.set('Impossibile caricare i dettagli della segnalazione.');
+            const details = getServerErrorDetails(err, 'Errore imprevisto di rete.');
+            this.errorData.set(details);
         }
         this.isLoading.set(false);
       }
@@ -165,11 +176,28 @@ canModify(): boolean {
         this.history.set(histData);
         this.isLoading.set(false);
       },
-      error: () => {
-        console.warn('Impossibile caricare lo storico');
+      error: (err) => {
+        this.historyErrorData.set(getServerErrorDetails(err, 'Impossibile caricare lo storico della segnalazione.'));
         this.isLoading.set(false); 
       }
     });
+  }
+
+  retryIssue(): void {
+    const issueId = this.requestedId();
+    if (issueId !== null) {
+      this.errorData.set(null);
+      this.historyErrorData.set(null);
+      this.loadIssueDetail(issueId);
+    }
+  }
+
+  retryHistory(): void {
+    const issueId = this.requestedId();
+    if (issueId !== null) {
+      this.historyErrorData.set(null);
+      this.loadHistory(issueId);
+    }
   }
 
   

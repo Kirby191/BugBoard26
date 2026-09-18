@@ -12,13 +12,17 @@
     }
   </div>
 
-  @if (errorMessage()) {
-    <div class="alert alert-danger">{{ errorMessage() }}</div>
-  }
-
   <!-- Dopo il caricamento scegliamo tra griglia progetti e stato vuoto. -->
   @if (isLoading()) {
     <div class="loading-spinner"><p>Caricamento dei progetti in corso...</p></div>
+  } @else if (errorData(); as err) {
+    <app-server-error-state
+      context="i progetti"
+      [errorCode]="err.status"
+      [errorType]="err.type"
+      [errorDetails]="err.message"
+      (retry)="retryProjects()">
+    </app-server-error-state>
   } @else {
     
     @if (projects().length > 0) {

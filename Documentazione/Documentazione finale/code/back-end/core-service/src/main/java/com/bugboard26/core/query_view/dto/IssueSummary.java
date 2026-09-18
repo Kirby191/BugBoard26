@@ -18,7 +18,7 @@ public record IssueSummary(
         IssueType type,
         IssuePriority priority,
         LocalDate dueDate,
-        // Dati aggregati pronti per la UI (evitano chiamate addizionali da Angular)
+        // Dati aggregati pronti per la UI (evitano chiamate addizionali)
         String projectName,
         String assigneeEmail,
         Long assigneeId,

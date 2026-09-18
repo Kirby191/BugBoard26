@@ -6,9 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-/**
- * Entità JPA User fedele alla fonte UML Auth.pdf e allo schema DB PostgreSQL (schema 'bugboard').
- */
+/** Entità JPA che rappresenta un utente dell'applicazione. */
 @Entity
 @Table(name = "users", schema = "bugboard")
 @Getter

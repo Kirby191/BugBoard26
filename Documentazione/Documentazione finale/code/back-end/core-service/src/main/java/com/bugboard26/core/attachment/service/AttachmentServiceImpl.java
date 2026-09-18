@@ -25,7 +25,6 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
     private final AttachmentMetadataRepository metadataRepository;
     private final FileValidator fileValidator;
 
-    // Iniezione di tutte le dipendenze richieste dal Class Diagram
     public AttachmentServiceImpl(StorageProvider storageProvider,
                                  AttachmentMetadataRepository metadataRepository,
                                  FileValidator fileValidator) {
@@ -41,16 +40,12 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
     @Transactional
     public String storeFile(Long issueId, MultipartFile file) {
 
-        // 1. Validazione di sicurezza
         fileValidator.validate(file);
 
-        // 2. Generazione di un nome univoco
         String uniqueFileName = generateUniqueFileName(file.getOriginalFilename());
 
-        // 3. Delegazione dell'I/O allo StorageProvider
         String fileUrl = storageProvider.store(file, uniqueFileName);
 
-        // 4. Creazione dell'entità TRACCIANDO L'ISSUE ID
         AttachmentMetadata metadata = AttachmentMetadata.builder()
                 .issueId(issueId)
                 .originalFileName(file.getOriginalFilename())
@@ -59,7 +54,6 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
                 .fileUrl(fileUrl)
                 .build();
 
-        // 5. Persistenza strutturata
         metadataRepository.save(metadata);
 
         return fileUrl;
@@ -87,10 +81,8 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
             return UUID.randomUUID().toString();
         }
 
-        // Spring utility that extracts just the file name, ignoring any path prefix
         String cleanFileName = StringUtils.getFilename(originalFilename);
 
-        // Fallback in case the filename is somehow empty after cleaning
         if (cleanFileName.isBlank()) {
             return UUID.randomUUID().toString();
         }

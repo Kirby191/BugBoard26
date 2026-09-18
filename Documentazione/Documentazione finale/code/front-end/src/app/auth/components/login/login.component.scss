@@ -2,124 +2,163 @@
 // APP / AUTH / COMPONENTS / LOGIN / LOGIN
 // ------------------------------------------------
 
-.login-container {
-  max-width: 400px;
-  margin: 80px auto; 
-  padding: 30px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); 
+.login-toast {
+  position: fixed;
+  bottom: -100px; // Nascosto fuori dallo schermo in basso
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #dc3545;
+  color: white;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+  transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); // Effetto a molla "rimbalzante"
+  z-index: 1050; // Sopra qualsiasi altro elemento
+  white-space: nowrap;
 
-  // --------------------------------------------------------------
-  // Feedback e campi della form
-  // --------------------------------------------------------------
+  &.show {
+    bottom: 40px; // Sale morbidamente al centro-basso dello schermo
+  }
+}
+
+// ------------------------------------------------------------------
+// IL BLOCCO DI LOGIN
+// ------------------------------------------------------------------
+.login-container {
+  // Dimensioni dinamiche e scalabili (Risolve il problema schermi piccoli)
+  width: 100%;
+  max-width: 450px; // Dimensione aurea per form desktop
+  margin: 10vh auto; // Spazio reattivo verticale
+  padding: 45px 40px; // Più spazio per far "respirare" gli elementi
+  
+  // Stile dell'UNICA Card visibile
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); // Ombra profonda ma delicatissima
+  box-sizing: border-box;
+
   h1 {
     text-align: center;
-    color: #1A237E; 
-    margin-bottom: 25px;
-    font-size: 1.8rem;
+    color: #1A237E;
+    margin-top: 0;
+    margin-bottom: 35px;
+    font-size: 2.2rem;
+    font-weight: 800;
   }
-
   
-  .error-banner {
-    background-color: #f8d7da;
-    color: #842029;
-    padding: 12px;
-    border-radius: 4px;
-    border: 1px solid #f5c2c7;
-    margin-bottom: 20px;
-    text-align: center;
-    font-size: 0.9rem;
+  .warning-text {
+    color: #fd7e14;
+    display: block;
+    margin-top: 8px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    animation: fadeIn 0.3s ease-out; 
   }
 
   .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 
     label {
       display: block;
       margin-bottom: 8px;
       font-weight: 600;
       color: #495057;
+      font-size: 1.05rem;
     }
-    .password-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    
-    .toggle-eye {
-      position: absolute;
-      right: 12px;
-      cursor: pointer;
-      user-select: none; 
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      
-      
-      svg {
-        color: #6c757d; 
-        transition: color 0.2s ease, transform 0.2s ease;
-      }
-
-      &:hover svg {
-        color: #1A237E;
-        transform: scale(1.1); 
-      }
-    }
-  }
 
     input {
       width: 100%;
-      padding: 12px;
+      padding: 14px 16px;
       border: 1px solid #ced4da;
-      border-radius: 4px;
-      font-size: 1rem;
+      border-radius: 6px;
+      font-size: 1.05rem;
       transition: border-color 0.2s, box-shadow 0.2s;
       box-sizing: border-box;
 
-      
       &:focus {
         outline: none;
         border-color: #0d6efd;
         box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
       }
-
-      
-      &.ng-invalid.ng-touched {
-        border-color: #dc3545;
-        background-color: #fff8f8;
-      }
-    }
-
-    small {
-      color: #dc3545;
-      display: block;
-      margin-top: 5px;
-      font-size: 0.85rem;
     }
   }
 
-  // Il pulsante riflette lo stato asincrono dell'autenticazione.
+  .password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    input {
+      padding-right: 50px;
+    }
+
+    .toggle-eye {
+      position: absolute;
+      right: 15px;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      svg {
+        color: #6c757d;
+        width: 22px;
+        height: 22px;
+        transition: color 0.2s ease, transform 0.2s ease;
+      }
+
+      &:hover svg {
+        color: #1A237E;
+        transform: scale(1.1);
+      }
+    }
+  }
+
   button[type="submit"] {
     width: 100%;
-    padding: 12px;
-    background-color: #0d6efd; 
+    padding: 15px;
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
     color: white;
     border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    font-weight: bold;
+    border-radius: 6px;
+    font-size: 1.15rem;
+    font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.2s;
-    margin-top: 10px;
+    transition: all 0.2s ease;
+    margin-top: 15px;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
 
-    &:hover {
-      background-color: #0b5ed7;
+    &:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0b5ed7 0%, #084298 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 15px rgba(13, 110, 253, 0.3);
     }
 
     &:disabled {
-      opacity: 0.65;
+      background: #aab6ce;
+      box-shadow: none;
       cursor: not-allowed;
+      transform: none;
     }
   }
+
+  // --- RESPONSIVENESS PER SCHERMI PICCOLI ---
+  @media (max-width: 480px) {
+    margin: 5vh auto; // Riduco i margini su mobile
+    padding: 30px 20px; // Riduco il padding per sfruttare lo spazio
+    border-radius: 0; // Su mobile le card full-screen senza bordi sono più eleganti
+    box-shadow: none; 
+    background-color: transparent; // Fonde il form con lo sfondo dell'app
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
 }

@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.annotation.PostConstruct;
 
 /**
  * Implementazione Cloud dello Strategy Pattern per l'archiviazione su Amazon S3.
@@ -17,14 +18,20 @@ import org.springframework.web.multipart.MultipartFile;
 @ConditionalOnProperty(name = "app.storage.provider", havingValue = "aws")
 public class AwsS3StorageProviderImpl implements StorageProvider {
 
-    // Attributo definito esplicitamente nel Class Diagram
     @Value("${aws.s3.bucket-name:bugboard26-bucket}")
     private String s3BucketName;
 
+    @PostConstruct
+    void failFastUntilConfigured() {
+        // Evita di avviare il servizio con un provider selezionato ma incapace di servire gli allegati.
+        throw new StorageException(
+                "Il provider AWS S3 è configurato per il bucket '" + s3BucketName +
+                        "', ma l'integrazione SDK non è disponibile."
+        );
+    }
+
     @Override
     public String store(MultipartFile file, String uniqueFileName) {
-        // Qui verrebbe integrato l'AmazonS3Client.
-        // Simuliamo l'assenza del client con un'eccezione descrittiva.
         throw new StorageException(
                 "L'implementazione AWS S3 è strutturalmente predisposta tramite Strategy Pattern, " +
                         "ma il bucket '" + s3BucketName + "' richiede il setup dell'SDK AWS in ambiente di produzione."

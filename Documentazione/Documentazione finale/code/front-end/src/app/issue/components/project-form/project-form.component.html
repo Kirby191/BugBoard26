@@ -8,8 +8,14 @@
     <h2>{{ isEditMode() ? 'Modifica Progetto' : 'Nuovo Progetto' }}</h2>
   </div>
   <div class="card-body">
-    @if (errorMessage()) {
-      <div class="alert alert-danger">{{ errorMessage() }}</div>
+    @if (errorData(); as err) {
+      <app-server-error-state
+        [context]="isEditMode() ? 'i dati del progetto' : 'il salvataggio del progetto'"
+        [errorCode]="err.status"
+        [errorType]="err.type"
+        [errorDetails]="err.message"
+        (retry)="retryServerRequest()">
+      </app-server-error-state>
     }
 
     <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">

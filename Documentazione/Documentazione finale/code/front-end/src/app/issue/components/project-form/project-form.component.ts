@@ -10,11 +10,13 @@ import { ProjectService } from '../../services/project.service';
 import { ProjectQueryService } from '../../../dashboard-query/services/project-query.service';
 import { CreateProject, UpdateProject } from '../../models/project-dtos';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { ServerErrorStateComponent } from '../../../shared/components/server-error-state/server-error-state.component';
+import { getServerErrorDetails, ServerErrorDetails } from '../../../shared/components/server-error-state/server-error-details';
 
 @Component({
   selector: 'app-project-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent, ServerErrorStateComponent],
   templateUrl: './project-form.component.html',
   styleUrls: ['./project-form.component.scss']
 })
@@ -40,6 +42,8 @@ export class ProjectFormComponent implements OnInit {
   protected readonly projectId = signal<number | null>(null);
   protected readonly isSubmitting = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly errorData = signal<ServerErrorDetails | null>(null);
+  private retryAction: () => void = () => this.onSubmit();
   
   
   protected readonly isModalOpen = signal<boolean>(false);
@@ -67,8 +71,16 @@ export class ProjectFormComponent implements OnInit {
           description: data.description
         });
       },
-      error: () => this.errorMessage.set('Impossibile caricare i dati del progetto.')
+      error: (err) => {
+        this.retryAction = () => this.loadProjectData(id);
+        this.errorData.set(getServerErrorDetails(err, 'Impossibile caricare i dati del progetto.'));
+      }
     });
+  }
+
+  retryServerRequest(): void {
+    this.errorData.set(null);
+    this.retryAction();
   }
 
   onSubmit(): void {
@@ -81,7 +93,7 @@ export class ProjectFormComponent implements OnInit {
     if (this.projectForm.invalid) return;
     
     this.isSubmitting.set(true);
-    this.errorMessage.set(null);
+    this.errorData.set(null);
 
     const formValues = this.projectForm.getRawValue();
 
@@ -91,7 +103,8 @@ export class ProjectFormComponent implements OnInit {
       this.projectCommandService.updateProject(this.projectId()!, request).subscribe({
         next: () => this.router.navigate(['/projects']),
         error: (err) => {
-          this.errorMessage.set(err.error?.message || 'Errore durante la modifica.');
+          this.retryAction = () => this.onSubmit();
+          this.errorData.set(getServerErrorDetails(err, 'Errore durante la modifica.'));
           this.isSubmitting.set(false);
         }
       });
@@ -100,7 +113,8 @@ export class ProjectFormComponent implements OnInit {
       this.projectCommandService.createProject(request).subscribe({
         next: () => this.router.navigate(['/projects']),
         error: (err) => {
-          this.errorMessage.set(err.error?.message || 'Errore durante la creazione.');
+          this.retryAction = () => this.onSubmit();
+          this.errorData.set(getServerErrorDetails(err, 'Errore durante la creazione.'));
           this.isSubmitting.set(false);
         }
       });

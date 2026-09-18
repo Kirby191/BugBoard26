@@ -1,6 +1,7 @@
 package com.bugboard26.core.query_view.service;
 
 import com.bugboard26.core.issue_management.model.Issue;
+import com.bugboard26.core.issue_management.model.enums.IssueType;
 import com.bugboard26.core.query_view.dto.IssueDetailed;
 import com.bugboard26.core.query_view.dto.IssueFilter;
 import com.bugboard26.core.query_view.dto.IssueSummary;
@@ -11,6 +12,7 @@ import com.bugboard26.core.issue_management.model.Project;
 import com.bugboard26.core.shared.model.UserReference;
 import com.bugboard26.core.query_view.repository.UserReadRepository;
 import com.bugboard26.core.shared.security.AuthenticatedUserProvider;
+import com.bugboard26.core.query_view.util.IssueVisibilityHelper;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,11 +34,11 @@ public class IssueQueryServiceImpl implements IssueQueryService {
     public IssueQueryServiceImpl(IssueReadRepository issueRepository,
                                  ProjectReadRepository projectRepository,
                                  UserReadRepository userRepository,
-                                 AuthenticatedUserProvider authenticatedUserProvider) {
+                                 AuthenticatedUserProvider userProvider) {
         this.issueRepository = issueRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
-        this.userProvider = authenticatedUserProvider;
+        this.userProvider = userProvider;
     }
 
     @Override
@@ -45,7 +47,6 @@ public class IssueQueryServiceImpl implements IssueQueryService {
         Specification<Issue> spec = createSpecification(filter);
 
         return issueRepository.findAll(spec, pageable).map(issue -> {
-            // Risolviamo i nomi per la visualizzazione leggera (Summary)
             String projectName = resolveProjectName(issue.getProjectId());
             String assigneeEmail = resolveUserEmail(issue.getAssigneeId());
 
@@ -70,10 +71,21 @@ public class IssueQueryServiceImpl implements IssueQueryService {
         Issue issue = issueRepository.findById(id)
                 .orElseThrow(() -> new IssueNotFoundException("Segnalazione non trovata: " + id));
 
-        // Risolviamo i metadati pesanti in lettura (CQRS Pattern)
+        // Per i bug, il 404 evita di rivelare l'esistenza di segnalazioni non visibili.
+        if (!userProvider.isCurrentAdmin() && issue.getType() == IssueType.BUG) {
+            Long currentUserId = userProvider.getCurrentUserId();
+            boolean isReporter = currentUserId.equals(issue.getReporterId());
+            boolean isAssignee = currentUserId.equals(issue.getAssigneeId());
+
+            if (!isReporter && !isAssignee) {
+                throw new IssueNotFoundException("Segnalazione non trovata: " + id);
+            }
+        }
+
         String projectName = resolveProjectName(issue.getProjectId());
         String creatorEmail = resolveUserEmail(issue.getReporterId());
         String assigneeEmail = resolveUserEmail(issue.getAssigneeId());
+
         String attachmentUrl = issue.getAttachmentUrl();
 
         return new IssueDetailed(
@@ -96,7 +108,7 @@ public class IssueQueryServiceImpl implements IssueQueryService {
     }
 
     // =========================================================================
-    // UTILITY METHODS (Risoluzione Loose Coupling & Filtri Dinamici)
+    // UTILITY METHODS
     // =========================================================================
 
     private String resolveProjectName(Long projectId) {
@@ -109,9 +121,6 @@ public class IssueQueryServiceImpl implements IssueQueryService {
         return userRepository.findById(userId).map(UserReference::getEmail).orElse("Utente Rimosso");
     }
 
-    /**
-     * Trasforma l'IssueFilter in query SQL dinamica tramite Criteria API di Spring Data JPA.
-     */
     private Specification<Issue> createSpecification(IssueFilter filter) {
         Long currentUserId = userProvider.getCurrentUserId();
         boolean isAdmin = userProvider.isCurrentAdmin();
@@ -119,14 +128,11 @@ public class IssueQueryServiceImpl implements IssueQueryService {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // 1. FILTRO (Se non sei admin, vedi solo ciò che hai creato o che ti è assegnato)
-            if (!isAdmin) {
-                Predicate isReporter = criteriaBuilder.equal(root.get("reporterId"), currentUserId);
-                Predicate isAssignee = criteriaBuilder.equal(root.get("assigneeId"), currentUserId);
-                predicates.add(criteriaBuilder.or(isReporter, isAssignee));
+            Predicate rbacPredicate = IssueVisibilityHelper.buildRbacPredicate(root, criteriaBuilder, currentUserId, isAdmin);
+            if (rbacPredicate != null) {
+                predicates.add(rbacPredicate);
             }
 
-            // 2. FILTRI DINAMICI RICHIESTI DAL FRONTEND
             if (filter.projectId() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("projectId"), filter.projectId()));
             }
@@ -140,7 +146,11 @@ public class IssueQueryServiceImpl implements IssueQueryService {
                 predicates.add(criteriaBuilder.equal(root.get("priority"), filter.priority()));
             }
             if (filter.assigneeId() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("assigneeId"), filter.assigneeId()));
+                if (filter.assigneeId().equals(-1L)) {
+                    predicates.add(criteriaBuilder.isNull(root.get("assigneeId")));
+                } else {
+                    predicates.add(criteriaBuilder.equal(root.get("assigneeId"), filter.assigneeId()));
+                }
             }
             if (filter.titleQuery() != null && !filter.titleQuery().isBlank()) {
                 predicates.add(criteriaBuilder.like(

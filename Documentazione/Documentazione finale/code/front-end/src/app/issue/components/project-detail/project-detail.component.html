@@ -53,7 +53,16 @@
     </div>
   }
   @else if (errorMessage()) {
-    <div class="alert alert-danger">{{ errorMessage() }}</div>  
+    <div class="alert alert-danger">{{ errorMessage() }}</div>
+  }
+  @else if (errorData(); as err) {
+    <app-server-error-state
+      context="i dettagli del progetto"
+      [errorCode]="err.status"
+      [errorType]="err.type"
+      [errorDetails]="err.message"
+      (retry)="retryProject()">
+    </app-server-error-state>
   } @else if (project(); as p) {
      
      <div class="card main-info-card">
@@ -76,7 +85,15 @@
        <div class="card-body p-0">
          
          
-         @if (projectIssues().length > 0) {
+         @if (projectIssuesErrorData(); as issuesErr) {
+           <app-server-error-state
+             context="le segnalazioni del progetto"
+             [errorCode]="issuesErr.status"
+             [errorType]="issuesErr.type"
+             [errorDetails]="issuesErr.message"
+             (retry)="retryProjectIssues()">
+           </app-server-error-state>
+         } @else if (projectIssues().length > 0) {
            <table class="issue-table">
              <thead>
                <tr>

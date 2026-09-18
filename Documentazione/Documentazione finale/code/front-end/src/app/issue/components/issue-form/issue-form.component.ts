@@ -14,6 +14,8 @@ import { ProjectQueryService } from '../../../dashboard-query/services/project-q
 
 
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { ServerErrorStateComponent } from '../../../shared/components/server-error-state/server-error-state.component';
+import { getServerErrorDetails, ServerErrorDetails } from '../../../shared/components/server-error-state/server-error-details';
 
 
 import { CreateIssue, UpdateIssue } from '../../models/issue-dtos';
@@ -23,7 +25,7 @@ import { ProjectState } from '../../../shared/models/shared-dtos';
 @Component({
   selector: 'app-issue-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ModalComponent], 
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent, ServerErrorStateComponent], 
   templateUrl: './issue-form.component.html',
   styleUrl: './issue-form.component.scss'
 })
@@ -51,6 +53,8 @@ export class IssueFormComponent implements OnInit {
   protected readonly issueId = signal<number | null>(null);
   protected readonly isSubmitting = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
+  protected readonly errorData = signal<ServerErrorDetails | null>(null);
+  private retryAction: () => void = () => this.loadProjects();
   protected readonly projects = signal<ProjectState[]>([]);
 
   // ----------------------------------------------------------------
@@ -159,8 +163,16 @@ if (idParam) {
   private loadProjects(): void {
     this.projectQueryService.getProjects().subscribe({
       next: (projs) => this.projects.set(projs),
-      error: () => this.errorMessage.set('Impossibile caricare la lista dei progetti.')
+      error: (err) => {
+        this.retryAction = () => this.loadProjects();
+        this.errorData.set(getServerErrorDetails(err, 'Impossibile caricare la lista dei progetti.'));
+      }
     });
+  }
+
+  retryServerRequest(): void {
+    this.errorData.set(null);
+    this.retryAction();
   }
 
   private prepareEditMode(id: number): void {
@@ -192,7 +204,10 @@ if (idParam) {
           this.syncToCustomDateInputs(data.dueDate);
         }
       },
-      error: () => this.errorMessage.set('Impossibile caricare i dati della segnalazione.')
+      error: (err) => {
+        this.retryAction = () => this.prepareEditMode(id);
+        this.errorData.set(getServerErrorDetails(err, 'Impossibile caricare i dati della segnalazione.'));
+      }
     });
   }
 
@@ -306,7 +321,8 @@ if (idParam) {
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        this.errorMessage.set(err.error?.message || 'Errore durante la creazione.');
+        this.retryAction = () => this.handleCreate();
+        this.errorData.set(getServerErrorDetails(err, 'Errore durante la creazione.'));
       }
     });
   }
@@ -334,7 +350,11 @@ if (idParam) {
         if (formValues.dueDate) {
            this.issueService.setDueDate(id, formValues.dueDate).subscribe({
              next: () => this.forceNavigateBack(),
-             error: () => this.errorMessage.set('Errore durante l\'aggiornamento della data di scadenza.')
+             error: (err) => {
+               this.isSubmitting.set(false);
+               this.retryAction = () => this.handleUpdate();
+               this.errorData.set(getServerErrorDetails(err, 'Errore durante l\'aggiornamento della data di scadenza.'));
+             }
            });
         } else {
            this.forceNavigateBack();
@@ -342,7 +362,8 @@ if (idParam) {
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        this.errorMessage.set(err.error?.message || 'Errore durante l\'aggiornamento della segnalazione.');
+        this.retryAction = () => this.handleUpdate();
+        this.errorData.set(getServerErrorDetails(err, 'Errore durante l\'aggiornamento della segnalazione.'));
       }
     });
   }

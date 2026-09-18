@@ -53,7 +53,7 @@ describe('AuthService', () => {
     });
 
     
-    const req = httpMock.expectOne('http://localhost:8081/api/auth/login');
+    const req = httpMock.expectOne('/api/auth/login');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(mockRequest);
     req.flush(mockResponse); 

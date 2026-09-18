@@ -16,7 +16,6 @@ public class NotificationEventListener {
 
     private final NotificationService notificationService;
 
-    // Iniezione della dipendenza verso il servizio di gestione notifiche
     public NotificationEventListener(NotificationService notificationService) {
         this.notificationService = notificationService;
     }
@@ -28,17 +27,14 @@ public class NotificationEventListener {
      * @param event L'evento immutabile contenente i dati dell'assegnazione.
      */
     @EventListener
-    @Async // Abilita l'esecuzione asincrona per non bloccare il thread della richiesta originale
+    @Async
     public void handleBugAssigned(BugAssignedEvent event) {
 
-        // 1. Estrazione dei dati direttamente dal Java Record dell'evento
         Long assigneeId = event.assigneeId();
         Long bugId = event.bugId();
 
-        // 2. Costruzione del messaggio descrittivo per l'utente
         String message = "Ti è stato assegnato il Bug #" + bugId;
 
-        // 3. Delegazione al NotificationService locale per la persistenza della notifica 2, 4]
         notificationService.createNotification(assigneeId, bugId, message);
     }
 

@@ -25,8 +25,7 @@ public class IssueQueryController {
     }
 
     /**
-     * Ricerca e filtra le segnalazioni in formato paginato (Funzionalità 3).
-     * Risponde a GET /api/issues
+    * Ricerca e filtra le segnalazioni in formato paginato.
      */
     @GetMapping
     public ResponseEntity<Page<IssueSummary>> searchIssues(

@@ -13,7 +13,7 @@ describe('ProjectQueryService', () => {
   let service: ProjectQueryService;
   let httpMock: HttpTestingController;
 
-  const API_PROJECTS = 'http://localhost:8080/api/projects';
+  const API_PROJECTS = '/api/projects';
 
   beforeEach(() => {
     TestBed.resetTestingModule(); 

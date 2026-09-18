@@ -66,13 +66,13 @@ describe('DashboardComponent', () => {
     expect(textValues).toContain('2');  
   });
 
-  it('should display an error banner if getDashboardStats fails (DOM Testing)', () => {
+  it('should display the server error state if getDashboardStats fails (DOM Testing)', () => {
     dashboardServiceMock.getDashboardStats.mockReturnValue(throwError(() => new Error('API down')));
     fixture.detectChanges();
 
-    const errorAlert = fixture.nativeElement.querySelector('.alert-danger');
-    expect(errorAlert).toBeTruthy();
-    expect(errorAlert.textContent).toContain('Impossibile caricare le metriche');
+    const errorState = fixture.nativeElement.querySelector('app-server-error-state');
+    expect(errorState).toBeTruthy();
+    expect(errorState.textContent).toContain('Impossibile caricare le metriche');
   });
 
   // Ogni card deve produrre il filtro che l'utente si aspetta nella lista issue.

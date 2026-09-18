@@ -12,7 +12,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.util.List;
 
 /**
- * Controller REST per l'interazione con le Notifiche (Funzionalità 4).
+ * Controller REST per la gestione delle notifiche dell'utente.
  * Appartiene al Query & View Subsystem.
  */
 @RestController
