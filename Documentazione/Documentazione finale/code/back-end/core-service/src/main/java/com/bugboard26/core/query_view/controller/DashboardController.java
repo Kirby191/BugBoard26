@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/dashboard")
+/** Espone le statistiche aggregate mostrate nella dashboard. */
 public class DashboardController {
 
     private final DashboardService dashboardService;

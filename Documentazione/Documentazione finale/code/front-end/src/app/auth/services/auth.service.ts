@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root'
 })
+/** Gestisce autenticazione, persistenza locale del token e scadenza per inattività. */
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
@@ -76,6 +77,10 @@ export class AuthService {
   // Monitoraggio dell'inattività
   // ----------------------------------------------------------------
   private startIdleMonitoring(): void {
+    /*
+     * I listener vengono registrati fuori da Angular per non riattivare
+     * il change detection ad ogni evento ad alta frequenza.
+     */
     // Il metodo può essere richiamato dopo un nuovo login: prima eliminiamo eventuali listener precedenti.
     this.stopIdleMonitoring();
 

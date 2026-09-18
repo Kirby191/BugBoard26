@@ -11,6 +11,7 @@ import { AuthService } from '../../auth/services/auth.service';
 @Injectable({
   providedIn: 'root'
 })
+/** Unifica lettura persistente e ricezione live delle notifiche via SSE. */
 export class NotificationService {
   /*
    * Espone due modalità di lettura: una richiesta HTTP per le notifiche

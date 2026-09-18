@@ -13,11 +13,21 @@ import java.time.LocalDate;
  */
 public interface IssueCommandService {
 
+    /**
+     * Crea una segnalazione e, se presente, collega il relativo allegato.
+     *
+     * @param request dati della segnalazione
+     * @param file allegato opzionale
+     * @return segnalazione persistita
+     */
     IssueResponse createIssue(CreateIssue request, MultipartFile file);
 
+    /** Aggiorna i campi valorizzati della segnalazione indicata. */
     IssueResponse updateIssue(Long id, UpdateIssue request, MultipartFile file);
 
+    /** Modifica o rimuove la scadenza di una segnalazione. */
     IssueResponse setDueDate(Long id, LocalDate dueDate);
 
+    /** Elimina una segnalazione dopo aver verificato i permessi dell'utente. */
     void deleteIssue(Long id);
 }

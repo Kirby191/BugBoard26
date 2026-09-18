@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Getter
 @Setter
 @ConfigurationProperties("jwt")
+/** Proprietà necessarie per verificare localmente i token JWT. */
 public class JwtProperties {
 
     private String secret;

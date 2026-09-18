@@ -10,6 +10,7 @@ import java.util.List;
 /**
  * Implementazione del servizio per l'estrazione in sola lettura degli utenti.
  */
+/** Recupera le informazioni utente richieste dalle viste del core service. */
 @Service
 public class UserQueryServiceImpl implements UserQueryService {
 

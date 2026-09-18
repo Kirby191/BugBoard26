@@ -4,6 +4,7 @@ import com.bugboard26.core.issue_management.model.enums.IssuePriority;
 import com.bugboard26.core.issue_management.model.enums.IssueStatus;
 import com.bugboard26.core.issue_management.model.enums.IssueType;
 
+/** Vista sintetica di una segnalazione restituita dal command layer. */
 public record IssueResponse(
     Long id,
     Long projectId,

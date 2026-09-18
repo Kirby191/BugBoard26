@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/auth")
+/** Espone gli endpoint pubblici di login e registrazione. */
 public class AuthController {
 
     private final UserService userService;
@@ -28,6 +29,7 @@ public class AuthController {
      * Risponde a POST /api/auth/login
      */
     @PostMapping("/login")
+    /** Restituisce un token JWT dopo aver verificato le credenziali ricevute. */
     public ResponseEntity<JwtResponse> authenticateUser(@Valid @RequestBody LoginRequest request) {
         JwtResponse response = userService.authenticate(request);
         return ResponseEntity.ok(response);
@@ -38,6 +40,7 @@ public class AuthController {
      * Risponde a POST /api/auth/register
      */
     @PostMapping("/register")
+    /** Registra un utente ordinario e restituisce HTTP 201. */
     public ResponseEntity<UserResponse> registerUser(@Valid @RequestBody UserRegistration request) {
         UserResponse response = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

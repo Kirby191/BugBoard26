@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/** Entità principale che rappresenta una segnalazione nel sistema. */
 public class Issue {
 
     @Id

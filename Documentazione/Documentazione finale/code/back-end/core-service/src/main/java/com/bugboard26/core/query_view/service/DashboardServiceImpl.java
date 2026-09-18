@@ -16,6 +16,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Calcola le statistiche della dashboard rispettando la visibilità dell'utente. */
 @Service
 public class DashboardServiceImpl implements DashboardService {
 
@@ -31,6 +32,10 @@ public class DashboardServiceImpl implements DashboardService {
     @Override
     @Transactional(readOnly = true)
     public DashboardStats getDashboardStats() {
+        /*
+         * Tutti i contatori devono usare lo stesso utente e lo stesso ruolo:
+         * mescolarli produrrebbe una dashboard internamente incoerente.
+         */
         Long currentUserId = userProvider.getCurrentUserId();
         boolean isAdmin = userProvider.isCurrentAdmin();
 
@@ -41,6 +46,7 @@ public class DashboardServiceImpl implements DashboardService {
 
         int criticalCount = countCriticalForUser(currentUserId, isAdmin);
 
+        // La soglia include le scadenze dei prossimi sette giorni e quelle già superate.
         LocalDate targetDate = LocalDate.now(ZoneId.systemDefault()).plusDays(7);
         int overdueCount = (int) issueRepository.count((root, query, cb) -> {
             List<Predicate> preds = new ArrayList<>();

@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 @ConfigurationPropertiesScan
 @EnableAsync
+/** Punto di ingresso dell'applicazione Spring Boot del core service. */
 public class CoreServiceApplication {
 
     public static void main(String[] args) {

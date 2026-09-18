@@ -24,6 +24,10 @@ public final class IssueVisibilityHelper {
             return null; // Nessuna restrizione per gli admin
         }
 
+        /*
+         * Le issue generiche restano visibili a tutti; i BUG sono invece
+         * limitati a reporter e assegnatario per non esporre dati riservati.
+         */
         Predicate isNotBug = cb.notEqual(root.get("type"), IssueType.BUG);
         Predicate isReporter = cb.equal(root.get("reporterId"), currentUserId);
         Predicate isAssignee = cb.equal(root.get("assigneeId"), currentUserId);

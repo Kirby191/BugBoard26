@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @RestControllerAdvice
+/** Converte le eccezioni di dominio in risposte HTTP comprensibili dal client. */
 public class GlobalExceptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 

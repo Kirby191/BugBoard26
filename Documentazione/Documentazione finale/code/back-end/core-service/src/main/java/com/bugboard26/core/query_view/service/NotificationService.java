@@ -7,6 +7,7 @@ import java.util.List;
 /**
  * Interfaccia di servizio per la gestione delle notifiche nel Query & View Subsystem.
  */
+/** Gestisce le letture e lo stato delle notifiche dell'utente. */
 public interface NotificationService {
 
     /**

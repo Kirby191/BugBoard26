@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
+/** Coordina le mutazioni delle issue, gli allegati e la registrazione della cronologia. */
 @Service
 public class IssueCommandServiceImpl implements IssueCommandService {
 
@@ -49,6 +50,10 @@ public class IssueCommandServiceImpl implements IssueCommandService {
     @Override
     @Transactional
     public IssueResponse createIssue(CreateIssue request, MultipartFile file) {
+        /*
+         * La issue viene salvata prima dell'allegato perché il suo identificativo
+         * persistito viene usato dal provider per costruire il percorso del file.
+         */
         domainValidator.validateProject(request.projectId());
 
         Long authorId = userProvider.getCurrentUserId();
@@ -89,6 +94,10 @@ public class IssueCommandServiceImpl implements IssueCommandService {
     @Override
     @Transactional
     public IssueResponse updateIssue(Long id, UpdateIssue request, MultipartFile file) {
+        /*
+         * L'ordine è intenzionale: prima si verifica la risorsa e il permesso,
+         * poi si raccolgono le mutazioni per produrre un audit leggibile.
+         */
     Issue issue = issueRepository.findById(id)
             .orElseThrow(() -> new IssueNotFoundException(INESISTENTE_CON_ID + id));
 
@@ -111,6 +120,7 @@ public class IssueCommandServiceImpl implements IssueCommandService {
     @Override
     @Transactional
     public IssueResponse setDueDate(Long id, LocalDate dueDate) {
+        // La modifica della scadenza è riservata agli amministratori.
         accessControlValidator.canManageProjects();
         Issue issue = issueRepository.findById(id)
                 .orElseThrow(() -> new IssueNotFoundException(INESISTENTE_CON_ID + id));
@@ -190,6 +200,10 @@ public class IssueCommandServiceImpl implements IssueCommandService {
     }
 
     private void recordHistoryIfBug(Issue savedIssue, boolean isStatusChanged, IssueStatus oldStatus, java.util.StringJoiner details) {
+        /*
+         * La cronologia è una regola specifica dei BUG: le altre tipologie
+         * condividono le mutazioni ma non generano eventi audit.
+         */
         if (savedIssue.getType() == IssueType.BUG) {
             Long authorId = userProvider.getCurrentUserId();
 

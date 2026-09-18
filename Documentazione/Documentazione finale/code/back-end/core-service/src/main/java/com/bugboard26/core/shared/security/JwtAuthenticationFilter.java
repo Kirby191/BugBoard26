@@ -53,6 +53,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String token = authHeader.substring(7);
 
         try {
+            /*
+             * Il core service valida localmente firma e scadenza: non deve
+             * effettuare una chiamata sincrona all'auth service per ogni richiesta.
+             */
             SecretKey key = Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
 
             Claims claims = Jwts.parser()

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
  * Fornisce i metodi necessari per le mutazioni di stato e le validazioni pre-inserimento 4].
  */
 @Repository
+/** Repository di scrittura delle issue nel command layer. */
 public interface IssueRepository extends JpaRepository<Issue, Long> {
 
     /**

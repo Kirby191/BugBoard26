@@ -46,6 +46,10 @@ public class LocalStorageProviderImpl implements StorageProvider {
 
     @Override
     public String store(MultipartFile file, String uniqueFileName) {
+        /*
+         * Il nome è già stato normalizzato dal servizio, ma il controllo sul
+         * path resta qui come ultima barriera contro il path traversal.
+         */
         try {
             // Risoluzione sicura del path per evitare vulnerabilità di Path Traversal
             Path destinationFile = this.rootLocation.resolve(Path.of(uniqueFileName)).normalize().toAbsolutePath();
@@ -67,6 +71,7 @@ public class LocalStorageProviderImpl implements StorageProvider {
 
     @Override
     public Resource retrieve(String fileUrl) {
+        // Anche in lettura il percorso viene confinato alla directory configurata.
         try {
             String filename = fileUrl.replace(URI_PREFIX, "");
             Path file = rootLocation.resolve(filename).normalize();

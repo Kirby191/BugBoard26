@@ -17,6 +17,7 @@ import {
 @Injectable({
   providedIn: 'root'
 })
+/** Traduce i comandi sulle issue nel contratto HTTP del core service. */
 export class IssueService {
 
   private readonly http = inject(HttpClient);

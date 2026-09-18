@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
  * Applica l'Open/Closed Principle (OCP) garantendo che ogni evento applicativo
  * (presente o futuro) esponga sempre i dati minimi di tracciabilità.
  */
+/** Contratto comune degli eventi pubblicati per i bug. */
 public interface BugEvent {
 
     Long bugId();

@@ -12,6 +12,7 @@ import java.util.List;
  * dello storico ordinato cronologicamente per un singolo bug.
  */
 @Repository
+/** Repository degli eventi immutabili di audit. */
 public interface AuditRepository extends JpaRepository<AuditRecord, Long> {
 
     /**

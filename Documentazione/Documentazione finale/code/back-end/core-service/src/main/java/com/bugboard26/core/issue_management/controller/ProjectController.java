@@ -26,6 +26,12 @@ public class ProjectController {
     /**
      * Crea un nuovo progetto (Solo Admin).
      */
+    /**
+     * Riceve i dati del nuovo progetto e delega la persistenza al command service.
+     *
+     * @param request dati validati del progetto
+     * @return risposta HTTP 201 con lo stato persistito del progetto
+     */
     @PostMapping
     public ResponseEntity<ProjectState> createProject(@RequestBody @Valid CreateProject request) {
         ProjectState response = projectCommandService.createProject(request);
@@ -34,6 +40,13 @@ public class ProjectController {
 
     /**
      * Aggiorna nome o descrizione di un progetto esistente (Solo Admin).
+     */
+    /**
+     * Applica un aggiornamento parziale al progetto indicato.
+     *
+     * @param id identificativo del progetto
+     * @param request campi da modificare; i valori nulli restano invariati
+     * @return risposta HTTP 200 con lo stato aggiornato
      */
     @PutMapping("/{id}")
     public ResponseEntity<ProjectState> updateProject(
@@ -46,6 +59,12 @@ public class ProjectController {
 
     /**
      * Elimina un progetto e, a cascata (ON DELETE CASCADE), le issue collegate.
+     */
+    /**
+     * Elimina il progetto indicato e lascia al database la gestione delle relazioni a cascata.
+     *
+     * @param id identificativo del progetto da eliminare
+     * @return risposta HTTP 204 senza contenuto
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable Long id) {

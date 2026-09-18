@@ -8,5 +8,6 @@ import org.springframework.stereotype.Repository;
  * Utilizzato dal Query Layer per popolare i menu a tendina (dropdown) del frontend.
  */
 @Repository
+/** Repository CQRS in sola lettura per gli utenti referenziati. */
 public interface UserReadRepository extends ReadOnlyRepository<UserReference, Long> {
 }

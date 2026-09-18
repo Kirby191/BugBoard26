@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
+/** Implementa la cronologia usando riferimenti JPA agli autori degli eventi. */
 @Service
 public class HistoryServiceImpl implements HistoryService {
 
@@ -27,6 +28,7 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     @Transactional(readOnly = true)
     public List<BugHistory> getHistoryForBug(Long bugId) {
+        // L'ordinamento discendente permette alla UI di mostrare subito l'evento più recente.
         return auditRepository.findByBugIdOrderByTimestampDesc(bugId).stream()
                 .map(auditRecord -> new BugHistory(
                         auditRecord.getId(),

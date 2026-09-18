@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+/** Configura il filtro JWT e le regole di autorizzazione del core service. */
 public class SecurityConfig {
 
     @Bean

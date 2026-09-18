@@ -25,6 +25,10 @@ public class JwtTokenProvider implements TokenProvider {
 
     @Override
     public String generateToken(User user) {
+        /*
+         * Il token contiene solo dati utili al core service per ricostruire
+         * l'identità, mentre la firma impedisce modifiche lato client.
+         */
         Instant now = Instant.now();
         Instant expiry = now.plusMillis(validityInMilliseconds);
 

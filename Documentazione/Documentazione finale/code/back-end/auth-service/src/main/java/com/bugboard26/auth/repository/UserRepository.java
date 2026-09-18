@@ -10,6 +10,7 @@ import java.util.Optional;
  * Repository JPA per la gestione della persistenza dell'entità User.
  */
 @Repository
+/** Accesso persistente agli utenti tramite email e identificativo. */
 public interface UserRepository extends JpaRepository<User, Long> {
 
     /**

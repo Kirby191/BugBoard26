@@ -6,6 +6,7 @@ import com.bugboard26.core.issue_management.model.enums.IssueType;
 import com.bugboard26.core.shared.security.AuthenticatedUserProvider;
 import org.springframework.stereotype.Component;
 
+/** Centralizza i controlli di autorizzazione sulle operazioni di scrittura. */
 @Component
 public class AccessControlValidator {
     private final AuthenticatedUserProvider userProvider;
@@ -14,6 +15,7 @@ public class AccessControlValidator {
         this.userProvider = userProvider;
     }
 
+    /** Verifica che l'utente possa modificare la segnalazione indicata. */
     public void canModifyIssue(Issue issue) {
         Long currentUserId = userProvider.getCurrentUserId();
         boolean isAdmin = userProvider.isCurrentAdmin();
@@ -31,6 +33,7 @@ public class AccessControlValidator {
         }
     }
 
+    /** Verifica che l'utente possa eliminare la segnalazione indicata. */
     public void canDeleteIssue(Issue issue) {
         Long currentUserId = userProvider.getCurrentUserId();
         boolean isAdmin = userProvider.isCurrentAdmin();
@@ -42,6 +45,7 @@ public class AccessControlValidator {
         }
     }
 
+    /** Verifica che l'utente corrente abbia il ruolo amministratore. */
     public void canManageProjects() {
         if (!userProvider.isCurrentAdmin()) {
             throw new UnauthorizedActionException("Accesso negato: operazione riservata agli Amministratori.");

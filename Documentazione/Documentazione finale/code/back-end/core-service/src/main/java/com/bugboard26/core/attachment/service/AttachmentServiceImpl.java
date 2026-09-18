@@ -73,8 +73,9 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
 
 
     /**
-     * Strips any malicious path sequences (e.g., "../../") from the filename
-     * and prepends a UUID to guarantee uniqueness.
+     * Rimuove i segmenti di percorso dal nome ricevuto e antepone un UUID.
+     * In questo modo il client non può scegliere una destinazione arbitraria
+     * e due upload con lo stesso nome non si sovrascrivono logicamente.
      */
     private String generateUniqueFileName(String originalFilename) {
         if (originalFilename == null || originalFilename.isBlank()) {

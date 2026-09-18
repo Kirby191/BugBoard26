@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
  * senza accoppiare la business logic alle classi statiche del framework di sicurezza.
  */
 @Component
+/** Legge identità e ruolo dell'utente dal contesto di sicurezza corrente. */
 public class AuthenticatedUserProvider {
 
     /**

@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/** Implementa le letture dei progetti senza consentire mutazioni. */
 @Service
 public class ProjectQueryServiceImpl implements ProjectQueryService {
 

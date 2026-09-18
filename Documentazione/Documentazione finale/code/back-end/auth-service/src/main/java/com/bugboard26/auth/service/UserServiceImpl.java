@@ -48,6 +48,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public JwtResponse authenticate(LoginRequest request) {
+        /*
+         * Spring Security valida le credenziali; il servizio recupera poi
+         * l'entità per inserire nel token solo le informazioni necessarie.
+         */
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.email(), request.password()));
@@ -74,6 +78,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      */
     @Override
     public UserResponse createUser(UserRegistration request) {
+        // Le registrazioni pubbliche non possono scegliere autonomamente il ruolo.
         if (userRepository.existsByEmail(request.email())) {
             throw new EmailAlreadyExistsException("L'email " + request.email() + " è già in uso.");
         }

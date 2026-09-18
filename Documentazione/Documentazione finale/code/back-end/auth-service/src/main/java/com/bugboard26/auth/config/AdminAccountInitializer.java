@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * Legge dinamicamente le credenziali dal file application.properties o dalle variabili d'ambiente.
  */
 @Configuration
+/** Crea l'account amministratore iniziale quando richiesto dalla configurazione. */
 public class AdminAccountInitializer {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminAccountInitializer.class);

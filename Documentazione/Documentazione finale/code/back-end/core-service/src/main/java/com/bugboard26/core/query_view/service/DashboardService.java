@@ -5,6 +5,7 @@ import com.bugboard26.core.query_view.dto.DashboardStats;
 /**
  * Interfaccia di servizio per l'aggregazione dei dati della Dashboard (Query Layer).
  */
+/** Fornisce i contatori aggregati mostrati nella dashboard. */
 public interface DashboardService {
 
     /**

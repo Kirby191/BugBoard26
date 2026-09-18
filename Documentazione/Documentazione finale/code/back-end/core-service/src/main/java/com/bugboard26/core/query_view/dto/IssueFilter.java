@@ -6,6 +6,7 @@ import com.bugboard26.core.issue_management.model.enums.IssueStatus;
 import com.bugboard26.core.query_view.dto.enums.SortBy;
 import com.bugboard26.core.query_view.dto.enums.SortDirection;
 
+/** Filtri opzionali applicabili alla ricerca delle issue. */
 public record IssueFilter(
         Long projectId,
         IssueStatus status,

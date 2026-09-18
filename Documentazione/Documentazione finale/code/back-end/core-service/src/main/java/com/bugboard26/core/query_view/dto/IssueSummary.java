@@ -11,6 +11,7 @@ import java.time.LocalDate;
  * Omette volutamente la descrizione e i metadati pesanti per ottimizzare
  * il memory footprint e la latenza di rete durante la paginazione (CQRS Query).
  */
+/** Vista compatta usata negli elenchi delle issue. */
 public record IssueSummary(
         Long id,
         String title,

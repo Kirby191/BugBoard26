@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Costruisce le letture delle issue applicando filtri e regole di visibilità. */
 @Service
 public class IssueQueryServiceImpl implements IssueQueryService {
 
@@ -46,6 +47,7 @@ public class IssueQueryServiceImpl implements IssueQueryService {
     @Override
     @Transactional(readOnly = true)
     public Page<IssueSummary> searchIssues(IssueFilter filter, Pageable pageable) {
+        // La specification concentra in una query componibile filtri e autorizzazioni.
         Specification<Issue> spec = createSpecification(filter);
 
         return issueRepository.findAll(spec, pageable).map(issue -> {
@@ -123,6 +125,7 @@ public class IssueQueryServiceImpl implements IssueQueryService {
         return userRepository.findById(userId).map(UserReference::getEmail).orElse("Utente Rimosso");
     }
 
+    /** Costruisce la query con il vincolo RBAC prima dei filtri scelti dall'utente. */
     private Specification<Issue> createSpecification(IssueFilter filter) {
         Long currentUserId = userProvider.getCurrentUserId();
         boolean isAdmin = userProvider.isCurrentAdmin();
@@ -137,6 +140,7 @@ public class IssueQueryServiceImpl implements IssueQueryService {
         };
     }
 
+    /** Aggiunge alla query solo i parametri valorizzati e validi. */
     private static void applyFilters(IssueFilter filter, Root<Issue> root, CriteriaBuilder criteriaBuilder, Predicate rbacPredicate, List<Predicate> predicates) {
         if (rbacPredicate != null) {
             predicates.add(rbacPredicate);

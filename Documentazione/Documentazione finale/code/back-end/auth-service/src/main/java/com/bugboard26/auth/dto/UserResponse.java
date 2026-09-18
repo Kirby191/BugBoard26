@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
  * DTO per l'esposizione sicura dei dati utente.
  * La passwordHash non viene mai inviata al client.
  */
+/** Rappresenta i dati pubblici restituiti dopo la registrazione di un utente. */
 public record UserResponse(
         Long id,
         String email,

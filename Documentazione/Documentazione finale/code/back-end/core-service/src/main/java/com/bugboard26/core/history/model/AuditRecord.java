@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Richiesto da JPA
 @AllArgsConstructor
 @Builder
+/** Evento immutabile che descrive una modifica rilevante a una issue. */
 public class AuditRecord {
 
     @Id

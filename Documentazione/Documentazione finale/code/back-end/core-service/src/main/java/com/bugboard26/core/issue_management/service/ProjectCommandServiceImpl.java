@@ -31,8 +31,13 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
     @Override
     @Transactional
     public ProjectState createProject(CreateProject request) {
+        /*
+         * Il controllo dei permessi precede ogni accesso ai dati: in questo modo
+         * un utente non autorizzato non può ottenere informazioni sul progetto.
+         */
         accessControlValidator.canManageProjects();
 
+        // Il nome è la chiave funzionale del progetto e deve restare univoco.
         if (projectRepository.existsByName(request.name())) {
             throw new DuplicateProjectException("Esiste già un progetto con il nome: " + request.name());
         }
@@ -52,9 +57,16 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
     public ProjectState updateProject(Long id, UpdateProject request) {
         accessControlValidator.canManageProjects();
 
+        // Il progetto viene caricato prima dei controlli sui campi per distinguere
+        // l'assenza della risorsa da un aggiornamento parziale valido.
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ProjectNotFoundException("Progetto non trovato con ID: " + id));
 
+        /*
+         * Un nome nullo significa "non modificare". Quando invece cambia,
+         * la verifica esclude il progetto corrente per permettere il salvataggio
+         * del suo stesso nome senza segnalare un duplicato.
+         */
         if (request.name() != null && !request.name().equals(project.getName())) {
             if (projectRepository.existsByNameAndIdNot(request.name(), id)) {
                 throw new DuplicateProjectException("Il nome '" + request.name() + "' è già utilizzato da un altro progetto.");
@@ -62,6 +74,7 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
             project.setName(request.name());
         }
 
+        // Anche la descrizione segue la semantica di aggiornamento parziale.
         if (request.description() != null) {
             project.setDescription(request.description());
         }
@@ -76,6 +89,8 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
     public void deleteProject(Long id) {
         accessControlValidator.canManageProjects();
 
+        // Si elimina l'entità caricata per mantenere lo stesso comportamento
+        // di errore dell'aggiornamento quando l'ID non esiste.
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ProjectNotFoundException("Progetto non trovato con ID: " + id));
 
@@ -83,6 +98,7 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
     }
 
     private ProjectState mapToProjectState(Project project) {
+        // Il mapping impedisce di esporre direttamente l'entità JPA al controller.
         return new ProjectState(
                 project.getId(),
                 project.getName(),

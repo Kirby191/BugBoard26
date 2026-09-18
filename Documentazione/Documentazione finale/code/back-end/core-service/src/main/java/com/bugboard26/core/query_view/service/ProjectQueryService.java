@@ -6,6 +6,7 @@ import java.util.List;
 /**
  * Interfaccia di servizio in sola lettura per l'estrazione dei progetti.
  */
+/** Espone le letture dei progetti per il query layer. */
 public interface ProjectQueryService {
 
     List<ProjectState> getProjects();

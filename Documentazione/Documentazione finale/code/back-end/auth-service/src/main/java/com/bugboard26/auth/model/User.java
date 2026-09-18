@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/** Entità utente autenticabile e associata a un ruolo applicativo. */
 public class User {
 
     @Id

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/issues")
+/** Espone le ricerche e il dettaglio delle issue nel query layer. */
 public class IssueQueryController {
 
     private final IssueQueryService issueQueryService;

@@ -7,6 +7,10 @@ import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
+  /*
+   * Le richieste restano anonime quando non esiste una sessione; in caso
+   * contrario il token viene aggiunto senza mutare l'istanza originale.
+   */
   const authService = inject(AuthService);
   const token = authService.getToken();
 

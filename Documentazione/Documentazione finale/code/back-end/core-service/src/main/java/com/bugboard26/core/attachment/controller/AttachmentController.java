@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.nio.file.Files;
 
+/**
+ * Espone gli allegati come risorse inline, così il browser può visualizzare
+ * direttamente immagini e altri file per cui conosce il tipo MIME.
+ */
 @RestController
 @RequestMapping("/api/attachments")
 public class AttachmentController {
@@ -24,21 +28,28 @@ public class AttachmentController {
     }
 
     /**
-     * Ascolta direttamente la richiesta dell'immagine tramite il suo nome univoco.
-     * L'espressione regolare {:.+} serve a non far troncare le estensioni (.png, .jpg) da Spring.
+     * Recupera un allegato tramite il nome completo del file.
+     *
+    * Il suffisso {@code :.+} nella rotta impedisce a Spring
+     * di troncare il valore della variabile quando il nome contiene un punto.
+     *
+     * @param filename nome univoco dell'allegato comprensivo di estensione
+     * @return risorsa pronta per essere visualizzata dal client
      */
     @GetMapping("/{filename:.+}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String filename) {
 
-        // Ricostruisce l'URL esatto generato dal Provider
+        // Il provider risolve gli allegati usando lo stesso percorso esposto dall'API.
         String fileUrl = "/api/attachments/" + filename;
         Resource resource = storageProvider.retrieve(fileUrl);
 
+        // Il fallback mantiene il download leggibile anche quando il filesystem
+        // non riconosce il formato del file.
         String contentType = "application/octet-stream";
         try {
             contentType = Files.probeContentType(resource.getFile().toPath());
         } catch (IOException e) {
-            // Ignorato
+            // Il tipo predefinito è sufficiente per restituire comunque la risorsa.
         }
 
         return ResponseEntity.ok()

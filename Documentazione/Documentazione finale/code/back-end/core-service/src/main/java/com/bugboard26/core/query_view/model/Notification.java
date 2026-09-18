@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Richiesto da JPA
 @AllArgsConstructor
 @Builder
+/** Notifica persistita e associata a un utente destinatario. */
 public class Notification {
 
     @Id

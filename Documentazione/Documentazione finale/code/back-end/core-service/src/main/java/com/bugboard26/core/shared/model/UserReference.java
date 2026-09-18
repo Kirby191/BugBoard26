@@ -19,6 +19,7 @@ import org.hibernate.annotations.Immutable;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // Costruttore protetto richiesto da Hibernate per creare istanze tramite reflection
 @AllArgsConstructor
+/** Riferimento locale ai dati utente gestiti dall'auth service. */
 public class UserReference {
 
     @Id

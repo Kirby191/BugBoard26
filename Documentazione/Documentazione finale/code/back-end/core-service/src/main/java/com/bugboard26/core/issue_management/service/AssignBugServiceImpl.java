@@ -24,6 +24,7 @@ import java.time.ZoneId;
 /**
  * Coordina assegnazione, audit e notifiche delle segnalazioni.
  */
+/** Coordina assegnazione, audit e notifiche delle segnalazioni. */
 @Service
 public class AssignBugServiceImpl implements AssignBugService {
 
@@ -54,6 +55,10 @@ public class AssignBugServiceImpl implements AssignBugService {
 @Override
     @Transactional
     public IssueResponse assignBug(Long id, AssignBug request) {
+        /*
+         * La validazione del dominio precede ogni mutazione: solo i BUG possono
+         * entrare nel flusso di assegnazione e generare i relativi eventi.
+         */
         accessControlValidator.canManageProjects();
 
         Issue issue = issueRepository.findById(id)
@@ -69,6 +74,7 @@ public class AssignBugServiceImpl implements AssignBugService {
             return buildResponse(issue);
         }
 
+        // Un assegnatario nullo rappresenta la rimozione dell'assegnazione corrente.
         if (newAssigneeId == null) {
         Long previousAssigneeId = issue.getAssigneeId();
         issue.setAssigneeId(null);

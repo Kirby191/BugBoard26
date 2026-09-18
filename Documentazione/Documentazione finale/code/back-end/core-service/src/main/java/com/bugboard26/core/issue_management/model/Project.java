@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/** Entità aggregata che raggruppa le segnalazioni di un progetto. */
 public class Project {
 
     @Id

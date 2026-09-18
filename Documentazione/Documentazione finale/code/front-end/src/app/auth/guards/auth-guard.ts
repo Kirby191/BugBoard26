@@ -10,6 +10,7 @@ import { AuthService } from '../services/auth.service';
 
 
 
+/** Consente l'accesso alle rotte protette solo con una sessione locale valida. */
 export const authGuard: CanActivateFn = (route, state): boolean | UrlTree => {
   const authService = inject(AuthService);
   const router = inject(Router);

@@ -7,6 +7,7 @@ import java.util.List;
 /**
  * Interfaccia di servizio in sola lettura per l'estrazione degli utenti.
  */
+/** Espone le letture degli utenti necessarie al core service. */
 public interface UserQueryService {
 
     /**

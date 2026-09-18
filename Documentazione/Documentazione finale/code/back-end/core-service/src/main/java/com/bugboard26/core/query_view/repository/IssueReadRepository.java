@@ -15,6 +15,7 @@ import java.time.LocalDate;
  */
 
 @Repository
+/** Repository CQRS per cercare issue senza esporre operazioni di scrittura. */
 public interface IssueReadRepository extends ReadOnlyRepository<Issue, Long>, JpaSpecificationExecutor<Issue> {
 
     // =========================================================================

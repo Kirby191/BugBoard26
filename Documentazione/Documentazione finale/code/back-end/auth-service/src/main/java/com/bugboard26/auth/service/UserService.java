@@ -15,15 +15,28 @@ public interface UserService {
     /**
      * Autentica un utente e genera il token JWT.
      */
+    /**
+     * Autentica un utente e genera il token JWT.
+     *
+     * @param request credenziali ricevute dal client
+     * @return token e dati pubblici dell'utente
+     */
     JwtResponse authenticate(LoginRequest request);
 
     /**
      * Crea un nuovo utente nel sistema (registrazione).
+     */
+    /**
+     * Registra un utente ordinario dopo aver verificato l'unicità dell'email.
+     *
+     * @param request dati della registrazione
+     * @return dati pubblici dell'utente persistito
      */
     UserResponse createUser(UserRegistration request);
 
     /**
      * Recupera un'entità User a partire dall'email.
      */
+    /** Recupera l'utente associato all'email o segnala che non esiste. */
     User findByEmail(String email);
 }

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @RestControllerAdvice
+/** Traduce le eccezioni dell'autenticazione in risposte HTTP coerenti. */
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidCredentialsException.class)

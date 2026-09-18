@@ -17,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 /** Configura l'autenticazione stateless dell'Auth Service tramite JWT. */
 @Configuration
 @EnableWebSecurity
+/** Configura gli endpoint pubblici e la catena di sicurezza dell'auth service. */
 public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {

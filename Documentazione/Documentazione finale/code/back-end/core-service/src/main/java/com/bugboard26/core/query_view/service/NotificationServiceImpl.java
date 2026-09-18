@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/** Coordina la persistenza e la consultazione delle notifiche. */
 @Service
 public class NotificationServiceImpl implements NotificationService {
 

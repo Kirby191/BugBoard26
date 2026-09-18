@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Collocato nel modulo Shared per favorire il riuso in futuri contesti real-time.
  */
 @Component
+/** Mantiene le connessioni SSE attive per l'invio delle notifiche in tempo reale. */
 public class SseConnectionManager {
 
     // Mappa thread-safe per mantenere le connessioni attive degli utenti (K: UserId, V: Emitter)

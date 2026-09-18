@@ -16,6 +16,7 @@ import jakarta.annotation.PostConstruct;
  */
 @Component
 @ConditionalOnProperty(name = "app.storage.provider", havingValue = "aws")
+/** Implementazione dello storage su Amazon S3 usata quando il profilo cloud è attivo. */
 public class AwsS3StorageProviderImpl implements StorageProvider {
 
     @Value("${aws.s3.bucket-name:bugboard26-bucket}")

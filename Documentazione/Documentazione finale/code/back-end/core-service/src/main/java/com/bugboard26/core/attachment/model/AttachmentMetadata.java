@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+/** Metadati persistiti per collegare un allegato alla relativa issue. */
 public class AttachmentMetadata {
 
     @Id

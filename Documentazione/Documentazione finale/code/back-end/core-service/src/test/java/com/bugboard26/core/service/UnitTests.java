@@ -95,7 +95,7 @@ class UnitTests {
 
     @Test
     @DisplayName("TC-01: assignBug - Successo con Admin, Bug e Assegnatario validi")
-    public void testAssignBug_TC01() {
+    void testAssignBug_TC01() {
         AssignBug request = new AssignBug(200L);
         doNothing().when(accessControlValidator).canManageProjects();
         when(issueRepository.findById(1L)).thenReturn(Optional.of(testBug));
@@ -114,7 +114,7 @@ class UnitTests {
 
     @Test
     @DisplayName("TC-02: assignBug - Fallimento per Dominio Invalido (Assegnazione Feature)")
-    public void testAssignBug_TC02() {
+    void testAssignBug_TC02() {
         AssignBug request = new AssignBug(200L);
         doNothing().when(accessControlValidator).canManageProjects();
         when(issueRepository.findById(2L)).thenReturn(Optional.of(testFeature));
@@ -127,7 +127,7 @@ class UnitTests {
 
     @Test
     @DisplayName("TC-03: assignBug - Fallimento per Assegnatario Inesistente")
-    public void testAssignBug_TC03() {
+    void testAssignBug_TC03() {
         AssignBug request = new AssignBug(888L); // ID inesistente
         doNothing().when(accessControlValidator).canManageProjects();
         when(issueRepository.findById(1L)).thenReturn(Optional.of(testBug));
@@ -138,7 +138,7 @@ class UnitTests {
 
     @Test
     @DisplayName("TC-04: assignBug - Fallimento per Utente Non Autorizzato (Role UTENTE)")
-    public void testAssignBug_TC04() {
+    void testAssignBug_TC04() {
         AssignBug request = new AssignBug(200L);
         doThrow(new UnauthorizedActionException("Accesso Negato")).when(accessControlValidator).canManageProjects();
 
@@ -148,7 +148,7 @@ class UnitTests {
 
     @Test
     @DisplayName("TC-05: assignBug - Fallimento per Issue Inesistente")
-    public void testAssignBug_TC05() {
+     void testAssignBug_TC05() {
         AssignBug request = new AssignBug(200L);
         doNothing().when(accessControlValidator).canManageProjects();
         when(issueRepository.findById(999L)).thenReturn(Optional.empty());
@@ -156,13 +156,13 @@ class UnitTests {
         assertThrows(IssueNotFoundException.class, () -> assignBugService.assignBug(999L, request));
     }
 
-// ==========================================
+    // ==========================================
     // METODO 2: updateIssue (TC-06 -> TC-09)
     // ==========================================
 
     @Test
     @DisplayName("TC-06: updateIssue - Successo con cambio di stato (Genera STATUS_CHANGED)")
-    public void testUpdateIssue_TC06() {
+    void testUpdateIssue_TC06() {
         UpdateIssue request = new UpdateIssue("Titolo", "Desc", IssueStatus.IN_PROGRESS, IssuePriority.HIGH);
         when(issueRepository.findById(1L)).thenReturn(Optional.of(testBug));
         doNothing().when(accessControlValidator).canModifyIssue(testBug);
@@ -178,7 +178,7 @@ class UnitTests {
 
     @Test
     @DisplayName("TC-07: updateIssue - Successo senza cambio di stato (Genera UPDATED)")
-    public void testUpdateIssue_TC07() {
+    void testUpdateIssue_TC07() {
         UpdateIssue request = new UpdateIssue("Nuovo Titolo", null, null, null);
         when(issueRepository.findById(1L)).thenReturn(Optional.of(testBug));
         doNothing().when(accessControlValidator).canModifyIssue(testBug);
@@ -194,7 +194,7 @@ class UnitTests {
 
     @Test
     @DisplayName("TC-08: updateIssue - Fallimento per Utente Non Autorizzato")
-    public void testUpdateIssue_TC08() {
+    void testUpdateIssue_TC08() {
         UpdateIssue request = new UpdateIssue("Titolo", "Desc", IssueStatus.IN_PROGRESS, IssuePriority.HIGH);
         when(issueRepository.findById(1L)).thenReturn(Optional.of(testBug));
         doThrow(new UnauthorizedActionException("Accesso Negato")).when(accessControlValidator).canModifyIssue(testBug);
@@ -206,7 +206,7 @@ class UnitTests {
 
     @Test
     @DisplayName("TC-09: updateIssue - Fallimento per Issue Inesistente")
-    public void testUpdateIssue_TC09() {
+    void testUpdateIssue_TC09() {
         UpdateIssue request = new UpdateIssue("Titolo", "Desc", IssueStatus.IN_PROGRESS, IssuePriority.HIGH);
         when(issueRepository.findById(999L)).thenReturn(Optional.empty());
 
@@ -216,7 +216,7 @@ class UnitTests {
 
     @Test
     @DisplayName("TC-09b: updateIssue - Successo con caricamento nuovo file Multipart")
-    public void testUpdateIssue_TC09b_WithFile() {
+    void testUpdateIssue_TC09b_WithFile() {
         UpdateIssue request = new UpdateIssue("Titolo Modificato", null, null, null);
         MultipartFile mockFile = mock(MultipartFile.class);
 
@@ -248,7 +248,7 @@ class UnitTests {
 
     @Test
     @DisplayName("TC-10: recordEvent - Successo salvataggio Audit Immutabile")
-    public void testRecordEvent_TC10() {
+    void testRecordEvent_TC10() {
         UserReference mockAuthor = new UserReference(100L, "test@test.com", "User", null);
         when(entityManager.getReference(UserReference.class, 100L)).thenReturn(mockAuthor);
 

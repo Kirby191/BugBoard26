@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
  * Fornisce i metodi necessari per le mutazioni di stato e le validazioni sui nomi dei progetti.
  */
 @Repository
+/** Repository di scrittura dei progetti. */
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     /**

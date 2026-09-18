@@ -10,5 +10,6 @@ import org.springframework.stereotype.Repository;
  * (nome, dimensione, tipo, URL) senza memorizzare il file binario nel DB.
  */
 @Repository
+/** Repository dei metadati degli allegati. */
 public interface AttachmentMetadataRepository extends JpaRepository<AttachmentMetadata, Long> {
 }

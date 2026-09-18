@@ -36,6 +36,13 @@ public class IssueController {
      * Mappato su POST /api/issues come da specifiche
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    /**
+     * Riceve una segnalazione in formato multipart e delega la creazione al command service.
+     *
+     * @param request dati validati della segnalazione
+     * @param file allegato opzionale
+     * @return risposta HTTP 201 con la segnalazione creata
+     */
     public ResponseEntity<IssueResponse> createIssue(
             @RequestPart("issue") @Valid CreateIssue request,
             @RequestPart(value = "file", required = false) MultipartFile file) {
@@ -49,6 +56,14 @@ public class IssueController {
      * Mappato su PUT /api/issues/{id}
      */
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    /**
+     * Aggiorna i dati di una segnalazione e il suo allegato opzionale.
+     *
+     * @param id identificativo della segnalazione
+     * @param request campi da modificare
+     * @param file nuovo allegato, se presente
+     * @return risposta HTTP 200 con la segnalazione aggiornata
+     */
     public ResponseEntity<IssueResponse> updateIssue(
             @PathVariable Long id,
             @RequestPart("issue") @Valid UpdateIssue request,
@@ -63,6 +78,13 @@ public class IssueController {
      * Mappato su PUT /api/issues/{id}/assign come da specifiche
      */
     @PutMapping("/{id}/assign")
+    /**
+     * Cambia l'assegnatario di un bug e attiva gli effetti collaterali di audit e notifica.
+     *
+     * @param id identificativo del bug
+     * @param request nuovo assegnatario, oppure null per rimuoverlo
+     * @return risposta HTTP 200 con lo stato aggiornato
+     */
     public ResponseEntity<IssueResponse> assignBug(
             @PathVariable Long id,
             @RequestBody @Valid AssignBug request) {
@@ -75,6 +97,13 @@ public class IssueController {
      * Modifica o rimuove la data di scadenza di una segnalazione.
      */
     @PutMapping("/{id}/due-date")
+    /**
+     * Imposta la scadenza; l'assenza del parametro la rimuove.
+     *
+     * @param id identificativo della segnalazione
+     * @param dueDate nuova scadenza opzionale
+     * @return risposta HTTP 200 con lo stato aggiornato
+     */
     public ResponseEntity<IssueResponse> setDueDate(
             @PathVariable Long id,
             @RequestParam(required = false) LocalDate dueDate) {
@@ -83,6 +112,7 @@ public class IssueController {
         return ResponseEntity.ok(response);
     }
 
+    /** Elimina la segnalazione indicata e restituisce HTTP 204. */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteIssue(@PathVariable Long id) {
         issueCommandService.deleteIssue(id);
