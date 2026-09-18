@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
          */
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+            new UsernamePasswordAuthenticationToken(request.email(), request.password()));
         } catch (AuthenticationException e) {
             throw new InvalidCredentialsException("Credenziali non valide per l'email: " + request.email());
         }
@@ -87,8 +87,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .email(request.email())
                 .passwordHash(passwordEncoder.encode(request.password()))
                 .username(request.username())
-            // Il ruolo inviato dal client non è attendibile: la registrazione pubblica crea utenti ordinari.
-            .role(Role.UTENTE)
+                .role(request.role())
                 .build();
 
         User savedUser = userRepository.save(user);

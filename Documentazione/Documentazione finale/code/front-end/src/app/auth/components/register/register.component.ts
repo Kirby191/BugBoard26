@@ -74,17 +74,18 @@ export class RegisterComponent {
 
     this.isSubmitting.set(true);
 
+    const formValues = this.registerForm.getRawValue();
+
     const request: UserRegistration = {
-      email: this.registerForm.value.email!,
-      password: this.registerForm.value.password!,
-      username: this.registerForm.value.username!,
-      role: this.registerForm.value.role!
+      email: formValues.email!,
+      password: formValues.password!,
+      username: formValues.username!,
+      role: formValues.role!
     };
 
     // Il modal viene aggiornato sia in caso di successo sia in caso di errore del backend.
     this.authService.register(request).subscribe({
       next: (response) => {
-        
         this.resultModalTitle.set('Operazione Completata');
         this.resultModalMessage.set(`✅ L'utente ${response.username} è stato creato con successo nel sistema.`);
         this.resultModalType.set('info');
@@ -94,7 +95,6 @@ export class RegisterComponent {
         this.isSubmitting.set(false);
       },
       error: (err) => {
-        
         this.resultModalTitle.set('Errore di Creazione');
         this.resultModalMessage.set(`❌ C'è stato un problema: ${err.error?.message || 'Errore imprevisto dal server.'}`);
         this.resultModalType.set('danger');

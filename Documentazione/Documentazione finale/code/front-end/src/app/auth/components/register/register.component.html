@@ -88,7 +88,7 @@
           <select id="role" formControlName="role" class="form-control">
             <option [ngValue]="null" disabled>-- Seleziona --</option>
             @for (role of roles; track role) {
-              <option [value]="role">{{ role === 'ADMIN' ? 'Amministrazione' : 'Normale' }}</option>
+              <option [ngValue]="role">{{ role === 'ADMIN' ? 'Amministrazione' : 'Normale' }}</option>
             }
           </select>
         </div>
