@@ -7,7 +7,9 @@
   [isLoggedIn]="authService.isLoggedIn()" 
   [isAdmin]="isAdmin()" 
   (logoutAction)="handleLogout()">
-  <app-notification-list></app-notification-list>
+  @if (authService.isLoggedIn()) {
+     <app-notification-list></app-notification-list>
+   }
 </app-navbar>
 
 <main class="app-content" style="padding: 20px;">

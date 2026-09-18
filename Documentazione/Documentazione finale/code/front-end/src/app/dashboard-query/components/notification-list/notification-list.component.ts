@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, signal, computed, HostListener, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, HostListener, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 import { NotificationService } from '../../services/notification.service';
 import { NotificationDTO } from '../../models/query-dtos';
@@ -17,7 +18,7 @@ type ToastNotification = NotificationDTO & { typeClass?: string };
   templateUrl: './notification-list.component.html',
   styleUrl: './notification-list.component.scss'
 })
-export class NotificationListComponent implements OnInit {
+export class NotificationListComponent implements OnInit, OnDestroy {
   private readonly notificationService = inject(NotificationService);
   private readonly router = inject(Router);
   private readonly elementRef = inject(ElementRef);
@@ -37,7 +38,9 @@ export class NotificationListComponent implements OnInit {
 
   
   protected readonly activeToast = signal<ToastNotification | null>(null);
+  
   private toastTimeout: any;
+  private sseSubscription?: Subscription;
 
   // ----------------------------------------------------------------
   // Caricamento iniziale e aggiornamenti live
@@ -46,7 +49,7 @@ export class NotificationListComponent implements OnInit {
     this.loadNotifications();
 
     // Sottoscrizione al canale Live (SSE)
-    this.notificationService.listenToLiveNotifications().subscribe({
+    this.sseSubscription = this.notificationService.listenToLiveNotifications().subscribe({
       next: (newNotif: NotificationDTO) => {
         
         /*
@@ -78,6 +81,21 @@ export class NotificationListComponent implements OnInit {
       error: (err) => console.warn('Connessione Live interrotta o fallita', err)
     });
   }
+
+  // ----------------------------------------------------------------
+  // Pulizia della sottoscrizione SSE e del timeout del toast
+  // ----------------------------------------------------------------
+
+  ngOnDestroy(): void {
+    if (this.sseSubscription) {
+      this.sseSubscription.unsubscribe();
+    }
+    clearTimeout(this.toastTimeout);
+  }
+
+  // ----------------------------------------------------------------
+  // Caricamento delle notifiche e gestione degli errori
+  // ----------------------------------------------------------------
 
   private loadNotifications(): void {
     this.isLoading.set(true);

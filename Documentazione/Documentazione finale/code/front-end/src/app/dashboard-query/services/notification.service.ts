@@ -46,27 +46,27 @@ export class NotificationService {
     return new Observable<NotificationDTO>(subscriber => {
       const token = this.authService.getToken();
       if (!token) {
-        // Senza token non apriamo una connessione anonima allo stream protetto.
         subscriber.error('Nessun token disponibile');
         return;
       }
 
+      // 1. Creiamo un controller per poter interrompere la fetch
+      const controller = new AbortController();
+
       fetch(`${this.API_NOTIFICATIONS}/stream`, {
         method: 'GET',
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: controller.signal // 2. Passiamo il segnale alla fetch
       }).then(async response => {
         const reader = response.body?.getReader();
         if (!reader) return;
         const decoder = new TextDecoder();
-
-        // Un chunk può contenere più eventi: leggiamo fino alla chiusura dello stream.
+        
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-
           const textChunk = decoder.decode(value);
           const lines = textChunk.split('\n');
-
           for (const line of lines) {
             if (line.startsWith('data:')) {
               const jsonStr = line.replace('data:', '').trim();
@@ -77,7 +77,17 @@ export class NotificationService {
             }
           }
         }
-      }).catch(err => subscriber.error(err));
+      }).catch(err => {
+        // Ignoriamo l'errore se è stato causato volontariamente dal nostro AbortController
+        if (err.name !== 'AbortError') {
+          subscriber.error(err);
+        }
+      });
+
+      // 3. Funzione di cleanup: invocata quando il componente si disiscrive (es. al logout)
+      return () => {
+        controller.abort();
+      };
     });
   }
 }

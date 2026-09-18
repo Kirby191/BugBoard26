@@ -1,0 +1,62 @@
+name: Continuous Deployment to Azure VM
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Smart Deploy to Azure
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Esecuzione comandi via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USERNAME }}
+          password: ${{ secrets.AZURE_PASSWORD }}
+          script: |
+            cd "BugBoard26/Documentazione/Documentazione finale/code"
+            
+            # 1. Salva l'hash del commit attuale prima di aggiornare
+            OLD_HEAD=$(git rev-parse HEAD)
+            
+            # 2. Scarica le ultime modifiche
+            git pull origin main
+            NEW_HEAD=$(git rev-parse HEAD)
+            
+            # Se non c'è nulla di nuovo, fermati qui
+            if [ "$OLD_HEAD" = "$NEW_HEAD" ]; then
+                echo "Nessun aggiornamento trovato. Deploy saltato."
+                exit 0
+            fi
+
+            # 3. Ottieni la lista dei file modificati
+            CHANGED_FILES=$(git diff --name-only $OLD_HEAD $NEW_HEAD)
+            SERVICES_TO_BUILD=""
+
+            # 4. Mappa le cartelle modificate ai rispettivi servizi Docker
+            if echo "$CHANGED_FILES" | grep -q "back-end/core-service/"; then
+                SERVICES_TO_BUILD="$SERVICES_TO_BUILD core-service"
+            fi
+            
+            if echo "$CHANGED_FILES" | grep -q "back-end/auth-service/"; then
+                SERVICES_TO_BUILD="$SERVICES_TO_BUILD auth-service"
+            fi
+            
+            if echo "$CHANGED_FILES" | grep -q "front-end/"; then
+                SERVICES_TO_BUILD="$SERVICES_TO_BUILD front-end"
+            fi
+
+            # 5. Esegui la build selettiva
+            if echo "$CHANGED_FILES" | grep -q -E "docker-compose.yaml|database/"; then
+                echo "Modifiche all'infrastruttura rilevate. Riavvio totale..."
+                docker compose up -d --build
+            elif [ -n "$SERVICES_TO_BUILD" ]; then
+                echo "Modifiche rilevate. Ricompilazione servizi:$SERVICES_TO_BUILD"
+                docker compose up -d --build $SERVICES_TO_BUILD
+            else
+                echo "Nessuna modifica ai servizi core/auth/front-end rilevata."
+            fi
