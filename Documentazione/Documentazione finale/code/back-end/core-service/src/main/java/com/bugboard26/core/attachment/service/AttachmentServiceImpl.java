@@ -5,7 +5,6 @@ import com.bugboard26.core.attachment.model.AttachmentMetadata;
 import com.bugboard26.core.attachment.provider.StorageProvider;
 import com.bugboard26.core.attachment.repository.AttachmentMetadataRepository;
 import com.bugboard26.core.attachment.validator.FileValidator;
-import com.bugboard26.core.shared.security.AuthenticatedUserProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -82,11 +81,21 @@ public class AttachmentServiceImpl implements FileStorage, AttachmentService {
             return UUID.randomUUID().toString();
         }
 
+        // Estrae il nome del file ignorando il percorso eventualmente inviato dal client
         String cleanFileName = StringUtils.getFilename(originalFilename);
 
-        if (cleanFileName.isBlank()) {
-            return UUID.randomUUID().toString();
-        }
+        if (cleanFileName.isBlank()) return UUID.randomUUID().toString();
+
+        // Sanitizzazione esplicita: rimuove tutto ciò che non è alfanumerico, punto o trattino.
+        // Questo distrugge sul nascere eventuali sequenze di directory traversal come ".." o "/"
+        cleanFileName = cleanFileName.replaceAll("[^a-zA-Z0-9.\\-]", "_");
+
+        cleanFileName = cleanFileName.replaceAll("\\.+", "."); // Sostituisce più punti consecutivi con un singolo punto
+        cleanFileName = cleanFileName.replaceAll("-+", "-"); // Sostituisce più trattini consecutivi con un singolo trattino
+        cleanFileName = cleanFileName.replaceAll("^\\.", ""); // Rimuove il punto iniziale, se presente
+        cleanFileName = cleanFileName.replaceAll("\\.$", ""); // Rimuove il punto finale, se presente
+        cleanFileName = cleanFileName.replaceAll("^-", ""); // Rimuove il trattino iniziale, se presente
+        cleanFileName = cleanFileName.replaceAll("-$", ""); // Rimuove il trattino finale, se presente
 
         return UUID.randomUUID() + "_" + cleanFileName;
     }

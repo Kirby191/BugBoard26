@@ -1,5 +1,13 @@
 package com.bugboard26.core.service;
 
+import com.bugboard26.core.attachment.exception.StorageException;
+import com.bugboard26.core.attachment.exception.UnauthorizedFileAccessException;
+import com.bugboard26.core.attachment.provider.LocalStorageProviderImpl;
+import com.bugboard26.core.attachment.provider.StorageProvider;
+import com.bugboard26.core.attachment.repository.AttachmentMetadataRepository;
+import com.bugboard26.core.attachment.service.AttachmentServiceImpl;
+import com.bugboard26.core.attachment.validator.FileValidator;
+import com.bugboard26.core.config.AppStorageProperties;
 import com.bugboard26.core.history.model.AuditAction;
 import com.bugboard26.core.history.model.AuditRecord;
 import com.bugboard26.core.history.repository.AuditRepository;
@@ -28,18 +36,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
-
 import com.bugboard26.core.attachment.service.FileStorage;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Path;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -58,12 +70,23 @@ class UnitTests {
     @Mock private AuthenticatedUserProvider userProvider;
     @Mock private AuditRepository auditRepository;
     @Mock private EntityManager entityManager;
-
     @Mock private FileStorage fileStorage;
+
+    // Mocks aggiunti per Attachment Subsystem
+    @Mock private StorageProvider storageProvider;
+    @Mock private AttachmentMetadataRepository metadataRepository;
+    @Mock private FileValidator fileValidator;
 
     @InjectMocks private AssignBugServiceImpl assignBugService;
     @InjectMocks private IssueCommandServiceImpl issueCommandService;
     @InjectMocks private HistoryServiceImpl historyServiceImpl;
+    @InjectMocks private AttachmentServiceImpl attachmentService;
+
+    // Per testare fisicamente LocalStorageProviderImpl in isolamento tramite JUnit
+    private LocalStorageProviderImpl localStorageProvider;
+
+    @TempDir
+    Path tempUploadDir;
 
     private Issue testBug;
     private Issue testFeature;
@@ -87,6 +110,12 @@ class UnitTests {
                 .projectId(10L)
                 .reporterId(100L)
                 .build();
+
+        // Inizializza il provider locale per i test di Path Traversal
+        AppStorageProperties props = new AppStorageProperties();
+        props.setUploadDir(tempUploadDir.toString());
+        localStorageProvider = new LocalStorageProviderImpl(props);
+        localStorageProvider.init();
     }
 
     // ==========================================
@@ -118,6 +147,7 @@ class UnitTests {
         AssignBug request = new AssignBug(200L);
         doNothing().when(accessControlValidator).canManageProjects();
         when(issueRepository.findById(2L)).thenReturn(Optional.of(testFeature));
+
         doThrow(new InvalidIssueDomainException("Solo i BUG possono essere assegnati"))
                 .when(domainValidator).validateAssignable(testFeature);
 
@@ -148,7 +178,7 @@ class UnitTests {
 
     @Test
     @DisplayName("TC-05: assignBug - Fallimento per Issue Inesistente")
-     void testAssignBug_TC05() {
+    void testAssignBug_TC05() {
         AssignBug request = new AssignBug(200L);
         doNothing().when(accessControlValidator).canManageProjects();
         when(issueRepository.findById(999L)).thenReturn(Optional.empty());
@@ -157,7 +187,7 @@ class UnitTests {
     }
 
     // ==========================================
-    // METODO 2: updateIssue (TC-06 -> TC-09)
+    // METODO 2: updateIssue (TC-06 -> TC-09b)
     // ==========================================
 
     @Test
@@ -169,7 +199,6 @@ class UnitTests {
         when(issueRepository.save(any(Issue.class))).thenReturn(testBug);
         when(userProvider.getCurrentUserId()).thenReturn(100L);
 
-        // AGGIUNTO 'null' come terzo parametro
         issueCommandService.updateIssue(1L, request, null);
 
         assertEquals(IssueStatus.IN_PROGRESS, testBug.getStatus());
@@ -185,7 +214,6 @@ class UnitTests {
         when(issueRepository.save(any(Issue.class))).thenReturn(testBug);
         when(userProvider.getCurrentUserId()).thenReturn(100L);
 
-        // AGGIUNTO 'null' come terzo parametro
         issueCommandService.updateIssue(1L, request, null);
 
         assertEquals("Nuovo Titolo", testBug.getTitle());
@@ -199,7 +227,6 @@ class UnitTests {
         when(issueRepository.findById(1L)).thenReturn(Optional.of(testBug));
         doThrow(new UnauthorizedActionException("Accesso Negato")).when(accessControlValidator).canModifyIssue(testBug);
 
-        // AGGIUNTO 'null' come terzo parametro
         assertThrows(UnauthorizedActionException.class, () -> issueCommandService.updateIssue(1L, request, null));
         verify(issueRepository, never()).save(any());
     }
@@ -210,7 +237,6 @@ class UnitTests {
         UpdateIssue request = new UpdateIssue("Titolo", "Desc", IssueStatus.IN_PROGRESS, IssuePriority.HIGH);
         when(issueRepository.findById(999L)).thenReturn(Optional.empty());
 
-        // AGGIUNTO 'null' come terzo parametro
         assertThrows(IssueNotFoundException.class, () -> issueCommandService.updateIssue(999L, request, null));
     }
 
@@ -222,22 +248,14 @@ class UnitTests {
 
         when(issueRepository.findById(1L)).thenReturn(Optional.of(testBug));
         doNothing().when(accessControlValidator).canModifyIssue(testBug);
-        
-        // Simuliamo che il file NON sia vuoto per far scattare la logica di salvataggio
         when(mockFile.isEmpty()).thenReturn(false);
-        // Simuliamo la risposta dell'Attachment Subsystem
         when(fileStorage.storeFile(1L, mockFile)).thenReturn("/api/attachments/new_image.png");
-        
         when(issueRepository.save(any(Issue.class))).thenReturn(testBug);
         when(userProvider.getCurrentUserId()).thenReturn(100L);
 
-        // Invochiamo il service passando il file mockato
         issueCommandService.updateIssue(1L, request, mockFile);
 
-        // Verifichiamo che l'URL dell'allegato sia stato aggiornato nell'entità
         assertEquals("/api/attachments/new_image.png", testBug.getAttachmentUrl());
-        
-        // Verifichiamo che il FileStorage sia stato interpellato esattamente una volta
         verify(fileStorage, times(1)).storeFile(1L, mockFile);
         verify(historyService, times(1)).recordEvent(eq(1L), eq(100L), eq(AuditAction.UPDATED), anyString());
     }
@@ -255,5 +273,73 @@ class UnitTests {
         historyServiceImpl.recordEvent(1L, 100L, AuditAction.CREATED, "Dettaglio");
 
         verify(auditRepository, times(1)).save(any(AuditRecord.class));
+    }
+
+    // ==========================================
+    // METODO 4: Attachment (TC-11 -> TC-14)
+    // Utilizzati per debugging aggiuntivo al di fuori dei requisiti
+    // ==========================================
+
+    @Test
+    @DisplayName("TC-11: storeFile - Sanitizza dinamicamente un nome file malevolo (S2083 Fix)")
+    void testStoreFile_SanitizesMaliciousOriginalFilename() {
+        // Setup: Il client invia un payload con un nome file contenente sequenze di traversal
+        String maliciousOriginalName = "../../../etc/passwd\u0000.png";
+        MockMultipartFile mockFile = new MockMultipartFile(
+                "file", maliciousOriginalName, "image/png", "dummy".getBytes()
+        );
+
+        // Simuliamo l'URL di ritorno dal provider
+        when(storageProvider.store(any(), anyString())).thenReturn("/api/attachments/safe.png");
+        doNothing().when(fileValidator).validate(mockFile);
+
+        // Esecuzione: Chiamiamo il metodo CORRETTO dell'architettura passando un issueId fittizio (1L)[cite: 2]
+        attachmentService.storeFile(1L, mockFile);
+
+        // Asserzione: Catturiamo l'argomento (il nome univoco) passato al Provider per certificarne la pulizia
+        ArgumentCaptor<String> fileNameCaptor = ArgumentCaptor.forClass(String.class);
+        verify(storageProvider, times(1)).store(eq(mockFile), fileNameCaptor.capture());
+
+        String capturedUniqueName = fileNameCaptor.getValue();
+
+        // La regex configurata per SonarQube deve aver estirpato slash e dot-dot
+        assertFalse(capturedUniqueName.contains("/"), "Il nome sanitizzato non deve contenere slash");
+        assertFalse(capturedUniqueName.contains("\\"), "Il nome sanitizzato non deve contenere backslash");
+        assertTrue(capturedUniqueName.contains("_"), "Deve contenere un underscore come separatore");
+
+        // Verifica che anche l'entità dei metadati venga salvata
+        verify(metadataRepository, times(1)).save(any());
+    }
+
+    @Test
+    @DisplayName("TC-12: store - Blocca fisicamente i tentativi di Directory Traversal con '..'")
+    void testStore_BlocksPathTraversal_DotDot() {
+        MultipartFile mockFile = new MockMultipartFile("file", "test.png", "image/png", "dummy".getBytes());
+        String maliciousFileName = "malicious_../test.png";
+
+        StorageException exception = assertThrows(StorageException.class, () -> {
+            localStorageProvider.store(mockFile, maliciousFileName);
+        });
+        assertTrue(exception.getMessage().contains("Path Traversal"));
+    }
+
+    @Test
+    @DisplayName("TC-13: store - Blocca fisicamente i tentativi di Directory Traversal con '/'")
+    void testStore_BlocksPathTraversal_Slash() {
+        MultipartFile mockFile = new MockMultipartFile("file", "test.png", "image/png", "dummy".getBytes());
+        String maliciousFileName = "folder/test.png";
+
+        assertThrows(StorageException.class, () -> localStorageProvider.store(mockFile, maliciousFileName));
+    }
+
+    @Test
+    @DisplayName("TC-14: retrieve - Blocca fisicamente la lettura al di fuori della root autorizzata")
+    void testRetrieve_BlocksPathTraversal() {
+        String maliciousUrl = "/api/attachments/../../../etc/passwd";
+
+        UnauthorizedFileAccessException exception = assertThrows(UnauthorizedFileAccessException.class, () -> {
+            localStorageProvider.retrieve(maliciousUrl);
+        });
+        assertTrue(exception.getMessage().contains("traversal") || exception.getMessage().contains("autorizzato"));
     }
 }
