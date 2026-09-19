@@ -11,7 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      # STEP 1: Controlla se la VM è accesa alla porta 22
+      - name: Check if Azure VM is online
+        id: check_vm
+        run: |
+          if nc -z -w 5 ${{ secrets.AZURE_HOST }} 22 2>/dev/null; then
+            echo "is_online=true" >> $GITHUB_OUTPUT
+            echo "La Macchina Virtuale Azure è ACCESA. Procedo con il deploy."
+          else
+            echo "is_online=false" >> $GITHUB_OUTPUT
+            echo "La Macchina Virtuale Azure è SPENTA. Deploy saltato pacificamente per risparmiare computazione."
+          fi
+
+      # STEP 2: Esegue il deploy via SSH SOLO se lo step precedente ha restituito 'true'
       - name: Esecuzione comandi via SSH
+        if: steps.check_vm.outputs.is_online == 'true'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.AZURE_HOST }}
