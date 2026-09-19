@@ -16,7 +16,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/projects")
-/** Espone le letture dei progetti senza modificarne lo stato. */
+/* Espone le letture dei progetti senza modificarne lo stato. */
 public class ProjectQueryController {
 
     private final ProjectQueryService projectQueryService;

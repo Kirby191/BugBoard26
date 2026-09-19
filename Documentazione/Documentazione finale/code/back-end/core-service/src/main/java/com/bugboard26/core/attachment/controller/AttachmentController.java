@@ -29,7 +29,6 @@ public class AttachmentController {
 
     /**
      * Recupera un allegato tramite il nome completo del file.
-     *
     * Il suffisso {@code :.+} nella rotta impedisce a Spring
      * di troncare il valore della variabile quando il nome contiene un punto.
      *

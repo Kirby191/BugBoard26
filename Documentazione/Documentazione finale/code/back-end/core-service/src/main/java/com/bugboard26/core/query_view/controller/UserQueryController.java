@@ -15,7 +15,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/users")
-/** Espone le informazioni utente necessarie alle viste del core service. */
+/* Espone le informazioni utente necessarie alle viste del core service. */
 public class UserQueryController {
 
     private final UserQueryService userQueryService;

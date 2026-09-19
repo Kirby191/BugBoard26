@@ -81,14 +81,12 @@ public class AssignBugServiceImpl implements AssignBugService {
 
         historyService.recordEvent(savedIssue.getId(), currentAdminId, AuditAction.ASSIGNED, "L'amministratore ha rimosso l'assegnazione del task.");
 
-        if (previousAssigneeId != null) {
             eventPublisher.publishEvent(new BugUnassignedEvent(
                     savedIssue.getId(),
                     previousAssigneeId,
                     LocalDateTime.now(ZoneId.systemDefault())
             ));
-        }
-        return buildResponse(savedIssue);
+            return buildResponse(savedIssue);
     }
 
         if (!userRepository.existsById(newAssigneeId)) {

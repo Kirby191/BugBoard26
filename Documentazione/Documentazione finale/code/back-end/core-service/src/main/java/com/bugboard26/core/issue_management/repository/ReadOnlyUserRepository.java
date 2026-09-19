@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  * L'integrità dei dati è garantita dall'annotazione @Immutable presente nell'entità UserReference.
  */
 @Repository
-/** Repository in sola lettura usato per verificare gli assegnatari. */
+/* Repository in sola lettura usato per verificare gli assegnatari. */
 public interface ReadOnlyUserRepository extends JpaRepository<UserReference, Long> {
 
     // Non sono necessarie custom query.

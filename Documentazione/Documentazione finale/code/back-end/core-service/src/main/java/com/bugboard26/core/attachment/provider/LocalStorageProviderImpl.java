@@ -102,7 +102,6 @@ public class LocalStorageProviderImpl implements StorageProvider {
             throw new UnauthorizedFileAccessException("Accesso al file non autorizzato");
         }
 
-        Resource resource = new UrlResource(file.toUri());
-        return resource;
+        return new UrlResource(file.toUri());
     }
 }

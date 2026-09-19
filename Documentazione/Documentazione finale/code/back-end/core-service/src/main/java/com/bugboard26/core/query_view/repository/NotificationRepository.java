@@ -14,7 +14,7 @@ import java.util.List;
  * per consentire la creazione locale e l'aggiornamento dello stato delle notifiche.
  */
 @Repository
-/** Repository delle notifiche persistite per gli utenti. */
+/* Repository delle notifiche persistite per gli utenti. */
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     /**

@@ -17,7 +17,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/notifications")
-/** Espone le notifiche dell'utente autenticato. */
+/* Espone le notifiche dell'utente autenticato. */
 public class NotificationController {
 
     private final NotificationService notificationService;

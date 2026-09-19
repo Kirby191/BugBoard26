@@ -9,7 +9,7 @@ import java.util.List;
  * Repository di sola lettura per i progetti.
  */
 @Repository
-/** Repository CQRS in sola lettura per i progetti. */
+/* Repository CQRS in sola lettura per i progetti. */
 public interface ProjectReadRepository extends ReadOnlyRepository<Project, Long> {
 
     /**

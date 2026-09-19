@@ -15,7 +15,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/issues")
-/** Espone la cronologia degli eventi associati alle issue. */
 public class HistoryController {
 
     private final HistoryService historyService;

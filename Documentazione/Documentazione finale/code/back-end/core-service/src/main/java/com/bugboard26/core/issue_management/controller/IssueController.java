@@ -36,7 +36,7 @@ public class IssueController {
      * Mappato su POST /api/issues come da specifiche
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    /**
+    /*
      * Riceve una segnalazione in formato multipart e delega la creazione al command service.
      *
      * @param request dati validati della segnalazione
@@ -56,7 +56,7 @@ public class IssueController {
      * Mappato su PUT /api/issues/{id}
      */
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    /**
+    /*
      * Aggiorna i dati di una segnalazione e il suo allegato opzionale.
      *
      * @param id identificativo della segnalazione
@@ -78,7 +78,7 @@ public class IssueController {
      * Mappato su PUT /api/issues/{id}/assign come da specifiche
      */
     @PutMapping("/{id}/assign")
-    /**
+    /*
      * Cambia l'assegnatario di un bug e attiva gli effetti collaterali di audit e notifica.
      *
      * @param id identificativo del bug
@@ -97,7 +97,7 @@ public class IssueController {
      * Modifica o rimuove la data di scadenza di una segnalazione.
      */
     @PutMapping("/{id}/due-date")
-    /**
+    /*
      * Imposta la scadenza; l'assenza del parametro la rimuove.
      *
      * @param id identificativo della segnalazione
